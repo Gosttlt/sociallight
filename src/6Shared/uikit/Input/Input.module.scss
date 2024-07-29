@@ -1,0 +1,21 @@
+.inputWrapper {
+  border: 1px solid gray;
+  border-radius: 8px;
+  padding: 8px 16px;
+
+  &:focus-visible {
+    box-shadow: var(--box-shadow-atom);
+    outline: 0;
+    border: 1px solid rgba(255, 0, 0, 0);
+  }
+}
+
+.valid {
+  box-shadow: 0 0 0 1.4px var(--color-success);
+  border: 1px solid rgba(255, 0, 0, 0);
+}
+
+.invalid {
+  box-shadow: 0 0 0 1.4px var(--color-error);
+  border: 1px solid rgba(255, 0, 0, 0);
+}

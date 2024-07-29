@@ -1,0 +1,33 @@
+.tasksWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 399px;
+}
+
+.headWrapper {
+  height: 40px;
+  box-shadow: var(--box-shadow-layout);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  position: relative;
+  border-radius: 8px;
+  user-select: none;
+
+  &:hover {
+    cursor: pointer;
+    color: var(--color-hover-black);
+  }
+  &:active {
+    box-shadow: none;
+  }
+}
+.filtersBlock {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+}

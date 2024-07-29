@@ -1,0 +1,26 @@
+.sidebarWrapper {
+  width: 222px;
+  box-shadow: 1px 1px 0px 0px #ebebeb;
+  padding: 16px 0;
+  overflow: hidden;
+}
+.sideBarItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  transition: 0.3s;
+  width: 100%;
+  &:hover {
+    cursor: pointer;
+    background-color: var(--color-hover-blue);
+  }
+}
+.text {
+  font-size: 20px;
+}
+
+.taskSvg,
+.calendarSvg {
+  fill: var(--color-blue);
+}

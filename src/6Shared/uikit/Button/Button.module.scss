@@ -1,0 +1,26 @@
+.buttonWrapper {
+  background: var(--color-white-gray);
+  color: var(--color-black);
+  border-radius: 8px;
+  padding: 8px 16px;
+  box-shadow: 4px 4px 4px 0px #c1c1c1;
+  border: none;
+  transition: 0.3s;
+
+  &:focus-visible {
+    box-shadow: var(--box-shadow-atom);
+    outline: 0;
+  }
+}
+
+.buttonWrapper:hover {
+  cursor: pointer;
+  opacity: 0.9;
+  background: var(--color-gray);
+  color: var(--color-white);
+}
+
+.buttonWrapper:active {
+  cursor: pointer;
+  box-shadow: none;
+}

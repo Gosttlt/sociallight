@@ -1,0 +1,16 @@
+.layoutWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.middle {
+  display: flex;
+  flex-grow: 1;
+  overflow: auto;
+}
+.content {
+  width: 100%;
+  overflow: auto;
+  padding: 20px;
+}
