@@ -1,9 +1,10 @@
-import type { DetailedReactHTMLElement, FC, ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 export type CollapseComponentType = FC<CollapseProps>;
 
 export type CollapseProps = {
   children: string | ReactNode;
   className?: string;
-  toggleBtn: any;
+  isOpen: boolean;
+  isBlock: boolean;
 };

@@ -1,0 +1,14 @@
+.inputTask {
+  margin: 0 12px;
+  border: none;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+  background: none;
+
+  &:focus-visible {
+    box-shadow: none;
+    outline: 0;
+    border: none;
+  }
+}

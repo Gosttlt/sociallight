@@ -1,0 +1,47 @@
+.cardWrapper {
+  box-shadow: var(--box-shadow-layout);
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-white-gray);
+  border-left: 1px solid var(--color-white-gray);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.shortTaskWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 8px;
+}
+
+.settingButtons {
+  display: flex;
+  align-items: center;
+}
+
+.settingLevelWrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.settingWrapper {
+  padding: 8px 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.create {
+  animation-duration: 5s;
+  animation-name: slidein;
+}
+@keyframes slidein {
+  from {
+    background: var(--color-light-green);
+  }
+
+  to {
+    background: white;
+  }
+}

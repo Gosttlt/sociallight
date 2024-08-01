@@ -1,0 +1,9 @@
+.closeSvg {
+  fill: var(--color-black);
+  transition: 0.3s;
+
+  &:hover {
+    fill: var(--color-hover-black);
+    cursor: pointer;
+  }
+}

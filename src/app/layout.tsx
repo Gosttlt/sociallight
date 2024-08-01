@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "../1Config/Styles/index.scss";
 
-import { ApolloWrapper } from "@/shared/api/gql/ApolloWrapper";
+import { ApolloWrapper } from "@/6Shared/api/gql/ApolloWrapper";
 import StoreProvider from "@/1Config/Providers/Redux/StoreProvider";
 
 const inter = Inter({ subsets: ["latin"] });

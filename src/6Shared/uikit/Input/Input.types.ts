@@ -1,6 +1,6 @@
-import type { ChangeEvent, FC, InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes } from "react";
 
-export type InputComponentType = FC<InputProps & InptutProp>;
+export type InputComponentType = InputProps & InptutProp;
 
 export type InputProps = {
   className?: string;
