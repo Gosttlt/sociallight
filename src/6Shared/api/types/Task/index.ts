@@ -1,11 +1,12 @@
 export type TaskType = {
-  createdAt: string;
-  description: string;
+  createdAt?: string;
+  description?: string;
   id: string;
-  isCompleted: boolean;
+  isCompleted?: boolean;
   name: string;
-  priority: PriorityTaskEnum;
-  updatedAt: string;
+  priority?: PriorityTaskEnum;
+  updatedAt?: string;
+  columnId: string;
 };
 
 export enum PriorityTaskEnum {

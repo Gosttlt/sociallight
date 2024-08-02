@@ -7,7 +7,7 @@ import { ChangeEvent, useState } from "react";
 import useApi from "../api/mutation";
 
 const CreateTaskInput: CreateTaskInputComponentType = (props) => {
-  const { className = "", onChangeName } = props;
+  const { className = "", onChangeName, columnId } = props;
 
   const [value, setValue] = useState("");
   const [isFocuse, setFocuse] = useState(false);
@@ -17,7 +17,7 @@ const CreateTaskInput: CreateTaskInputComponentType = (props) => {
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
 
-    createTask({ variables: { name: e.target.value } });
+    createTask({ variables: { name: e.target.value, columnId: columnId } });
   };
 
   return (

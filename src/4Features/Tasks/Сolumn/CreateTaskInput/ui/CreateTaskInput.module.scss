@@ -1,11 +1,11 @@
 .createTaskInputWrapper {
   border-radius: 4px;
   text-align: center;
-  border: 1px solid var(--color-white-gray);
+  border: 1px solid var(--color-white-gray) !important;
   box-shadow: var(--box-shadow-layout);
   &:focus-visible {
-    box-shadow: var(--box-shadow-layout);
-    border: 1px solid var(--color-white-gray);
+    box-shadow: var(--box-shadow-layout) !important;
+    border: 1px solid var(--color-white-gray) !important;
   }
   &::placeholder {
     font-size: 14px;

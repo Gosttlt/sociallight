@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK, GET_TASKS } from "./gql";
-import { TaskType } from "@/6Shared/types/Task";
+import { TaskType } from "@/6Shared/api/types/Task";
 
 const useApi = (id: string) => {
   const [deleteTask] = useMutation<{ deleteTask: TaskType }>(DELETE_TASK, {

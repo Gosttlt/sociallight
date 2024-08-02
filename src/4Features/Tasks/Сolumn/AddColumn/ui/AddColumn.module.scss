@@ -1,0 +1,13 @@
+.addSvg {
+  box-shadow: var(--box-shadow-layout);
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  fill: var(--color-blue);
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:active {
+    box-shadow: 1px 1px 1px 0px #ebebeb;
+  }
+}

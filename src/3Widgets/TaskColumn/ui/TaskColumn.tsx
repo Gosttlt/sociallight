@@ -4,29 +4,23 @@ import clsx from "clsx";
 
 import s from "./TaskColumn.module.scss";
 import type { TaskColumnComponentType } from "./TaskColumn.types";
-import Sort from "@/4Features/Tasks/Sort";
-import Filter from "@/4Features/Tasks/Filter";
+
 import TaskCard from "@/5Entities/Task/ui/TaskCard";
-import LevelSelector from "@/4Features/Tasks/LevelSelector";
-import EditTaskBtn from "@/4Features/Tasks/EditTaskBtn";
-import RemoveCard from "@/4Features/Tasks/RemoveCard";
-import InputTask from "@/4Features/Tasks/InputTask";
-import CreateTaskInput from "@/4Features/Tasks/CreateTaskInput";
+
 import { gql, useQuery } from "@apollo/client";
-import { TaskType } from "@/6Shared/types/Task";
+import { TaskType } from "@/6Shared/api/types/Task";
 import { useState } from "react";
+import Sort from "@/4Features/Tasks/Сolumn/Sort";
+import Filter from "@/4Features/Tasks/Сolumn/Filter";
+import RemoveCard from "@/4Features/Tasks/Card/RemoveCard";
+import CreateTaskInput from "@/4Features/Tasks/Сolumn/CreateTaskInput";
+import LevelSelector from "@/4Features/Tasks/Card/LevelSelector";
+import EditTaskBtn from "@/4Features/Tasks/Card/EditTaskBtn";
+import InputTask from "@/4Features/Tasks/Card/InputTask";
 
-const GET_TASKS = gql`
-  query GetTask {
-    tasks {
-      id
-      name
-    }
-  }
-`;
+const TaskColumn: TaskColumnComponentType = (props) => {
+  const { data } = props;
 
-const TaskColumn: TaskColumnComponentType = () => {
-  const { data, loading } = useQuery<{ tasks: TaskType[] }>(GET_TASKS);
   const [newTaskId, setNewTaskId] = useState<null | string>(null);
 
   const onChangeName = (id: string) => {
@@ -41,9 +35,9 @@ const TaskColumn: TaskColumnComponentType = () => {
           <Filter />
           <RemoveCard id={"123"} />
         </div>
-        <div className={s.headText}>Сделать</div>
+        <div className={s.headText}>{data.name}</div>
       </div>
-      <CreateTaskInput onChangeName={onChangeName} />
+      <CreateTaskInput columnId={data.id} onChangeName={onChangeName} />
       {data?.tasks &&
         data?.tasks.map((task) => (
           <TaskCard
