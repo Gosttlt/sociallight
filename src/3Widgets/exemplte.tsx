@@ -73,12 +73,21 @@
 //       },
 //     }
 //   );
-//   const [updateTask] = useMutation<{ createTask: TaskType }>(UPDATE_TASK, {
-//     refetchQueries: [{ query: GET_TASKS }],
-//   });
+
 //   const [deleteTask] = useMutation<{ tasksgql: TaskType }>(DELETE_TASK, {
 //     refetchQueries: [{ query: GET_TASKS }],
 //   });
+// cache.updateQuery({ query: GET_TASKS_COLUMNS }, (data) => ({
+//   tasksColumns: data?.tasksColumns.map((column: any) => {
+//     if (column.id === columnId) {
+//       return {
+//         ...column,
+//         tasks: column.tasks.filter((task: any) => task.id !== taskId),
+//       };
+//     }
+//     return column;
+//   }),
+// }));
 
 //   return (
 //     <div className={clsx(s.tasksWrapper)}>

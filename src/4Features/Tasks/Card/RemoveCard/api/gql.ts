@@ -1,17 +1,17 @@
 import { gql } from "@apollo/client";
 
-export const GET_TASKS = gql`
-  query GetTask {
-    tasks {
+export const DELETE_TASK = gql`
+  mutation DeleteTask($id: String!) {
+    deleteTask(id: $id) {
       id
-      name
+      columnId
     }
   }
 `;
 
-export const DELETE_TASK = gql`
-  mutation DeleteTask($id: String!) {
-    deleteTask(id: $id) {
+export const REMOVE_TASK_COLUMN = gql`
+  mutation RemoveTaskColumn($id: String!) {
+    removeTaskColumn(id: $id) {
       id
     }
   }

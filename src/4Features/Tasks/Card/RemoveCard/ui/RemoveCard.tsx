@@ -6,8 +6,8 @@ import CloseSvg from "@/6Shared/assets/svg/Close.svg";
 import useApi from "../api/mutation";
 
 const RemoveCard: RemoveCardComponentType = (props) => {
-  const { id } = props;
-  const deleteTask = useApi(id);
+  const { id, variant } = props;
+  const deleteTask = useApi(variant);
 
   return (
     <CloseSvg

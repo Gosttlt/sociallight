@@ -7,10 +7,8 @@ import TaskColumn from "@/3Widgets/TaskColumn";
 import AddColumn from "@/4Features/Tasks/Сolumn/AddColumn";
 import { useQuery } from "@apollo/client";
 import { GET_TASKS_COLUMNS } from "@/6Shared/api/gql/requests/Task";
-import {
-  TasksCulumnType,
-  TasksCulumnTypeResponse,
-} from "@/6Shared/api/types/TaskColumn";
+import { TasksCulumnTypeResponse } from "@/6Shared/api/types/TaskColumn";
+import CreateTaskInput from "@/4Features/Tasks/Сolumn/CreateTaskInput";
 
 export default function Home() {
   const { data } = useQuery<TasksCulumnTypeResponse>(GET_TASKS_COLUMNS);

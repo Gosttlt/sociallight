@@ -14,23 +14,23 @@ const useApi = (
     createTask: { id: string; name: string; columnId: string };
   }>(CREATE_TASK, {
     update(cache, { data }) {
-      const curIdColumn = data?.createTask.columnId;
-      const cacheState = cache.readQuery<TasksCulumnTypeResponse>({
+      const columns = cache.readQuery<TasksCulumnTypeResponse>({
         query: GET_TASKS_COLUMNS,
       });
-      console.log(1, cacheState);
 
-      const curColomn = cacheState?.tasksColumns.find(
-        (column) => column.id === curIdColumn
-      );
-
-      console.log(2, cacheState);
       cache.writeQuery({
         query: GET_TASKS_COLUMNS,
         data: {
-          tasksColumns: [...cacheState?.tasksColumns!],
+          tasksColumns: columns?.tasksColumns.map((el) => {
+            if (el.id === data?.createTask.columnId) {
+              return { ...el, tasks: [data?.createTask!, ...el.tasks] };
+            }
+
+            return el;
+          }),
         },
       });
+
       cb(data?.createTask.id!);
       setValue("");
     },
