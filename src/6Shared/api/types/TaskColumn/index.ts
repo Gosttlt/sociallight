@@ -8,6 +8,6 @@ export type TasksCulumnType = {
   tasks: TaskType[];
 };
 
-export type TasksCulumnTypeResponse = {
+export type TasksCulumnResponseType = {
   tasksColumns: TasksCulumnType[];
 };

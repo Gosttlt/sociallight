@@ -1,11 +1,11 @@
-import { TaskVariantType } from "@/4Features/Tasks/Card/RemoveCard/ui/RemoveCard.types";
+import { TaskVariantType } from "@/6Shared/api/types/Task";
 import type { FC } from "react";
 
 export type CreateTaskInputComponentType = FC<CreateTaskInputProps>;
 
 export type CreateTaskInputProps = {
   className?: string;
-  columnId: string;
-  onChangeName: (id: string) => void;
+  parentId?: string | null;
+  onChangeFocus: (id: string) => void;
   variant: TaskVariantType;
 };

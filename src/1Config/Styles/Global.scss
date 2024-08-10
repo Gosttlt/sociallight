@@ -18,3 +18,23 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+::-webkit-scrollbar {
+  width: 9px;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-hover-black);
+  -webkit-border-radius: 4px;
+}
+
+::-webkit-scrollbar-corner {
+  background: red;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-white-gray);
+}

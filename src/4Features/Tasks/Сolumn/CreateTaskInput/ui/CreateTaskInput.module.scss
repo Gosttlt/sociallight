@@ -10,4 +10,23 @@
   &::placeholder {
     font-size: 14px;
   }
+
+  &.column {
+    height: 40px;
+    width: 404px;
+    font-size: 24px;
+
+    &::placeholder {
+      font-size: 16px;
+    }
+  }
+
+  &.category {
+    height: 32px;
+    width: 192px;
+    border-radius: 2px;
+  }
+  &::placeholder {
+    font-size: 12px;
+  }
 }

@@ -1,12 +1,11 @@
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK, REMOVE_TASK_COLUMN } from "./gql";
-import { TaskType } from "@/6Shared/api/types/Task";
+import { TaskType, TaskVariantType } from "@/6Shared/api/types/Task";
 import { GET_TASKS_COLUMNS } from "@/6Shared/api/gql/requests/Task";
 import {
   TasksCulumnType,
-  TasksCulumnTypeResponse,
+  TasksCulumnResponseType,
 } from "@/6Shared/api/types/TaskColumn";
-import { TaskVariantType } from "../ui/RemoveCard.types";
 
 const useApi = (variant: TaskVariantType) => {
   if (variant === "column") {
@@ -36,7 +35,7 @@ const useApi = (variant: TaskVariantType) => {
       const columnId = data.data?.deleteTask.columnId;
 
       const curColumn = cache
-        .readQuery<TasksCulumnTypeResponse>({
+        .readQuery<TasksCulumnResponseType>({
           query: GET_TASKS_COLUMNS,
         })
         ?.tasksColumns.find((column) => column.id === columnId);
@@ -45,7 +44,6 @@ const useApi = (variant: TaskVariantType) => {
         id: cache.identify(curColumn!),
         fields: {
           tasks(curColumnTasks) {
-            console.log(curColumn);
             return curColumnTasks.filter(
               (task: { __ref: string }) => task.__ref !== `Task:${taskId}`
             );

@@ -12,3 +12,12 @@ export const GET_TASKS_COLUMNS = gql`
     }
   }
 `;
+
+export const GET_TASKS_CATEGORIES = gql`
+  query GetCategories {
+    taskCategories {
+      name
+      id
+    }
+  }
+`;

@@ -14,3 +14,5 @@ export enum PriorityTaskEnum {
   LOW = "low",
   MEDIUM = "medium",
 }
+
+export type TaskVariantType = "task" | "column" | "category";

@@ -17,12 +17,7 @@ import EditTaskBtn from "@/4Features/Tasks/Card/EditTaskBtn";
 import InputTask from "@/4Features/Tasks/Card/InputTask";
 
 const TaskColumn: TaskColumnComponentType = (props) => {
-  const { data } = props;
-  const [newTaskId, setNewTaskId] = useState<null | string>(null);
-
-  const onChangeName = (id: string) => {
-    setNewTaskId(id);
-  };
+  const { data, focusId, onChangeFocus, activeId } = props;
 
   return (
     <div className={clsx(s.tasksWrapper)}>
@@ -36,19 +31,19 @@ const TaskColumn: TaskColumnComponentType = (props) => {
       </div>
       <CreateTaskInput
         variant="task"
-        columnId={data.id}
-        onChangeName={onChangeName}
+        parentId={data.id}
+        onChangeFocus={onChangeFocus}
       />
       {data?.tasks
         ? data?.tasks.map((task) => (
             <TaskCard
-              isCreate={task.id === newTaskId}
+              isCreate={task.id === focusId}
               key={task.id}
               levelSelectors={[{ Selector: LevelSelector, text: "Приоритет" }]}
               EditTaskBtn={<EditTaskBtn />}
             >
               <InputTask
-                isFocus={task.id === newTaskId}
+                isFocus={task.id === focusId}
                 value={task.name}
                 id={task.id}
               />
