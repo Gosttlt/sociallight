@@ -6,4 +6,5 @@ export type RemoveCardComponentType = FC<RemoveCardPropsType>;
 export type RemoveCardPropsType = {
   id: string;
   variant: TaskVariantType;
+  className?: string;
 };

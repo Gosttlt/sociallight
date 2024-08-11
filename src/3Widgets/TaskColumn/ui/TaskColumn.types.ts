@@ -4,7 +4,4 @@ import type { FC } from "react";
 export type TaskColumnComponentType = FC<TaskColumnType>;
 export type TaskColumnType = {
   data: TasksCulumnType;
-  activeId: string | null;
-  focusId: string | null;
-  onChangeFocus: (id: string) => void;
 };

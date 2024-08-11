@@ -8,3 +8,12 @@ export const UPDATE_TASK = gql`
     }
   }
 `;
+
+export const UPDATE_TASK_COLUMN = gql`
+  mutation UreateTaskColumn($name: String!, $id: String!) {
+    updateTaskColumn(updateTaskColumnInput: { name: $name, id: $id }) {
+      id
+      name
+    }
+  }
+`;

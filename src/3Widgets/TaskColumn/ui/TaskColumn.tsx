@@ -7,7 +7,7 @@ import type { TaskColumnComponentType } from "./TaskColumn.types";
 
 import TaskCard from "@/5Entities/Task/ui/TaskCard";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Sort from "@/4Features/Tasks/Сolumn/Sort";
 import Filter from "@/4Features/Tasks/Сolumn/Filter";
 import RemoveCard from "@/4Features/Tasks/Card/RemoveCard";
@@ -15,9 +15,12 @@ import CreateTaskInput from "@/4Features/Tasks/Сolumn/CreateTaskInput";
 import LevelSelector from "@/4Features/Tasks/Card/LevelSelector";
 import EditTaskBtn from "@/4Features/Tasks/Card/EditTaskBtn";
 import InputTask from "@/4Features/Tasks/Card/InputTask";
+import { TaskContext } from "@/1Config/Providers/Task";
 
 const TaskColumn: TaskColumnComponentType = (props) => {
-  const { data, focusId, onChangeFocus, activeId } = props;
+  const { data } = props;
+
+  const { focusId } = useContext(TaskContext);
 
   return (
     <div className={clsx(s.tasksWrapper)}>
@@ -27,13 +30,15 @@ const TaskColumn: TaskColumnComponentType = (props) => {
           <Filter />
           <RemoveCard variant="column" id={data.id} />
         </div>
-        <div className={s.headText}>{data.name}</div>
+        <InputTask
+          variant="column"
+          value={data.name}
+          isFocus={data.id === focusId}
+          id={data.id}
+        />
+        {/* <div className={s.headText}>{data.name}</div> */}
       </div>
-      <CreateTaskInput
-        variant="task"
-        parentId={data.id}
-        onChangeFocus={onChangeFocus}
-      />
+      <CreateTaskInput variant="task" parentId={data.id} />
       {data?.tasks
         ? data?.tasks.map((task) => (
             <TaskCard
@@ -46,6 +51,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
                 isFocus={task.id === focusId}
                 value={task.name}
                 id={task.id}
+                variant="task"
               />
               <RemoveCard variant="task" id={task.id} />
             </TaskCard>

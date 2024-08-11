@@ -1,8 +1,8 @@
 import type { FC, ReactNode } from "react";
 
-export type AddColumnComponentType = FC<AddColumnProps>;
+export type DndComponentType = FC<DndProps>;
 
-export type AddColumnProps = {
+export type DndProps = {
   children?: ReactNode;
   className?: string;
 };

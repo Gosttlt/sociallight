@@ -21,3 +21,21 @@ export const GET_TASKS_CATEGORIES = gql`
     }
   }
 `;
+export const GET_TASK_CATEGORY = gql`
+  query GetCategory($id: String!) {
+    taskCategory(id: $id) {
+      name
+      id
+      columns {
+        id
+        name
+        categoryId
+        tasks {
+          id
+          columnId
+          name
+        }
+      }
+    }
+  }
+`;

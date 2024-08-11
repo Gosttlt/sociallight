@@ -16,3 +16,11 @@ export const REMOVE_TASK_COLUMN = gql`
     }
   }
 `;
+
+export const REMOVE_TASK_CATEGORY = gql`
+  mutation RemoveTaskCategory($id: String!) {
+    removeTaskCategory(id: $id) {
+      id
+    }
+  }
+`;

@@ -4,17 +4,11 @@ import { useMutation } from "@apollo/client";
 import useDebaunce from "@/6Shared/hooks/uiHooks/useDebaunce";
 import { Dispatch, SetStateAction } from "react";
 import {
+  GET_TASK_CATEGORY,
   GET_TASKS_CATEGORIES,
-  GET_TASKS_COLUMNS,
 } from "@/6Shared/api/gql/requests/Task";
-import { TasksCulumnType } from "@/6Shared/api/types/TaskColumn";
 
 import createInputConfig from "../config";
-import { GET_TASK_CATEGORY } from "@/4Features/Tasks/Category/api/gql";
-import {
-  TasksCategoriesResponseType,
-  TasksCategoryResponseType,
-} from "@/6Shared/api/types/TaskCategory";
 
 type OptionsType = {
   cb: (id: string) => void;
@@ -42,7 +36,6 @@ const useApi = ({ cb, setValue, variant, parentId, activeId }: OptionsType) => {
         cache.updateQuery(
           { query: GET_TASK_CATEGORY, variables: { id: activeId } },
           (cacheData) => {
-            console.log(cacheData);
             if (variant === "column") {
               const initialTask = {
                 ...data?.createTaskColumn,

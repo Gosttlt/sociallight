@@ -4,17 +4,19 @@ import s from "./RemoveCard.module.scss";
 import type { RemoveCardComponentType } from "./RemoveCard.types";
 import CloseSvg from "@/6Shared/assets/svg/Close.svg";
 import useApi from "../api/mutation";
+import { MouseEvent, useContext } from "react";
+import { TaskContext } from "@/1Config/Providers/Task";
 
 const RemoveCard: RemoveCardComponentType = (props) => {
-  const { id, variant } = props;
-  const deleteTask = useApi(variant);
+  const { id, variant, className } = props;
+  const { activeId, setActiveId } = useContext(TaskContext);
+  const deleteTask = useApi(variant, activeId, setActiveId);
 
-  return (
-    <CloseSvg
-      onClick={() => deleteTask({ variables: { id } })}
-      className={s.closeSvg}
-    />
-  );
+  const onClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    deleteTask({ variables: { id } });
+  };
+  return <CloseSvg onClick={onClick} className={clsx(s.closeSvg, className)} />;
 };
 
 export default RemoveCard;

@@ -7,4 +7,5 @@ export type CategoryProps = {
   isActive: boolean;
   name: string;
   onClick: () => void;
+  id: string;
 };

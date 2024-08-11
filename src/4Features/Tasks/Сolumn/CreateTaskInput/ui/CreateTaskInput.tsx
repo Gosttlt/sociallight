@@ -9,16 +9,16 @@ import useApi from "../api/mutation";
 import { TaskContext } from "@/1Config/Providers/Task";
 
 const CreateTaskInput: CreateTaskInputComponentType = (props) => {
-  const { className = "", onChangeFocus, parentId, variant } = props;
+  const { className = "", parentId, variant } = props;
   const { parentName, placeholder } = createInputConfig[variant];
 
-  const { activeId } = useContext(TaskContext);
+  const { activeId, setFocusId } = useContext(TaskContext);
 
   const [value, setValue] = useState("");
-  const [isFocuse, setFocuse] = useState(false);
+  const [isFocus, setFocus] = useState(false);
 
   const create = useApi({
-    cb: onChangeFocus,
+    cb: setFocusId,
     setValue,
     variant,
     parentId,
@@ -32,12 +32,12 @@ const CreateTaskInput: CreateTaskInputComponentType = (props) => {
 
   return (
     <Input
-      onFocus={() => setFocuse(true)}
-      onBlur={() => setFocuse(false)}
+      onFocus={() => setFocus(true)}
+      onBlur={() => setFocus(false)}
       value={value}
       onChange={onChange}
       className={clsx(s.createTaskInputWrapper, s[variant], className)}
-      placeholder={isFocuse ? "" : placeholder}
+      placeholder={isFocus ? "" : placeholder}
     />
   );
 };

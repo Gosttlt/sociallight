@@ -1,4 +1,5 @@
 import {
+  Context,
   createContext,
   Dispatch,
   FC,
@@ -7,19 +8,14 @@ import {
   useState,
 } from "react";
 
-type TaskContextProviderType = {
+export type TaskContextProviderType = {
   focusId: string | null;
   activeId: string | null;
-  setFocusId: Dispatch<SetStateAction<string | null>> | null;
-  setActiveId: Dispatch<SetStateAction<string | null>> | null;
+  setFocusId: Dispatch<SetStateAction<string | null>>;
+  setActiveId: Dispatch<SetStateAction<string | null>>;
 };
 
-export const TaskContext = createContext<TaskContextProviderType>({
-  activeId: null,
-  focusId: null,
-  setActiveId: null,
-  setFocusId: null,
-});
+export const TaskContext = createContext({} as TaskContextProviderType);
 
 const TaskContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [focusId, setFocusId] = useState<string | null>(null);
