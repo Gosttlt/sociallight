@@ -43,41 +43,23 @@
 }
 
 .dndWrapper {
-  display: grid;
-  background: aqua;
-  padding-right: 60px;
-  grid-auto-flow: column;
+  display: flex;
+  // background: aqua;
+  // padding-right: 60px;
   width: fit-content;
 }
 
 .dndItem {
-  display: grid;
-  grid-template-columns: 1fr;
   padding: 0 10px;
   transition: 0.5s;
   opacity: 1;
   width: 212px;
-  height: 99px;
-  border: 1px solid red;
+  // height: 99px;
+  // border: 1px solid red;
 }
 .hidden {
   transform: scale(0);
-  width: 0px !important;
+  width: 0px;
   opacity: 0;
   padding: 0px;
-}
-
-.testParent {
-  display: grid;
-  grid-template-columns: 1fr;
-  transition: 0.2s ease-in-out;
-  overflow: hidden;
-  background: aqua;
-  width: fit-content;
-  &.hide {
-    transform: scale(0);
-    padding: 0px;
-    grid-template-columns: 1fr;
-    overflow: unset;
-  }
 }

@@ -146,127 +146,172 @@ const cats = [
   { name: "Занятия4", id: "clzmd1bym0000e9dlc2szkfgb5", order: 4 },
 ];
 
+type StyleType = "default" | "stretch" | "hidden";
+const getStyle = (
+  node: HTMLDivElement,
+  type: StyleType,
+  direction?: "paddingLeft" | "paddingRight"
+) => {
+  if (type === "default") {
+    node.style.padding = "0px 10px";
+    node.style.width = "212px";
+    node.style.transform = "scale(1)";
+    node.style.opacity = "1";
+  } else if (type === "stretch" && direction) {
+    node.style.padding = "0px 10px";
+    node.style[direction] = "200px";
+    node.style.width = "412px";
+    node.style.transform = "scale(1)";
+    node.style.opacity = "1";
+  } else if (type === "hidden") {
+    node.style.transform = "scale(0)";
+    node.style.padding = "0";
+    node.style.width = "0";
+    node.style.opacity = "0";
+  }
+};
+
 const sortFn = (a: CardType, b: CardType) => a.order - b.order;
 
 const Dnd: DndComponentType = (props) => {
   const [currentCard, setCurrentCard] = useState<null | CardType>(null);
-  const currentCardRef = useRef<null | HTMLDivElement>(null);
-  const lastTargetCardRef = useRef<null | HTMLDivElement>(null);
-
-  const defoltWidthRef = useRef<null | number>(null);
+  const [currentCardNode, setCurrentCardNode] = useState<null | HTMLDivElement>(
+    null
+  );
+  const [lastTargetCardNode, setLastTargetCardNode] =
+    useState<null | HTMLDivElement>(null);
 
   const [cards, setCards] = useState<CardType[]>(cats.sort(sortFn));
 
   // элемент который взяли
   const onDragStart = (e: DragEvent, card: CardType) => {
     setCurrentCard(card);
-    currentCardRef.current = e.currentTarget as HTMLDivElement;
-    defoltWidthRef.current = currentCardRef.current.scrollWidth;
-    currentCardRef.current.classList.add(s.hidden);
+    setCurrentCardNode(e.currentTarget as HTMLDivElement);
+    getStyle(e.currentTarget as HTMLDivElement, "hidden");
   };
+
   // элемент содержащий овер
   const onDragOver = (e: DragEvent, card?: CardType) => {
     e.preventDefault();
-    const target = e.target as HTMLDialogElement;
-    const currentTarget = e.currentTarget as HTMLDialogElement;
+    e.stopPropagation();
+
+    const target = e.target as HTMLDivElement;
+    const currentTarget = e.currentTarget as HTMLDivElement;
     const dragEl = target.closest(`.${s.dndItem}`);
-    if (dragEl) {
-      if (dragEl !== lastTargetCardRef.current && lastTargetCardRef.current) {
-        lastTargetCardRef.current.style.padding = "0px";
-        lastTargetCardRef.current.style.width = "212px";
+
+    // Если элемент есть и элемент в таргете являеца драгИтемом и взятый элемент не являеца тем на кого смотрим
+    if (currentCardNode && dragEl && currentCardNode !== dragEl) {
+      // когда уходим с элемента возвращяем ему паддинги
+      if (dragEl !== lastTargetCardNode && lastTargetCardNode) {
+        getStyle(lastTargetCardNode, "default");
       }
-      lastTargetCardRef.current = target.closest(
-        `.${s.dndItem}`
-      ) as HTMLDivElement;
+      setLastTargetCardNode(target.closest(`.${s.dndItem}`) as HTMLDivElement);
+
+      const middleElem =
+        currentTarget.getBoundingClientRect().width / 2 +
+        currentTarget.getBoundingClientRect().x;
+      const cursorX = e.clientX;
+
+      const isPadding = cursorX > middleElem ? "paddingRight" : "paddingLeft";
+      getStyle(currentTarget, "stretch", isPadding);
     }
-    const middleElem =
-      currentTarget.getBoundingClientRect().width / 2 +
-      currentTarget.getBoundingClientRect().x;
-    const cursorX = e.clientX;
-    const cardOrder = cursorX > middleElem ? 0.1 : -0.1;
-    const isPadding = cursorX > middleElem ? "paddingRight" : "paddingLeft";
-    currentTarget.style.padding = "0px";
-    currentTarget.style[isPadding] = "200px";
-    currentTarget.style.width = "412px";
-    // setCards(
-    //   cards
-    //     .map((cardPrev) => {
-    //       if (cardPrev.id === currentCard?.id) {
-    //         return { ...cardPrev, order: card.order + cardOrder };
-    //       }
-    //       return cardPrev;
-    //     })
-    //     .sort(sortFn)
-    // );
-    // if (currentCardRef.current) {
-    //   currentCardRef.current.style.width = "192px";
-    //   currentCardRef.current.style.height = "32px";
-    //   currentCardRef.current.style.opacity = "1";
-    // }
   };
+
+  const onDrop = (e: DragEvent, card: CardType) => {
+    e.preventDefault();
+
+    const currentTarget = e.currentTarget as HTMLDivElement;
+
+    if (currentTarget.closest(`.${s.dndItem}`)) {
+      const middleElem =
+        currentTarget.getBoundingClientRect().width / 2 +
+        currentTarget.getBoundingClientRect().x;
+      const cursorX = e.clientX;
+
+      const cardOrder = cursorX > middleElem ? 0.1 : -0.1;
+
+      setCards(
+        cards
+          .map((cardPrev) => {
+            if (cardPrev.id === currentCard?.id) {
+              return { ...cardPrev, order: card.order + cardOrder };
+            }
+            return cardPrev;
+          })
+          .sort(sortFn)
+      );
+
+      getStyle(currentTarget, "default");
+
+      if (currentCardNode) {
+        getStyle(currentCardNode, "default");
+      }
+    } else {
+      if (currentCardNode) {
+        getStyle(currentCardNode!, "default");
+      }
+    }
+  };
+
+  const onDragOverContainer = (e: DragEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLDivElement;
+    const dragEl = target.closest(`.${s.dndItem}`);
+    if (!dragEl) {
+      if (lastTargetCardNode) {
+        getStyle(lastTargetCardNode, "default");
+      }
+    }
+  };
+
+  const onDropDocument = (e: DragEvent) => {
+    e.preventDefault();
+
+    const target = e.target as HTMLDivElement;
+    const dragEl = target.closest(`.${s.dndItem}`);
+    if (!dragEl && currentCardNode) {
+      getStyle(currentCardNode, "default");
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("dragover", onDragOverContainer);
+    return () => {
+      document.removeEventListener("dragover", onDragOverContainer);
+    };
+  }, [lastTargetCardNode]);
+
+  useEffect(() => {
+    document.addEventListener("drop", onDropDocument);
+    return () => {
+      document.removeEventListener("drop", onDropDocument);
+    };
+  }, [currentCardNode]);
 
   const onDragLeave = (e: DragEvent, card?: CardType) => {
     const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
     console.log("live", e.target);
     if (!target.closest(`.${s.dndItem}`)) {
-      console.log("livegood");
-      currentTarget.style.padding = "0px";
+      currentTarget.style.padding = "0px 10px";
       currentTarget.style.width = "212px";
-      if (currentCardRef.current) {
-        currentCardRef.current.classList.add(s.hidden);
+      if (currentCardNode) {
+        currentCardNode.classList.add(s.hidden);
       }
     }
   };
-
-  const onDrop = (e: DragEvent, card: CardType) => {
-    e.preventDefault();
-    setCards(
-      cards
-        .map((cardPrev) => {
-          if (cardPrev.id === currentCard?.id) {
-            return { ...cardPrev, order: card.order + 0.1 };
-          }
-          return cardPrev;
-        })
-        .sort(sortFn)
-    );
-    if (currentCardRef.current) {
-      currentCardRef.current.classList.remove(s.hidden);
-    }
-  };
-
-  const onDragOverContainer = (e: DragEvent) => {
-    const target = e.target as HTMLDialogElement;
-    const dragEl = target.closest(`.${s.dndItem}`);
-
-    if (!dragEl) {
-      if (lastTargetCardRef.current) {
-        lastTargetCardRef.current.style.padding = "0px";
-        lastTargetCardRef.current.style.width = "212px";
-      }
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("dragover", onDragOverContainer);
-  }, [lastTargetCardRef.current]);
-
-  const [open, setOpen] = useState(false);
 
   return (
-    <div>
-      <button onClick={() => setOpen((prev) => !prev)}>Open/Close</button>
+    <div className={s.dndWrapper}>
       {cards.map((card) => (
         <div
-          ref={currentCardRef}
           key={card.id}
           onDragStart={(e) => onDragStart(e, card)}
           onDragOver={(e) => onDragOver(e, card)}
           // onDragLeave={(e) => onDragLeave(e, card)}
-          // onDrop={(e) => onDrop(e, card)}
+          onDrop={(e) => onDrop(e, card)}
+          className={s.dndItem}
           draggable
-          className={clsx(s.testParent, { [s.hide]: open })}
         >
           <Category
             id={card.id}
@@ -277,27 +322,6 @@ const Dnd: DndComponentType = (props) => {
         </div>
       ))}
     </div>
-    // <div className={s.dndWrapper}>
-    //   {cards.map((card) => (
-    //     <div
-    //       ref={currentCardRef}
-    //       key={card.id}
-    //       onDragStart={(e) => onDragStart(e, card)}
-    //       onDragOver={(e) => onDragOver(e, card)}
-    //       // onDragLeave={(e) => onDragLeave(e, card)}
-    //       // onDrop={(e) => onDrop(e, card)}
-    //       className={s.dndItem}
-    //       draggable
-    //     >
-    //       <Category
-    //         id={card.id}
-    //         isActive={false}
-    //         name={card.name}
-    //         onClick={() => {}}
-    //       />
-    //     </div>
-    //   ))}
-    // </div>
   );
 };
 export default Dnd;
