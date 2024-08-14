@@ -12,10 +12,10 @@ export default function Home() {
   return (
     <Layout header={<Header />} sidebar={<Sidebar />}>
       <Dnd />
-      <TaskContextProvider>
+      {/* <TaskContextProvider>
         <Catigories />
         <TaskColumns />
-      </TaskContextProvider>
+      </TaskContextProvider> */}
     </Layout>
   );
 }

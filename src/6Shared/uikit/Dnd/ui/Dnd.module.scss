@@ -1,10 +1,83 @@
-.dndWrapper {
+.CardList_wrapper {
+  background: white;
   display: flex;
 }
+
+.board {
+  width: 300px;
+  min-height: 300px;
+  border-radius: 12px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  margin: 8px;
+  flex-direction: column;
+  transition: 0.3s;
+  user-select: none;
+  padding-bottom: 2rem;
+  overflow: hidden;
+}
+
+.board_title {
+  padding: 1rem;
+  background: rgb(22 221 224);
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+
 .item {
-  border: 1px solid black;
-  padding: 16px;
-  // margin: 16px;
+  border: 1px solid gray;
+  width: 100%;
   border-radius: 4px;
-  cursor: pointer;
+  margin: 0.25rem;
+  cursor: grab;
+  padding: 0.25rem;
+  background: #c6ffdf;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.item_shadow {
+  box-shadow: 0 4px 3px gray;
+}
+
+.dndWrapper {
+  display: grid;
+  background: aqua;
+  padding-right: 60px;
+  grid-auto-flow: column;
+  width: fit-content;
+}
+
+.dndItem {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 0 10px;
+  transition: 0.5s;
+  opacity: 1;
+  width: 212px;
+  height: 99px;
+  border: 1px solid red;
+}
+.hidden {
+  transform: scale(0);
+  width: 0px !important;
+  opacity: 0;
+  padding: 0px;
+}
+
+.testParent {
+  display: grid;
+  grid-template-columns: 1fr;
+  transition: 0.2s ease-in-out;
+  overflow: hidden;
+  background: aqua;
+  width: fit-content;
+  &.hide {
+    transform: scale(0);
+    padding: 0px;
+    grid-template-columns: 1fr;
+    overflow: unset;
+  }
 }
