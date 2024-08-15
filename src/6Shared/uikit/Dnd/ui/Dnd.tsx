@@ -6,6 +6,7 @@ import s from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
 import { DragEvent, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import useDebaunce from "@/6Shared/hooks/uiHooks/useDebaunce";
 
 // type ItemType = {
 //   id: number;
@@ -48,8 +49,6 @@ import clsx from "clsx";
 //   const { className = "" } = props;
 
 //   const [boards, setBoards] = useState<BoardType[]>(data);
-
-//   console.log(boards);
 
 //   const [currentBoard, setCurrentBoard] = useState<BoardType>();
 
@@ -166,14 +165,21 @@ const getStyle = (
   } else if (type === "hidden") {
     node.style.transform = "scale(0)";
     node.style.padding = "0";
-    node.style.width = "0";
-    node.style.opacity = "0";
+    node.style.width = "10";
+    // node.style.opacity = "0";
   }
 };
 
+const setTransition = (node: HTMLDivElement, transition: string = "0.3s") => {
+  node.style.transition = transition;
+};
 const sortFn = (a: CardType, b: CardType) => a.order - b.order;
 
 const Dnd: DndComponentType = (props) => {
+  const getStyleDeb = useDebaunce(getStyle, 1000);
+  const setTransitionDeb = useDebaunce(setTransition);
+  const refff = useRef<null | HTMLDivElement>(null);
+
   const [currentCard, setCurrentCard] = useState<null | CardType>(null);
   const [currentCardNode, setCurrentCardNode] = useState<null | HTMLDivElement>(
     null
@@ -187,7 +193,7 @@ const Dnd: DndComponentType = (props) => {
   const onDragStart = (e: DragEvent, card: CardType) => {
     setCurrentCard(card);
     setCurrentCardNode(e.currentTarget as HTMLDivElement);
-    getStyle(e.currentTarget as HTMLDivElement, "hidden");
+    refff.current = e.currentTarget as HTMLDivElement;
   };
 
   // элемент содержащий овер
@@ -198,6 +204,7 @@ const Dnd: DndComponentType = (props) => {
     const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
     const dragEl = target.closest(`.${s.dndItem}`);
+    getStyle(refff.current as HTMLDivElement, "hidden");
 
     // Если элемент есть и элемент в таргете являеца драгИтемом и взятый элемент не являеца тем на кого смотрим
     if (currentCardNode && dragEl && currentCardNode !== dragEl) {
@@ -220,39 +227,45 @@ const Dnd: DndComponentType = (props) => {
   const onDrop = (e: DragEvent, card: CardType) => {
     e.preventDefault();
 
+    const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
+    // currentTarget.style.transition = "none";
+    // currentCardNode!.style.transition = "0.01s";
+    // setTimeout(() => {
+    //   currentTarget.style.transition = "0.3s";
+    //   currentCardNode!.style.transition = "0.3s";
+    // }, 1300);
+    const dragEl = target.closest(`.${s.dndItem}`);
+    if (dragEl !== currentCardNode) {
+      if (currentTarget.closest(`.${s.dndItem}`)) {
+        const middleElem =
+          currentTarget.getBoundingClientRect().width / 2 +
+          currentTarget.getBoundingClientRect().x;
+        const cursorX = e.clientX;
 
-    if (currentTarget.closest(`.${s.dndItem}`)) {
-      const middleElem =
-        currentTarget.getBoundingClientRect().width / 2 +
-        currentTarget.getBoundingClientRect().x;
-      const cursorX = e.clientX;
+        const cardOrder = cursorX > middleElem ? 0.1 : -0.1;
 
-      const cardOrder = cursorX > middleElem ? 0.1 : -0.1;
+        setCards(
+          cards
+            .map((cardPrev) => {
+              if (cardPrev.id === currentCard?.id) {
+                return { ...cardPrev, order: card.order + cardOrder };
+              }
+              return cardPrev;
+            })
+            .sort(sortFn)
+        );
 
-      setCards(
-        cards
-          .map((cardPrev) => {
-            if (cardPrev.id === currentCard?.id) {
-              return { ...cardPrev, order: card.order + cardOrder };
-            }
-            return cardPrev;
-          })
-          .sort(sortFn)
-      );
+        getStyle(currentTarget, "default");
 
-      getStyle(currentTarget, "default");
-
-      if (currentCardNode) {
-        getStyle(currentCardNode, "default");
+        if (currentCardNode) {
+          getStyle(currentCardNode, "default");
+        }
       }
     } else {
-      if (currentCardNode) {
-        getStyle(currentCardNode!, "default");
-      }
+      getStyle(currentCardNode!, "default");
     }
   };
-
   const onDragOverContainer = (e: DragEvent) => {
     e.preventDefault();
     const target = e.target as HTMLDivElement;
@@ -266,7 +279,6 @@ const Dnd: DndComponentType = (props) => {
 
   const onDropDocument = (e: DragEvent) => {
     e.preventDefault();
-
     const target = e.target as HTMLDivElement;
     const dragEl = target.closest(`.${s.dndItem}`);
     if (!dragEl && currentCardNode) {
@@ -274,24 +286,23 @@ const Dnd: DndComponentType = (props) => {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("dragover", onDragOverContainer);
-    return () => {
-      document.removeEventListener("dragover", onDragOverContainer);
-    };
-  }, [lastTargetCardNode]);
+  // useEffect(() => {
+  //   document.addEventListener("dragover", onDragOverContainer);
+  //   return () => {
+  //     document.removeEventListener("dragover", onDragOverContainer);
+  //   };
+  // }, [lastTargetCardNode]);
 
-  useEffect(() => {
-    document.addEventListener("drop", onDropDocument);
-    return () => {
-      document.removeEventListener("drop", onDropDocument);
-    };
-  }, [currentCardNode]);
+  // useEffect(() => {
+  //   document.addEventListener("drop", onDropDocument);
+  //   return () => {
+  //     document.removeEventListener("drop", onDropDocument);
+  //   };
+  // }, [currentCardNode]);
 
   const onDragLeave = (e: DragEvent, card?: CardType) => {
     const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
-    console.log("live", e.target);
     if (!target.closest(`.${s.dndItem}`)) {
       currentTarget.style.padding = "0px 10px";
       currentTarget.style.width = "212px";
@@ -301,6 +312,10 @@ const Dnd: DndComponentType = (props) => {
     }
   };
 
+  const onDragEnd = (e: DragEvent) => {
+    getStyle(e.currentTarget as HTMLDivElement, "default");
+  };
+
   return (
     <div className={s.dndWrapper}>
       {cards.map((card) => (
@@ -308,6 +323,7 @@ const Dnd: DndComponentType = (props) => {
           key={card.id}
           onDragStart={(e) => onDragStart(e, card)}
           onDragOver={(e) => onDragOver(e, card)}
+          onDragEnd={onDragEnd}
           // onDragLeave={(e) => onDragLeave(e, card)}
           onDrop={(e) => onDrop(e, card)}
           className={s.dndItem}

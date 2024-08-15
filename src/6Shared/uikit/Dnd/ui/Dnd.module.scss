@@ -51,11 +51,12 @@
 
 .dndItem {
   padding: 0 10px;
-  transition: 0.5s;
+  transition: 0.3s;
   opacity: 1;
   width: 212px;
-  // height: 99px;
-  // border: 1px solid red;
+  height: 99px;
+  border: 1px solid red;
+  transform: scale(1);
 }
 .hidden {
   transform: scale(0);
