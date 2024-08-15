@@ -20,11 +20,6 @@ const Category = forwardRef<HTMLDivElement, CategoryProps>((props, ref) => {
 
   return (
     <div
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver}
-      onDragStart={onDragStart}
-      onDrop={onDrop}
-      draggable
       ref={ref}
       onClick={onClick}
       className={clsx(s.item, { [s.active]: isActive }, className)}
