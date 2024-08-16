@@ -4,6 +4,7 @@ import s from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
 import { DragEvent, useRef, useState } from "react";
 import clsx from "clsx";
+import useThrottle from "@/6Shared/hooks/uiHooks/useThrottle";
 
 type CardType = { name: string; id: string; order: number };
 const cats = [
@@ -23,7 +24,7 @@ const getStyle = (
 ) => {
   if (type === "default") {
     node.style.padding = "0px 10px";
-    node.style.width = "212px";
+    node.style.width = "192px";
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
   } else if (type === "stretch" && direction) {
@@ -32,29 +33,40 @@ const getStyle = (
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
   } else if (type === "hidden") {
-    node.style.transform = "scale(0)";
     node.style.padding = "0";
     node.style.width = "0";
+    node.style.transform = "scale(0)";
     node.style.opacity = "0";
   }
 };
 
 const sortFn = (a: CardType, b: CardType) => a.order - b.order;
 
+const fn = (currentTarget: HTMLDivElement) => {
+  const middleElem =
+    currentTarget.getBoundingClientRect().width / 2 +
+    currentTarget.getBoundingClientRect().x;
+
+  return middleElem;
+};
+
 const Dnd: DndComponentType = (props) => {
+  const { direction = "direcrionX" } = props;
   const [currentCard, setCurrentCard] = useState<null | CardType>(null);
   const currentCardNode = useRef<null | HTMLDivElement>(null);
   const [isDragging, setDragging] = useState(false);
+
+  const asd = useThrottle(getStyle, 1);
 
   const [cards, setCards] = useState<CardType[]>(cats.sort(sortFn));
   const onDragStart = (e: DragEvent, card: CardType) => {
     setDragging(true);
     setCurrentCard(card);
     currentCardNode.current = e.currentTarget as HTMLDivElement;
-    (e.currentTarget as HTMLDivElement).classList.add(s.hidden);
+    getStyle(currentCardNode.current, "hidden");
   };
 
-  const onDragOver = (e: DragEvent, card?: CardType) => {
+  const onDragOver = (e: DragEvent) => {
     e.preventDefault();
 
     const currentTarget = e.currentTarget as HTMLDivElement;
@@ -68,14 +80,10 @@ const Dnd: DndComponentType = (props) => {
       const middleElem =
         currentTarget.getBoundingClientRect().width / 2 +
         currentTarget.getBoundingClientRect().x;
-      const cursorX = e.clientX;
 
-      const isPadding = cursorX > middleElem ? "right" : "left";
-      currentTarget.classList.remove(s.hidden);
-      currentTarget.classList.remove(s.left);
-      currentTarget.classList.remove(s.right);
-      currentTarget.classList.add(s.stretch);
-      currentTarget.classList.add(s[isPadding]);
+      const cursorX = e.clientX;
+      const isPadding = cursorX > middleElem ? "paddingRight" : "paddingLeft";
+      asd(currentTarget, "stretch", isPadding);
     }
   };
 
@@ -139,47 +147,36 @@ const Dnd: DndComponentType = (props) => {
       };
       const newState = cards.map(dragSortFn).sort(sortFn);
       setCards(newState);
-      currentTarget.classList.remove(s.hidden);
-      currentTarget.classList.remove(s.stretch);
-      currentTarget.classList.remove(s.left);
-      currentTarget.classList.remove(s.right);
+      getStyle(currentTarget, "default");
+
       if (!isNext) {
-        currentTarget.classList.add(s.lastAnime);
+        currentTarget.classList.add(s[direction]);
         setTimeout(() => {
-          currentTarget.classList.remove(s.lastAnime);
+          currentTarget.classList.remove(s[direction]);
         }, 300);
       }
     }
-  };
-  const onDragEnd = (e: DragEvent) => {
-    (e.currentTarget as HTMLDivElement).classList.remove(s.hidden);
-    (e.currentTarget as HTMLDivElement).classList.remove(s.stretch);
-    setDragging(false);
   };
 
   const onDragLeave = (e: DragEvent) => {
     if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
     if (e.currentTarget !== currentCardNode.current) {
-      (e.currentTarget as HTMLDivElement).classList.remove(s.hidden);
-      (e.currentTarget as HTMLDivElement).classList.remove(s.stretch);
-      (e.currentTarget as HTMLDivElement).classList.remove(s.left);
-      (e.currentTarget as HTMLDivElement).classList.remove(s.right);
+      getStyle(e.currentTarget as HTMLDivElement, "default");
     }
+  };
+
+  const onDragEnd = (e: DragEvent) => {
+    getStyle(e.currentTarget as HTMLDivElement, "default");
+    setDragging(false);
   };
 
   return (
     <div className={s.dndWrapper}>
-      {cards.map((card, i) => (
+      {cards.map((card) => (
         <div
-          onAnimationEnd={() => {
-            console.log("end");
-          }}
-          onAnimationStart={() => {
-            console.log("start");
-          }}
           key={card.id}
           onDragStart={(e) => onDragStart(e, card)}
-          onDragOver={(e) => onDragOver(e, card)}
+          onDragOver={onDragOver}
           onDragEnd={onDragEnd}
           onDragLeave={onDragLeave}
           onDrop={(e) => onDrop(e, card)}

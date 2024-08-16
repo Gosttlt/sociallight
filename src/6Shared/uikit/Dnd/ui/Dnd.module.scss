@@ -1,81 +1,25 @@
-.CardList_wrapper {
-  background: white;
-  display: flex;
-}
-
-.board {
-  width: 300px;
-  min-height: 300px;
-  border-radius: 12px;
-  border: 2px solid;
-  display: flex;
-  align-items: center;
-  margin: 8px;
-  flex-direction: column;
-  transition: 0.3s;
-  user-select: none;
-  padding-bottom: 2rem;
-  overflow: hidden;
-}
-
-.board_title {
-  padding: 1rem;
-  background: rgb(22 221 224);
-  width: 100%;
-  text-align: center;
-  color: #fff;
-}
-
-.item {
-  border: 1px solid gray;
-  width: 100%;
-  border-radius: 4px;
-  margin: 0.25rem;
-  cursor: grab;
-  padding: 0.25rem;
-  background: #c6ffdf;
-  text-align: center;
-  transition: 0.3s;
-}
-
-.item_shadow {
-  box-shadow: 0 4px 3px gray;
-}
-
 .dndWrapper {
   display: flex;
   width: fit-content;
 }
 
 .dndItem {
+  // border: 1px solid red;
   transition: 0.3s;
   opacity: 1;
+  transform: scale(1);
+  box-sizing: content-box;
+
   padding: 0px 10px;
   width: 192px;
 
-  transform: scale(1);
-  box-sizing: content-box;
-  &.hidden {
-    transform: scale(0);
-    width: 0px;
-    opacity: 0;
-    padding: 0px;
-  }
-  &.stretch {
-    transform: scale(1);
-    padding: 0px 10px;
-    opacity: 1;
-  }
-  &.left {
-    padding-left: 200px;
-  }
-  &.right {
-    padding-right: 200px;
-  }
-
-  &.lastAnime {
+  &.direcrionX {
     animation-duration: 0.3s;
-    animation-name: anime;
+    animation-name: animeX;
+  }
+  &.direcrionY {
+    animation-duration: 0.3s;
+    animation-name: animeY;
   }
 }
 
@@ -83,12 +27,21 @@
   pointer-events: none;
 }
 
-@keyframes anime {
+@keyframes animeX {
   from {
     padding-left: 200px;
   }
 
   to {
     padding-left: 10px;
+  }
+}
+@keyframes animeY {
+  from {
+    padding-top: 200px;
+  }
+
+  to {
+    padding-top: 10px;
   }
 }

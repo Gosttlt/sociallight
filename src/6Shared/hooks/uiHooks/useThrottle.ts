@@ -10,8 +10,9 @@ const useThrottle = <K extends Function, R extends K["arguments"]>(
     (...args: R) => {
       if (Date.now() >= lastCall.current + ms) {
         lastCall.current = Date.now();
-        cb(...args);
+        return cb(...args);
       }
+      return null;
     },
     [cb, ms]
   );
