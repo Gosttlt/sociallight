@@ -8,8 +8,4 @@ export type CategoryProps = {
   name: string;
   onClick: () => void;
   id: string;
-  onDragStart?: DragEventHandler<HTMLDivElement>;
-  onDragOver?: DragEventHandler<HTMLDivElement>;
-  onDragLeave?: DragEventHandler<HTMLDivElement>;
-  onDrop?: DragEventHandler<HTMLDivElement>;
 };

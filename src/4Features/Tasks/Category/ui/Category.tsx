@@ -7,17 +7,7 @@ import RemoveCard from "../../Card/RemoveCard";
 import { forwardRef, useEffect } from "react";
 
 const Category = forwardRef<HTMLDivElement, CategoryProps>((props, ref) => {
-  const {
-    className = "",
-    isActive,
-    name,
-    onClick,
-    id,
-    onDragLeave,
-    onDragOver,
-    onDragStart,
-    onDrop,
-  } = props;
+  const { className = "", isActive, name, onClick, id } = props;
 
   return (
     <div

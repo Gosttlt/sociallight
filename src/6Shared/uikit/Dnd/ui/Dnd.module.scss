@@ -48,30 +48,47 @@
 }
 
 .dndItem {
-  padding-left: 10px;
-  padding-right: 10px;
-  transition: 3s;
+  transition: 0.3s;
   opacity: 1;
-  width: 212px;
-  height: 99px;
-  display: flex;
-  align-items: center;
-  outline: 1px solid red;
+  padding: 0px 10px;
+  width: 192px;
+
   transform: scale(1);
+  box-sizing: content-box;
   &.hidden {
-    transform: scale(1);
+    transform: scale(0);
     width: 0px;
     opacity: 0;
+    padding: 0px;
   }
   &.stretch {
     transform: scale(1);
     padding: 0px 10px;
-    padding-left: 200px;
-    width: 412px;
     opacity: 1;
+  }
+  &.left {
+    padding-left: 200px;
+  }
+  &.right {
+    padding-right: 200px;
+  }
+
+  &.lastAnime {
+    animation-duration: 0.3s;
+    animation-name: anime;
   }
 }
 
 .noEvent {
   pointer-events: none;
+}
+
+@keyframes anime {
+  from {
+    padding-left: 200px;
+  }
+
+  to {
+    padding-left: 10px;
+  }
 }
