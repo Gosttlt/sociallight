@@ -1,9 +1,10 @@
+"use client";
 import clsx from "clsx";
 
 import s from "./Category.module.scss";
 import { CategoryComponentType, CategoryProps } from "./Category.types";
 import RemoveCard from "../../Card/RemoveCard";
-import { forwardRef } from "react";
+import { forwardRef, useEffect } from "react";
 
 const Category = forwardRef<HTMLDivElement, CategoryProps>((props, ref) => {
   const {

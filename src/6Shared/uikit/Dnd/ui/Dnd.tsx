@@ -4,9 +4,8 @@ import Category from "@/4Features/Tasks/Category";
 
 import s from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
-import { DragEvent, useEffect, useRef, useState } from "react";
+import { DragEvent, FC, memo, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import useDebaunce from "@/6Shared/hooks/uiHooks/useDebaunce";
 import useThrottle from "@/6Shared/hooks/uiHooks/useThrottle";
 
 type CardType = { name: string; id: string; order: number };
@@ -46,12 +45,20 @@ const getStyle = (
 
 const sortFn = (a: CardType, b: CardType) => a.order - b.order;
 
+type PropDndItemType = {
+  card: CardType;
+  isDragging: boolean;
+  onDragStart: any;
+  onDragEnd: any;
+  onDragLeave: any;
+  onDragOver: any;
+  onDrop: any;
+  a: 1;
+};
+
 const Dnd: DndComponentType = (props) => {
-  const getStyleTrottle = useThrottle(getStyle, 3000);
   const [currentCard, setCurrentCard] = useState<null | CardType>(null);
-  const [currentCardNode, setCurrentCardNode] = useState<null | HTMLDivElement>(
-    null
-  );
+  const currentCardNode = useRef<null | HTMLDivElement>(null);
   const [isDragging, setDragging] = useState(false);
 
   const [cards, setCards] = useState<CardType[]>(cats.sort(sortFn));
@@ -59,7 +66,7 @@ const Dnd: DndComponentType = (props) => {
   const onDragStart = (e: DragEvent, card: CardType) => {
     setDragging(true);
     setCurrentCard(card);
-    setCurrentCardNode(e.currentTarget as HTMLDivElement);
+    currentCardNode.current = e.currentTarget as HTMLDivElement;
     getStyle(e.currentTarget as HTMLDivElement, "hidden");
   };
 
@@ -67,12 +74,15 @@ const Dnd: DndComponentType = (props) => {
   const onDragOver = (e: DragEvent, card?: CardType) => {
     e.preventDefault();
 
-    const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
     const dragEl = currentTarget.closest(`.${s.dndItem}`);
 
     // Если элемент есть и элемент в таргете являеца драгИтемом и взятый элемент не являеца тем на кого смотрим
-    if (currentCardNode && dragEl && currentCardNode !== dragEl) {
+    if (
+      currentCardNode.current &&
+      dragEl &&
+      currentCardNode.current !== dragEl
+    ) {
       const middleElem =
         currentTarget.getBoundingClientRect().width / 2 +
         currentTarget.getBoundingClientRect().x;
@@ -82,19 +92,11 @@ const Dnd: DndComponentType = (props) => {
       getStyle(currentTarget, "stretch", isPadding);
     }
   };
-  const trtl = useThrottle(onDragOver, 0);
 
   const onDrop = (e: DragEvent, card: CardType) => {
     e.preventDefault();
 
-    const target = e.target as HTMLDivElement;
     const currentTarget = e.currentTarget as HTMLDivElement;
-    // currentTarget.style.transition = "none";
-    // currentCardNode!.style.transition = "0.01s";
-    // setTimeout(() => {
-    //   currentTarget.style.transition = "0.3s";
-    //   currentCardNode!.style.transition = "0.3s";
-    // }, 1300);
 
     if (currentTarget.closest(`.${s.dndItem}`)) {
       const middleElem =
@@ -102,24 +104,58 @@ const Dnd: DndComponentType = (props) => {
         currentTarget.getBoundingClientRect().x;
       const cursorX = e.clientX;
 
-      const cardOrder = cursorX > middleElem ? 0.1 : -0.1;
-
-      setCards(
-        cards
-          .map((cardPrev) => {
-            if (cardPrev.id === currentCard?.id) {
-              return { ...cardPrev, order: card.order + cardOrder };
+      const isNext = cursorX >= middleElem;
+      const dragSortFn = (cardMapEl: CardType) => {
+        if (cardMapEl.id === card.id) {
+          if (card.order > currentCard!.order) {
+            if (isNext) {
+              return { ...cardMapEl, order: card.order - 1 };
+            } else {
+              return { ...cardMapEl, order: card.order };
             }
-            return cardPrev;
-          })
-          .sort(sortFn)
-          .map((prev, i) => ({ ...prev, order: i }))
-      );
-
+          } else {
+            if (isNext) {
+              return { ...cardMapEl, order: card.order };
+            } else {
+              return { ...cardMapEl, order: card.order + 1 };
+            }
+          }
+        } else if (cardMapEl.id === currentCard?.id) {
+          if (card.order > currentCard!.order) {
+            if (isNext) {
+              return { ...cardMapEl, order: card.order };
+            } else {
+              return { ...cardMapEl, order: card.order - 1 };
+            }
+          } else {
+            if (isNext) {
+              return { ...cardMapEl, order: card.order + 1 };
+            } else {
+              return { ...cardMapEl, order: card.order };
+            }
+          }
+        } else {
+          if (
+            card.order > currentCard!.order &&
+            cardMapEl.order > currentCard!.order &&
+            cardMapEl.order < card.order
+          ) {
+            return { ...cardMapEl, order: cardMapEl.order - 1 };
+          } else if (
+            card.order < currentCard!.order &&
+            cardMapEl.order < currentCard!.order &&
+            cardMapEl.order > card.order
+          ) {
+            return { ...cardMapEl, order: cardMapEl.order + 1 };
+          }
+          return cardMapEl;
+        }
+      };
+      const newState = cards.map(dragSortFn).sort(sortFn);
+      setCards(newState);
       getStyle(currentTarget, "default");
     }
   };
-
   const onDragEnd = (e: DragEvent) => {
     getStyle(e.currentTarget as HTMLDivElement, "default");
     setDragging(false);
@@ -127,7 +163,7 @@ const Dnd: DndComponentType = (props) => {
 
   const onDragLeave = (e: DragEvent) => {
     if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
-    if (e.currentTarget !== currentCardNode) {
+    if (e.currentTarget !== currentCardNode.current) {
       getStyle(e.currentTarget as HTMLDivElement, "default");
     }
   };
@@ -138,12 +174,13 @@ const Dnd: DndComponentType = (props) => {
         <div
           key={card.id}
           onDragStart={(e) => onDragStart(e, card)}
-          onDragOver={(e) => trtl(e, card)}
+          onDragOver={(e) => onDragOver(e, card)}
           onDragEnd={onDragEnd}
           onDragLeave={onDragLeave}
           onDrop={(e) => onDrop(e, card)}
           className={s.dndItem}
           draggable
+          id={card.name}
         >
           <div className={clsx({ [s.noEvent]: isDragging })}>
             <Category

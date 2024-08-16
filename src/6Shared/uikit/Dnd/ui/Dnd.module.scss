@@ -44,27 +44,34 @@
 
 .dndWrapper {
   display: flex;
-  // background: aqua;
-  // padding-right: 60px;
   width: fit-content;
 }
 
 .dndItem {
-  padding: 0 10px;
-  transition: 0.5s;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: 3s;
   opacity: 1;
   width: 212px;
-  // height: 99px;
-  // display: flex;
-  // align-items: center;
-  // outline: 1px solid red;
+  height: 99px;
+  display: flex;
+  align-items: center;
+  outline: 1px solid red;
+  transform: scale(1);
+  &.hidden {
+    transform: scale(1);
+    width: 0px;
+    opacity: 0;
+  }
+  &.stretch {
+    transform: scale(1);
+    padding: 0px 10px;
+    padding-left: 200px;
+    width: 412px;
+    opacity: 1;
+  }
 }
-.hidden {
-  transform: scale(0);
-  width: 0px;
-  opacity: 0;
-  padding: 0px;
-}
+
 .noEvent {
   pointer-events: none;
 }
