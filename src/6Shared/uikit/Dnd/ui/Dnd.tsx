@@ -29,7 +29,7 @@ const getStyle = (
     node.style.opacity = "1";
   } else if (type === "stretch" && direction) {
     node.style.padding = "0px 10px";
-    node.style[direction] = "200px";
+    node.style[direction] = "50px";
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
   } else if (type === "hidden") {
@@ -42,21 +42,11 @@ const getStyle = (
 
 const sortFn = (a: CardType, b: CardType) => a.order - b.order;
 
-const fn = (currentTarget: HTMLDivElement) => {
-  const middleElem =
-    currentTarget.getBoundingClientRect().width / 2 +
-    currentTarget.getBoundingClientRect().x;
-
-  return middleElem;
-};
-
 const Dnd: DndComponentType = (props) => {
   const { direction = "direcrionX" } = props;
   const [currentCard, setCurrentCard] = useState<null | CardType>(null);
   const currentCardNode = useRef<null | HTMLDivElement>(null);
   const [isDragging, setDragging] = useState(false);
-
-  const asd = useThrottle(getStyle, 1);
 
   const [cards, setCards] = useState<CardType[]>(cats.sort(sortFn));
   const onDragStart = (e: DragEvent, card: CardType) => {
@@ -71,19 +61,19 @@ const Dnd: DndComponentType = (props) => {
 
     const currentTarget = e.currentTarget as HTMLDivElement;
     const dragEl = currentTarget.closest(`.${s.dndItem}`);
-
     if (
       currentCardNode.current &&
       dragEl &&
       currentCardNode.current !== dragEl
     ) {
+      const cursorX = e.clientX;
+
       const middleElem =
         currentTarget.getBoundingClientRect().width / 2 +
         currentTarget.getBoundingClientRect().x;
 
-      const cursorX = e.clientX;
       const isPadding = cursorX > middleElem ? "paddingRight" : "paddingLeft";
-      asd(currentTarget, "stretch", isPadding);
+      getStyle(currentTarget, "stretch", isPadding);
     }
   };
 
