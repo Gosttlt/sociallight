@@ -30,6 +30,7 @@ export const CREATE_TASK_CATEGORY = gql`
     createTaskCategory(createTaskCategoryInput: { name: $name }) {
       id
       name
+      order
     }
   }
 `;

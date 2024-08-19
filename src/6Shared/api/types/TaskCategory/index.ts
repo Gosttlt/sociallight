@@ -5,6 +5,7 @@ export type TasksCategoryType = {
   updatedAt?: string;
   id: string;
   name: string;
+  order: number;
   columns: TasksCulumnType[];
 };
 

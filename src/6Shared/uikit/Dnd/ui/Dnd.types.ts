@@ -1,11 +1,14 @@
-import type { FC, ReactNode } from "react";
+import type { Dispatch, FC, ReactElement, SetStateAction } from "react";
+import { DndItemDataType, DndItemProps } from "./DndItem/DndItem.types";
 
 export type DndComponentType = FC<DndProps>;
 
-export type DirectionType = "direcrionX" | "direcrionY";
+export type DirectionType = "width" | "height";
 
 export type DndProps = {
-  children?: ReactNode;
+  children?: ReactElement<DndItemProps>[];
   className?: string;
-  direction: DirectionType;
+  direction: { name: DirectionType; value: number };
+  items: DndItemDataType[] | any;
+  setData: Dispatch<SetStateAction<any>> | any;
 };

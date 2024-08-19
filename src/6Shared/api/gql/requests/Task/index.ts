@@ -18,6 +18,7 @@ export const GET_TASKS_CATEGORIES = gql`
     taskCategories {
       name
       id
+      order
     }
   }
 `;
@@ -26,6 +27,7 @@ export const GET_TASK_CATEGORY = gql`
     taskCategory(id: $id) {
       name
       id
+      order
       columns {
         id
         name
