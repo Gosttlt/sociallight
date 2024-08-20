@@ -55,69 +55,28 @@ const Dnd: DndComponentType = (props) => {
       const middleElem =
         currentTarget.getBoundingClientRect().width / 2 +
         currentTarget.getBoundingClientRect().x;
+
       const cursorX = e.clientX;
 
       const isNext = cursorX >= middleElem;
-      const dragSortFn = (cardMapEl: DndItemDataType) => {
-        if (cardMapEl.id === card.id) {
-          if (card.order > currentCard!.order) {
-            if (isNext) {
-              return { ...cardMapEl, order: card.order - 1 };
-            } else {
-              return { ...cardMapEl, order: card.order };
-            }
-          } else {
-            if (isNext) {
-              return { ...cardMapEl, order: card.order };
-            } else {
-              return { ...cardMapEl, order: card.order + 1 };
-            }
+
+      const cardOrder = isNext ? 0.1 : -0.1;
+
+      const newState = items
+        .map((cardPrev: DndItemDataType) => {
+          if (cardPrev.id === currentCard?.id) {
+            return { ...cardPrev, order: card.order + cardOrder };
           }
-        } else if (cardMapEl.id === currentCard?.id) {
-          if (card.order > currentCard!.order) {
-            if (isNext) {
-              return { ...cardMapEl, order: card.order };
-            } else {
-              return { ...cardMapEl, order: card.order - 1 };
-            }
-          } else {
-            if (isNext) {
-              return { ...cardMapEl, order: card.order + 1 };
-            } else {
-              return { ...cardMapEl, order: card.order };
-            }
-          }
-        } else {
-          if (
-            card.order > currentCard!.order &&
-            cardMapEl.order > currentCard!.order &&
-            cardMapEl.order < card.order
-          ) {
-            return { ...cardMapEl, order: cardMapEl.order - 1 };
-          } else if (
-            card.order < currentCard!.order &&
-            cardMapEl.order < currentCard!.order &&
-            cardMapEl.order > card.order
-          ) {
-            return { ...cardMapEl, order: cardMapEl.order + 1 };
-          }
-          return cardMapEl;
-        }
-      };
-      const newState = items.map(dragSortFn).sort(sortDndFn);
+          return cardPrev;
+        })
+        .sort(sortDndFn)
+        .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
       setData(newState);
       getStyleDnd({
         node: currentTarget,
         type: "default",
         direction,
       });
-
-      if (!isNext) {
-        currentTarget.classList.add(s[`direction${direction.name}`]);
-        setTimeout(() => {
-          currentTarget.classList.remove(s[`direction${direction.name}`]);
-        }, 300);
-      }
     }
   };
   const onDragLeave = (e: DragEvent) => {

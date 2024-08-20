@@ -44,7 +44,6 @@ const Catigories: CatigoriesComponentType = (props) => {
       setActiveId(curId);
     }
   }, [data]);
-  console.log(data);
 
   return (
     <div className={clsx(s.catigoriesWrapper)}>

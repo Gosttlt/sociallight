@@ -1,5 +1,6 @@
 .dndItem {
-  transition: 0.3s ease-in-out;
+  border: 1px solid red;
+  transition: 1s ease-in-out;
   opacity: 1;
   transform: scale(1);
   box-sizing: content-box;
@@ -8,11 +9,11 @@
   width: 192px;
 
   &.directionwidth {
-    animation-duration: 0.3s ease-in-out;
+    animation-duration: 1s ease-in-out;
     animation-name: animeX;
   }
   &.direcrionheight {
-    animation-duration: 0.3s ease-in-out;
+    animation-duration: 1s ease-in-out;
     animation-name: animeY;
   }
 }
@@ -23,7 +24,7 @@
 
 @keyframes animeX {
   from {
-    padding-left: 50px;
+    padding-left: 200px;
   }
 
   to {
@@ -32,7 +33,7 @@
 }
 @keyframes animeY {
   from {
-    padding-top: 50px;
+    padding-top: 200px;
   }
 
   to {

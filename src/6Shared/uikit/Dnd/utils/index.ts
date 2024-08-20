@@ -20,7 +20,7 @@ export const getStyleDnd = ({
     node.style.opacity = "1";
   } else if (type === "stretch" && paddingDirection) {
     node.style.padding = "0px 10px";
-    node.style[paddingDirection] = "50px";
+    node.style[paddingDirection] = "200px";
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
   } else if (type === "hidden") {
