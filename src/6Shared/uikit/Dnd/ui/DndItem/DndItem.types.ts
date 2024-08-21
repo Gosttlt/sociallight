@@ -1,4 +1,5 @@
 import type { DragEvent, FC, ReactNode } from "react";
+import { DndDirectionType } from "../Dnd.types";
 
 export type DndItemComponentType = FC<DndItemProps>;
 
@@ -14,4 +15,5 @@ export type DndItemProps = {
   onDragLeave?: (e: DragEvent) => void;
   onDrop?: (e: DragEvent, card: DndItemDataType) => void;
   data: DndItemDataType;
+  direction?: DndDirectionType;
 };

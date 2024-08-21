@@ -14,12 +14,14 @@ const DndItem: DndItemComponentType = (props) => {
     onDragLeave,
     onDrop,
     data,
+    direction,
   } = props;
 
   return (
     <div
       onDragStart={(e) => onDragStart?.(e, data)}
       onDragOver={onDragOver}
+      style={{ [direction.name]: `${direction.value}px` }}
       onDragEnd={onDragEnd}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop?.(e, data)}

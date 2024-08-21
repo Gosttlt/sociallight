@@ -9,6 +9,7 @@ import { TasksCulumnType } from "@/6Shared/api/types/TaskColumn";
 import {
   TasksCategoriesResponseType,
   TasksCategoryResponseType,
+  TasksCategoryType,
 } from "@/6Shared/api/types/TaskCategory";
 import { Dispatch, SetStateAction } from "react";
 
@@ -20,7 +21,8 @@ const useApi = (
   if (variant === "category") {
     const [remove] = useMutation(REMOVE_TASK_CATEGORY, {
       update(cache, { data }) {
-        const id = data.removeTaskCategory.id;
+        const id = data.removeTaskCategory?.id;
+
         cache.modify({
           fields: {
             taskCategories(categories) {
@@ -30,12 +32,24 @@ const useApi = (
             },
           },
         });
+
         if (id === categoryId) {
           const catigories = cache.readQuery<TasksCategoriesResponseType>({
             query: GET_TASKS_CATEGORIES,
           });
-          cb(catigories?.taskCategories[0].id || null);
+          cb(catigories?.taskCategories[0]?.id || null);
         }
+
+        cache.updateQuery({ query: GET_TASKS_CATEGORIES }, (cacheData) => {
+          return {
+            taskCategories: cacheData?.taskCategories.map(
+              (category: TasksCategoryType, index: number) => ({
+                ...category,
+                order: index,
+              })
+            ),
+          };
+        });
       },
     });
     return remove;

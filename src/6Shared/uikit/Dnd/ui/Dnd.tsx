@@ -1,5 +1,3 @@
-import Category from "@/4Features/Tasks/Category";
-
 import s from "./DndItem/DndItem.module.scss";
 import ss from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
@@ -13,12 +11,11 @@ const Dnd: DndComponentType = (props) => {
   const currentCardNode = useRef<null | HTMLDivElement>(null);
 
   const [isDragging, setDragging] = useState(false);
-
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     setDragging(true);
     setCurrentCard(card);
     currentCardNode.current = e.currentTarget as HTMLDivElement;
-    getStyleDnd({ node: currentCardNode.current, type: "hidden" });
+    getStyleDnd({ node: currentCardNode.current, type: "hidden", direction });
   };
 
   const onDragOver = (e: DragEvent) => {
@@ -91,11 +88,13 @@ const Dnd: DndComponentType = (props) => {
   };
 
   const onDragEnd = (e: DragEvent) => {
-    getStyleDnd({
-      node: e.currentTarget as HTMLDivElement,
-      type: "default",
-      direction,
-    });
+    setTimeout(() => {
+      getStyleDnd({
+        node: currentCardNode.current as HTMLDivElement,
+        type: "default",
+        direction,
+      });
+    }, 100);
     setDragging(false);
   };
 
@@ -110,6 +109,7 @@ const Dnd: DndComponentType = (props) => {
             onDragOver,
             onDragStart,
             onDrop,
+            direction,
           });
         })}
     </div>

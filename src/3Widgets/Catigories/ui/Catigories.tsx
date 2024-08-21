@@ -16,11 +16,11 @@ import { TaskContext } from "@/1Config/Providers/Task";
 import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
 import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
 import useApi from "@/4Features/Tasks/Category/api/mutation";
-import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
 
 const Catigories: CatigoriesComponentType = (props) => {
   const { activeId, setActiveId } = useContext(TaskContext);
   const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
+  console.log(data);
   const setData = useApi();
   const setDataFn = (
     newData: Array<Partial<TasksCategoryType> & { __typename?: string }>
@@ -53,7 +53,7 @@ const Catigories: CatigoriesComponentType = (props) => {
         setData={setDataFn}
       >
         {data &&
-          data.taskCategories.toSorted(sortDndFn).map(({ id, name, order }) => (
+          data.taskCategories.map(({ id, name, order }) => (
             <DndItem data={{ id, order }} key={id}>
               <Category
                 onClick={() => setActiveId(id)}

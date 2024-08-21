@@ -3,12 +3,13 @@ import { DndItemDataType, DndItemProps } from "./DndItem/DndItem.types";
 
 export type DndComponentType = FC<DndProps>;
 
-export type DirectionType = "width" | "height";
+type DirectionType = "width" | "height";
+export type DndDirectionType = { name: DirectionType; value: number };
 
 export type DndProps = {
   children?: ReactElement<DndItemProps>[];
   className?: string;
-  direction: { name: DirectionType; value: number };
+  direction: DndDirectionType;
   items: DndItemDataType[] | any;
   setData: Dispatch<SetStateAction<any>> | any;
 };
