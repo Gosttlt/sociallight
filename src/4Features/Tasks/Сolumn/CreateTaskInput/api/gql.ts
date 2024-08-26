@@ -6,6 +6,7 @@ export const CREATE_TASK = gql`
       id
       name
       columnId
+      order
     }
   }
 `;

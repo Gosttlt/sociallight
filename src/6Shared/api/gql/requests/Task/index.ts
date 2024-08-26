@@ -8,6 +8,7 @@ export const GET_TASKS_COLUMNS = gql`
       tasks {
         name
         id
+        order
       }
     }
   }
@@ -23,7 +24,7 @@ export const GET_TASKS_CATEGORIES = gql`
   }
 `;
 export const GET_TASK_CATEGORY = gql`
-  query GetCategory($id: String!) {
+  query GetCategory($id: String) {
     taskCategory(id: $id) {
       name
       id
@@ -32,10 +33,12 @@ export const GET_TASK_CATEGORY = gql`
         id
         name
         categoryId
+        order
         tasks {
           id
           columnId
           name
+          order
         }
       }
     }

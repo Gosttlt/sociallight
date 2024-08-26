@@ -16,4 +16,5 @@ export type DndItemProps = {
   onDrop?: (e: DragEvent, card: DndItemDataType) => void;
   data: DndItemDataType;
   direction?: DndDirectionType;
+  sharedClass?: string;
 };

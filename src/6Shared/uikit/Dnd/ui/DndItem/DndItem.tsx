@@ -15,17 +15,20 @@ const DndItem: DndItemComponentType = (props) => {
     onDrop,
     data,
     direction,
+    sharedClass = s.dndDefaultClass,
   } = props;
 
   return (
     <div
       onDragStart={(e) => onDragStart?.(e, data)}
       onDragOver={onDragOver}
-      style={{ [direction.name]: `${direction.value}px` }}
+      style={{ [direction!.name]: `${direction!.value}px` }}
       onDragEnd={onDragEnd}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop?.(e, data)}
-      className={clsx(s.dndItem)}
+      className={clsx(s.dndItem, sharedClass, {
+        [s.dirItemY]: direction?.name === "height",
+      })}
       draggable
     >
       <div className={clsx({ [s.noEvent]: isDragging })}>{children}</div>

@@ -15,25 +15,17 @@ import { GET_TASKS_CATEGORIES } from "@/6Shared/api/gql/requests/Task";
 import { TaskContext } from "@/1Config/Providers/Task";
 import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
 import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
-import useApi from "@/4Features/Tasks/Category/api/mutation";
+import useApi from "@/4Features/Tasks/UpdateOrder/api/mutation";
 
 const Catigories: CatigoriesComponentType = (props) => {
   const { activeId, setActiveId } = useContext(TaskContext);
   const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
-  console.log(data);
-  const setData = useApi();
-  const setDataFn = (
-    newData: Array<Partial<TasksCategoryType> & { __typename?: string }>
-  ) => {
+  const setData = useApi("category");
+  const setDataFn = (newData: Array<Partial<TasksCategoryType>>) => {
     setData({
       variables: {
-        categories: newData.map((el) => {
-          let newEl = { ...el };
-          if (el.__typename) {
-            delete newEl.__typename;
-            delete newEl.name;
-          }
-          return newEl;
+        categories: newData.map(({ id, order }) => {
+          return { id, order };
         }),
       },
     });
@@ -48,9 +40,15 @@ const Catigories: CatigoriesComponentType = (props) => {
   return (
     <div className={clsx(s.catigoriesWrapper)}>
       <Dnd
-        direction={{ name: "width", value: 192 }}
+        direction={{
+          name: "width",
+          value: 192,
+          paddingDefolt: 10,
+          paddingStreach: 60,
+        }}
         items={data?.taskCategories}
         setData={setDataFn}
+        sharedClass="taskCategoryDnd"
       >
         {data &&
           data.taskCategories.map(({ id, name, order }) => (
@@ -64,7 +62,11 @@ const Catigories: CatigoriesComponentType = (props) => {
             </DndItem>
           ))}
       </Dnd>
-      <CreateTaskInput parentId={activeId} variant="category" />
+      <CreateTaskInput
+        className={s.creatTaskInput}
+        parentId={activeId}
+        variant="category"
+      />
     </div>
   );
 };

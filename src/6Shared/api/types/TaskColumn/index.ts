@@ -5,6 +5,8 @@ export type TasksCulumnType = {
   updatedAt?: string;
   id: string;
   name: string;
+  order: number;
+  categoryId: string;
   tasks: TaskType[];
 };
 

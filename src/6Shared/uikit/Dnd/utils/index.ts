@@ -2,6 +2,11 @@ import { DndDirectionType } from "../ui/Dnd.types";
 import { DndItemDataType } from "../ui/DndItem/DndItem.types";
 
 type StyleType = "default" | "stretch" | "hidden";
+export type DndStylePadding =
+  | "paddingLeft"
+  | "paddingRight"
+  | "paddingTop"
+  | "paddingBottom";
 export const getStyleDnd = ({
   node,
   type,
@@ -10,17 +15,25 @@ export const getStyleDnd = ({
 }: {
   node: HTMLDivElement;
   type: StyleType;
-  paddingDirection?: "paddingLeft" | "paddingRight";
+  paddingDirection?: DndStylePadding;
   direction?: DndDirectionType;
 }) => {
   if (type === "default" && direction) {
-    node.style.padding = "0px 10px";
+    if (direction.name === "height") {
+      node.style.padding = `${direction.paddingDefolt}px 0px`;
+    } else {
+      node.style.padding = `0px ${direction.paddingDefolt}px`;
+    }
     node.style[direction.name] = `${direction.value}px`;
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
-  } else if (type === "stretch" && paddingDirection) {
-    node.style.padding = "0px 10px";
-    node.style[paddingDirection] = "60px";
+  } else if (type === "stretch" && paddingDirection && direction) {
+    if (direction.name === "height") {
+      node.style.padding = `${direction.paddingDefolt}px 0px`;
+    } else {
+      node.style.padding = `0px ${direction.paddingDefolt}px`;
+    }
+    node.style[paddingDirection] = `${direction.paddingStreach}px`;
     node.style.transform = "scale(1)";
     node.style.opacity = "1";
   } else if (type === "hidden" && direction) {

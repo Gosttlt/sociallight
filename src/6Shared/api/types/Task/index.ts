@@ -7,6 +7,7 @@ export type TaskType = {
   priority?: PriorityTaskEnum;
   updatedAt?: string;
   columnId: string;
+  order: number;
 };
 
 export enum PriorityTaskEnum {
