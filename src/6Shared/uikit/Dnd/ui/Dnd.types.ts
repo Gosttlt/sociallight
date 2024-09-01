@@ -23,5 +23,7 @@ export type DndProps = {
   direction: DndDirectionType;
   items: DndItemDataType[] | any;
   setData: Dispatch<SetStateAction<any>> | any;
+  setChildData?: any;
+  childSharedClass?: string;
   sharedClass?: string;
 };

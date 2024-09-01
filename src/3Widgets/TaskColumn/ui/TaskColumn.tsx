@@ -3,7 +3,10 @@
 import clsx from "clsx";
 
 import s from "./TaskColumn.module.scss";
-import type { TaskColumnComponentType } from "./TaskColumn.types";
+import type {
+  TaskColumnComponentType,
+  TaskColumnType,
+} from "./TaskColumn.types";
 
 import TaskCard from "@/5Entities/Task/ui/TaskCard";
 
@@ -21,31 +24,115 @@ import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
 import useApi from "@/4Features/Tasks/UpdateOrder/api/mutation";
 import { TasksCulumnType } from "@/6Shared/api/types/TaskColumn";
 import { DndContext } from "@/1Config/Providers/Dnd";
+import { UPDATE_TASK_ORDERS } from "@/4Features/Tasks/UpdateOrder/api/gql";
+import { TaskType } from "@/6Shared/api/types/Task";
+import { GET_TASK_CATEGORY } from "@/6Shared/api/gql/requests/Task";
+import { useMutation } from "@apollo/client";
+import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
+import { TasksCategoryResponseType } from "@/6Shared/api/types/TaskCategory";
 
 const TaskColumn: TaskColumnComponentType = (props) => {
-  const {
-    setExternalCurrentTarget,
-    setFromItems,
-    setToItems,
-    externalCurrentTarget,
-    fromItems,
-    toItems,
-  } = useContext(DndContext);
+  const { fromItems, currentCard, dropCard, nextPosition } =
+    useContext(DndContext);
 
-  console.log("externalCurrentTarget", externalCurrentTarget);
-  console.log("fromItems", fromItems);
-  console.log("toItems", toItems);
   const { data } = props;
-  const setData = useApi("task", data.categoryId, data.id);
 
-  const setDataFn = (newData: Array<Partial<TasksCulumnType>>) => {
-    setData({
-      variables: {
-        tasks: newData.map(({ id, order }) => {
-          return { id, order };
-        }),
-      },
+  const [updateTask] = useMutation<{
+    updateTaskOrders: TaskType[];
+  }>(UPDATE_TASK_ORDERS, {
+    update(cache) {
+      const curCategory = cache.readQuery<TasksCategoryResponseType>({
+        query: GET_TASK_CATEGORY,
+        variables: { id: data.categoryId },
+      })?.taskCategory;
+
+      const dragColumn = curCategory?.columns.find(
+        (column) => column.id === (currentCard as TaskType).columnId
+      );
+      const dropColumn = curCategory?.columns.find(
+        (column) => column.id === (dropCard.current as TaskType).columnId
+      );
+
+      cache.modify({
+        id: cache.identify(dragColumn!),
+        fields: {
+          tasks(tasks) {
+            return tasks.filter((task: { __ref: string }) => {
+              return task.__ref !== `Task:${currentCard!.id}`;
+            });
+          },
+        },
+      });
+      cache.modify({
+        id: cache.identify(dropColumn!),
+        fields: {
+          tasks(tasks) {
+            return [...tasks, { __ref: `Task:${currentCard?.id}` }];
+          },
+        },
+      });
+
+      cache.updateQuery(
+        { query: GET_TASK_CATEGORY, variables: { id: data.categoryId } },
+        (cacheData) => {
+          return {
+            taskCategory: {
+              ...cacheData.taskCategory,
+              columns: cacheData.taskCategory.columns.map(
+                (column: TasksCulumnType) => {
+                  if (column.id === (dropCard.current as TaskType).columnId) {
+                    return {
+                      ...column,
+                      tasks: column.tasks.toSorted(sortDndFn),
+                    };
+                  }
+                  return column;
+                }
+              ),
+            },
+          };
+        }
+      );
+    },
+  });
+
+  const setDataFn = (newData: Array<TaskType>) => {
+    const newFromArr = fromItems
+      ?.filter((formItem) => formItem.id !== currentCard?.id)
+      .map(({ id }, i) => ({ id, order: i }));
+
+    const newCurCard = {
+      ...currentCard!,
+      order: nextPosition
+        ? dropCard.current!.order + 0.1
+        : dropCard?.current!.order! - 0.1,
+      columnId: (dropCard?.current! as TaskType).columnId,
+    } as TaskType;
+
+    newData?.push(newCurCard);
+    const newToArr = newData.toSorted(sortDndFn).map(({ id, columnId }, i) => {
+      if (id === currentCard?.id) {
+        return { id, order: i, columnId };
+      }
+      return { id, order: i };
     });
+
+    if (
+      (currentCard as TaskType)?.columnId ===
+      (dropCard.current as TaskType)?.columnId
+    ) {
+      updateTask({
+        variables: {
+          tasks: newToArr,
+        },
+      });
+    } else {
+      updateTask({
+        variables: {
+          tasks: [...newFromArr!, ...newToArr],
+        },
+      });
+    }
   };
 
   const { focusId } = useContext(TaskContext);
@@ -79,7 +166,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
       >
         {data?.tasks &&
           data?.tasks.map((task) => (
-            <DndItem key={task.id} data={{ id: task.id, order: task.order }}>
+            <DndItem key={task.id} data={task}>
               <TaskCard
                 isCreate={task.id === focusId}
                 key={task.id}

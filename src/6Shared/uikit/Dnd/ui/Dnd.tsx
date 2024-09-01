@@ -21,12 +21,22 @@ const Dnd: DndComponentType = (props) => {
     items,
     setData,
     sharedClass = s.dndDefaultClass,
+    setChildData,
+    childSharedClass,
   } = props;
-  const [currentCard, setCurrentCard] = useState<null | DndItemDataType>(null);
-  const currentCardNode = useRef<null | HTMLDivElement>(null);
 
-  const { setExternalCurrentTarget, setFromItems, setToItems } =
-    useContext(DndContext);
+  const {
+    currentCard,
+    setCurrentCard,
+    currentCardNode,
+    setFromItems,
+    setToItems,
+    dropNode,
+    dropCard,
+    setPosition,
+    fromSharedClass,
+    toSharedClass,
+  } = useContext(DndContext);
 
   const [isDragging, setDragging] = useState(false);
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
@@ -35,8 +45,8 @@ const Dnd: DndComponentType = (props) => {
     setCurrentCard(card);
     currentCardNode.current = e.currentTarget as HTMLDivElement;
     getStyleDnd({ node: currentCardNode.current, type: "hidden", direction });
-    setExternalCurrentTarget(e.currentTarget as HTMLDivElement);
     setFromItems(items);
+    fromSharedClass.current = sharedClass;
   };
 
   const onDragOver = (e: DragEvent) => {
@@ -44,7 +54,7 @@ const Dnd: DndComponentType = (props) => {
     e.stopPropagation();
 
     const currentTarget = e.currentTarget as HTMLDivElement;
-    const dragEl = currentTarget.closest(`.${sharedClass}`);
+    const dragEl = currentTarget.closest(`.${fromSharedClass.current}`);
     if (
       currentCardNode.current &&
       dragEl &&
@@ -81,21 +91,21 @@ const Dnd: DndComponentType = (props) => {
   const onDrop = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
     e.stopPropagation();
-
-    const currentTarget = e.currentTarget as HTMLDivElement;
+    dropCard.current = card;
+    dropNode.current = e.currentTarget as HTMLDivElement;
     let middleElem;
     let cursorPosition;
-    if (currentTarget.closest(`.${sharedClass}`)) {
+    if (dropNode.current.closest(`.${fromSharedClass.current}`)) {
       if (direction.name === "height") {
         middleElem =
-          currentTarget.getBoundingClientRect().height / 2 +
-          currentTarget.getBoundingClientRect().y;
+          dropNode.current.getBoundingClientRect().height / 2 +
+          dropNode.current.getBoundingClientRect().y;
 
         cursorPosition = e.clientY;
       } else {
         middleElem =
-          currentTarget.getBoundingClientRect().width / 2 +
-          currentTarget.getBoundingClientRect().x;
+          dropNode.current.getBoundingClientRect().width / 2 +
+          dropNode.current.getBoundingClientRect().x;
 
         cursorPosition = e.clientX;
       }
@@ -113,14 +123,22 @@ const Dnd: DndComponentType = (props) => {
         })
         .sort(sortDndFn)
         .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
-
+      toSharedClass.current = sharedClass;
       setData(newState);
       getStyleDnd({
-        node: currentTarget,
+        node: dropNode.current,
         type: "default",
         direction,
       });
+      setPosition(isNext);
       setToItems(items);
+    }
+    if (
+      setChildData &&
+      childSharedClass &&
+      childSharedClass === fromSharedClass.current
+    ) {
+      setChildData(card.id);
     }
   };
   const onDragLeave = (e: DragEvent) => {

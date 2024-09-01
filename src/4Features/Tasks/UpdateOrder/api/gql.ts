@@ -28,6 +28,7 @@ export const UPDATE_TASK_ORDERS = gql`
       id
       name
       order
+      columnId
     }
   }
 `;

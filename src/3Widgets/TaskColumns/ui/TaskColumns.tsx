@@ -2,7 +2,7 @@ import clsx from "clsx";
 
 import s from "./TaskColumns.module.scss";
 import { TaskColumnsComponentType } from "./TaskColumns.types";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { TasksCategoryResponseType } from "@/6Shared/api/types/TaskCategory";
 import { useContext } from "react";
 import { TaskContext } from "@/1Config/Providers/Task";
@@ -13,7 +13,11 @@ import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
 import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
 import useApi from "@/4Features/Tasks/UpdateOrder/api/mutation";
 import { TasksCulumnType } from "@/6Shared/api/types/TaskColumn";
-import DndContextProvider from "@/1Config/Providers/Dnd";
+import DndContextProvider, { DndContext } from "@/1Config/Providers/Dnd";
+import { TaskType } from "@/6Shared/api/types/Task";
+import { UPDATE_TASK_ORDERS } from "@/4Features/Tasks/UpdateOrder/api/gql";
+import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
+import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
 
 const TaskColumns: TaskColumnsComponentType = (props) => {
   const { className = "", children } = props;
@@ -32,22 +36,78 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
       },
     });
   };
+
+  const { fromItems, currentCard, dropCard } = useContext(DndContext);
+
+  const [updateTask] = useMutation<{
+    updateTaskOrders: TaskType[];
+  }>(UPDATE_TASK_ORDERS, {
+    update(cache, { data }) {
+      cache.updateQuery(
+        { query: GET_TASK_CATEGORY, variables: { id: activeId } },
+        (cacheData) => {
+          return {
+            taskCategory: {
+              ...cacheData.taskCategory,
+              columns: cacheData.taskCategory.columns.map(
+                (column: TasksCulumnType) => {
+                  if (column.id === (currentCard as TaskType).columnId) {
+                    return {
+                      ...column,
+                      tasks: data?.updateTaskOrders,
+                    };
+                  }
+                  return column;
+                }
+              ),
+            },
+          };
+        }
+      );
+    },
+  });
+
+  const setDataTaskOrders = (id: string) => {
+    let curCard = currentCard as TaskType;
+    if (curCard.columnId === id && fromItems) {
+      const filterItems = fromItems.filter((item) => item.id !== curCard.id);
+      const newItems = filterItems?.reduce((acc, prev, i) => {
+        acc.push({ id: prev.id, order: i + 1 });
+        return acc;
+      }, [] as DndItemDataType[]);
+
+      if (newItems) {
+        const newCurCard = { id: curCard.id, order: 0 };
+        newItems.push(newCurCard);
+        updateTask({
+          variables: {
+            tasks: newItems,
+          },
+        });
+      }
+    } else if (id !== curCard.columnId) {
+      console.log(321);
+    }
+  };
+
   return (
-    <DndContextProvider>
-      <div className={clsx(s.taskColumnsWrapper, className)}>
-        <Dnd
-          direction={{
-            name: "width",
-            value: 404,
-            paddingDefolt: 10,
-            paddingStreach: 60,
-          }}
-          items={data?.taskCategory.columns}
-          setData={setDataFn}
-          sharedClass="taskColumnsDnd"
-        >
-          {data &&
-            data.taskCategory.columns.map((column) => (
+    <>
+      {data?.taskCategory && (
+        <div className={clsx(s.taskColumnsWrapper, className)}>
+          <Dnd
+            direction={{
+              name: "width",
+              value: 404,
+              paddingDefolt: 10,
+              paddingStreach: 60,
+            }}
+            items={data.taskCategory.columns}
+            setChildData={setDataTaskOrders}
+            setData={setDataFn}
+            childSharedClass="taskDnd"
+            sharedClass="taskColumnsDnd"
+          >
+            {data.taskCategory.columns.map((column) => (
               <DndItem
                 data={{ id: column.id, order: column.order }}
                 key={column.id}
@@ -55,14 +115,15 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
                 <TaskColumn key={column.id} data={column} />
               </DndItem>
             ))}
-        </Dnd>
-        <CreateTaskInput
-          className={s.creatTaskInput}
-          parentId={data?.taskCategory.id}
-          variant="column"
-        />
-      </div>
-    </DndContextProvider>
+          </Dnd>
+          <CreateTaskInput
+            className={s.creatTaskInput}
+            parentId={data.taskCategory.id}
+            variant="column"
+          />
+        </div>
+      )}
+    </>
   );
 };
 
