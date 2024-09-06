@@ -16,15 +16,16 @@ import { TaskContext } from "@/1Config/Providers/Task";
 import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
 import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
 import useApi from "@/4Features/Tasks/UpdateOrder/api/mutation";
+import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
 
 const Catigories: CatigoriesComponentType = (props) => {
   const { activeId, setActiveId } = useContext(TaskContext);
   const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
   const setData = useApi("category");
-  const setDataFn = (newData: Array<Partial<TasksCategoryType>>) => {
+  const setDataFn = (fromData: Array<DndItemDataType>) => {
     setData({
       variables: {
-        categories: newData.map(({ id, order }) => {
+        categories: fromData.map(({ id, order }) => {
           return { id, order };
         }),
       },
@@ -36,7 +37,6 @@ const Catigories: CatigoriesComponentType = (props) => {
       setActiveId(curId);
     }
   }, [data]);
-
   return (
     <div className={clsx(s.catigoriesWrapper)}>
       <Dnd
@@ -49,6 +49,7 @@ const Catigories: CatigoriesComponentType = (props) => {
         items={data?.taskCategories}
         setData={setDataFn}
         sharedClass="taskCategoryDnd"
+        wrapperId="taskCategoryDnd"
       >
         {data &&
           data.taskCategories.map(({ id, name, order }) => (

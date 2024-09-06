@@ -11,45 +11,61 @@ import {
 } from "react";
 
 export type DndContextProviderType = {
-  currentCard: DndItemDataType | null;
-  setCurrentCard: Dispatch<SetStateAction<DndItemDataType | null>>;
-  currentCardNode: MutableRefObject<HTMLDivElement | null>;
+  fromCard: DndItemDataType | null;
+  setFromCard: Dispatch<SetStateAction<DndItemDataType | null>>;
+  fromCardNode: MutableRefObject<HTMLDivElement | null>;
   fromItems: DndItemDataType[] | null;
   toItems: DndItemDataType[] | null;
   setFromItems: Dispatch<SetStateAction<DndItemDataType[] | null>>;
   setToItems: Dispatch<SetStateAction<DndItemDataType[] | null>>;
   dropNode: MutableRefObject<HTMLDivElement | null>;
   dropCard: MutableRefObject<DndItemDataType | null>;
-  nextPosition: boolean;
-  setPosition: Dispatch<SetStateAction<boolean>>;
+  isNextPosition: boolean | null;
+  setNextPosition: Dispatch<SetStateAction<boolean | null>>;
   fromSharedClass: MutableRefObject<string | null>;
   toSharedClass: MutableRefObject<string | null>;
+  overNode: MutableRefObject<HTMLDivElement | null>;
+  overCard: DndItemDataType | null;
+  setOverCard: Dispatch<SetStateAction<DndItemDataType | null>>;
+  isTargetContainer: boolean;
+  setTargetContainer: Dispatch<SetStateAction<boolean>>;
+  fromWrapperId: MutableRefObject<string | null>;
 };
 
 export const DndContext = createContext({} as DndContextProviderType);
 
 const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentCard, setCurrentCard] = useState<null | DndItemDataType>(null);
-  const currentCardNode = useRef<null | HTMLDivElement>(null);
+  const [fromCard, setFromCard] = useState<null | DndItemDataType>(null);
+  const fromCardNode = useRef<null | HTMLDivElement>(null);
   const dropNode = useRef<null | HTMLDivElement>(null);
   const dropCard = useRef<null | DndItemDataType>(null);
+  const overNode = useRef<null | HTMLDivElement>(null);
+  const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
   const fromSharedClass = useRef<null | string>(null);
   const toSharedClass = useRef<null | string>(null);
   const [fromItems, setFromItems] = useState<DndItemDataType[] | null>(null);
   const [toItems, setToItems] = useState<DndItemDataType[] | null>(null);
-  const [nextPosition, setPosition] = useState<boolean>(false);
+  const [isNextPosition, setNextPosition] = useState<boolean | null>(false);
+  const [isTargetContainer, setTargetContainer] = useState<boolean>(false);
+  const fromWrapperId = useRef<null | string>(null);
 
   return (
     <DndContext.Provider
       value={{
+        fromWrapperId,
+        isTargetContainer,
+        setTargetContainer,
+        overNode,
+        setOverCard,
+        overCard,
         fromSharedClass,
         toSharedClass,
-        nextPosition,
-        setPosition,
+        isNextPosition,
+        setNextPosition,
         dropCard,
-        currentCard,
-        setCurrentCard,
-        currentCardNode,
+        fromCard,
+        setFromCard,
+        fromCardNode,
         fromItems,
         toItems,
         setFromItems,

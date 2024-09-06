@@ -3,8 +3,11 @@
   opacity: 1;
   transform: scale(1);
   box-sizing: content-box;
-  padding: 0px 10px;
-  animation: 1s open;
+}
+
+.child {
+  height: 100%;
+  width: 100%;
 }
 .dirItemY {
   padding: 4px 0px;
@@ -15,4 +18,27 @@
 
 .noEvent {
   pointer-events: none;
+}
+
+.drag {
+  transform: scale(0);
+  opacity: 0;
+}
+
+.tansformTop {
+  transform: translate(0, 0);
+  transform: translateY(-100%);
+}
+.tansformBottom {
+  transform: translate(0, 0);
+  transform: translateY(100%);
+}
+.tansformLeft {
+  transform: translate(0, 0);
+  transform: translateX(-100%);
+}
+
+.tansformRight {
+  transform: translate(0, 0);
+  transform: translateX(100%);
 }

@@ -5,8 +5,8 @@ import Sidebar from "@/3Widgets/Sidebar";
 import Catigories from "@/3Widgets/Catigories";
 
 import TaskContextProvider from "@/1Config/Providers/Task";
-import TaskColumns from "@/3Widgets/TaskColumns";
 import DndContextProvider from "@/1Config/Providers/Dnd";
+import TaskColumns from "@/3Widgets/TaskColumns";
 
 export default function Home() {
   return (

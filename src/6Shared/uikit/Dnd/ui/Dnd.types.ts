@@ -26,4 +26,6 @@ export type DndProps = {
   setChildData?: any;
   childSharedClass?: string;
   sharedClass?: string;
+  wrapperId?: string;
+  reverse?: boolean;
 };

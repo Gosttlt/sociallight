@@ -2,7 +2,7 @@ import s from "./DndItem/DndItem.module.scss";
 import ss from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
 import { Children, cloneElement, DragEvent, useContext, useState } from "react";
-import { DndStylePadding, getStyleDnd, sortDndFn } from "../utils";
+import { sortDndFn } from "../utils";
 import { DndItemDataType } from "./DndItem/DndItem.types";
 import clsx from "clsx";
 import { DndContext } from "@/1Config/Providers/Dnd";
@@ -16,68 +16,71 @@ const Dnd: DndComponentType = (props) => {
     sharedClass = s.dndDefaultClass,
     setChildData,
     childSharedClass,
+    wrapperId,
+    reverse,
   } = props;
 
   const {
-    currentCard,
-    setCurrentCard,
-    currentCardNode,
+    fromCard,
+    setFromCard,
+    fromCardNode,
     setFromItems,
     setToItems,
     dropNode,
     dropCard,
-    setPosition,
+    isNextPosition,
+    setNextPosition,
     fromSharedClass,
     toSharedClass,
+    overNode,
+    // setOverCard,
+    fromWrapperId,
   } = useContext(DndContext);
 
-  const [isDragging, setDragging] = useState(false);
+  const [isTargetContainer, setTargetContainer] = useState(false);
+  const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
+
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     e.stopPropagation();
-    setDragging(true);
-    setCurrentCard(card);
-    currentCardNode.current = e.currentTarget as HTMLDivElement;
-    getStyleDnd({ node: currentCardNode.current, type: "hidden", direction });
+    setFromCard(card);
+    fromCardNode.current = e.currentTarget as HTMLDivElement;
+    fromCardNode.current.classList.add(s.drag);
     setFromItems(items);
     fromSharedClass.current = sharedClass;
+    if (wrapperId) {
+      fromWrapperId.current = wrapperId;
+    }
   };
 
-  const onDragOver = (e: DragEvent) => {
+  const onDragOver = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
     e.stopPropagation();
 
     const currentTarget = e.currentTarget as HTMLDivElement;
-    const dragEl = currentTarget.closest(`.${fromSharedClass.current}`);
+
+    const isSharedTarget = currentTarget.closest(`.${fromSharedClass.current}`);
+
     if (
-      currentCardNode.current &&
-      dragEl &&
-      currentCardNode.current !== dragEl
+      fromCardNode.current &&
+      isSharedTarget &&
+      fromCardNode.current !== isSharedTarget
     ) {
-      let isPadding: DndStylePadding;
+      setOverCard(card);
+      overNode.current = currentTarget;
 
       if (direction.name === "height") {
         const cursorPosition = e.clientY;
         const middleElem =
           currentTarget.getBoundingClientRect().height / 2 +
           currentTarget.getBoundingClientRect().y;
-
-        isPadding =
-          cursorPosition < middleElem ? "paddingTop" : "paddingBottom";
+        setNextPosition(cursorPosition > middleElem);
       } else {
         const cursorPosition = e.clientX;
-
         const middleElem =
           currentTarget.getBoundingClientRect().width / 2 +
           currentTarget.getBoundingClientRect().x;
-        isPadding =
-          cursorPosition > middleElem ? "paddingRight" : "paddingLeft";
+        setNextPosition(cursorPosition > middleElem);
       }
-      getStyleDnd({
-        node: currentTarget,
-        type: "stretch",
-        paddingDirection: isPadding,
-        direction,
-      });
     }
   };
 
@@ -109,7 +112,7 @@ const Dnd: DndComponentType = (props) => {
 
       const newState = items
         .map((cardPrev: DndItemDataType) => {
-          if (cardPrev.id === currentCard?.id) {
+          if (cardPrev.id === fromCard?.id) {
             return { ...cardPrev, order: card.order + cardOrder };
           }
           return cardPrev;
@@ -118,12 +121,6 @@ const Dnd: DndComponentType = (props) => {
         .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
       toSharedClass.current = sharedClass;
       setData(newState);
-      getStyleDnd({
-        node: dropNode.current,
-        type: "default",
-        direction,
-      });
-      setPosition(isNext);
       setToItems(items);
     }
     if (
@@ -133,48 +130,68 @@ const Dnd: DndComponentType = (props) => {
     ) {
       setChildData(card.id);
     }
-  };
-  const onDragLeave = (e: DragEvent) => {
-    e.stopPropagation();
-    if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
-    if (e.currentTarget !== currentCardNode.current) {
-      getStyleDnd({
-        node: e.currentTarget as HTMLDivElement,
-        type: "default",
-        direction,
-      });
-    }
+    setTargetContainer(false);
   };
 
   const onDragEnd = (e: DragEvent) => {
     e.stopPropagation();
-    setTimeout(() => {
-      getStyleDnd({
-        node: currentCardNode.current as HTMLDivElement,
-        type: "default",
-        direction,
-      });
-    }, 100);
-    setDragging(false);
+    (fromCardNode.current as HTMLDivElement).classList.remove(s.drag);
+    setTargetContainer(false);
+
+    setFromCard(null);
+    overNode.current = null;
+    if (wrapperId) {
+      fromWrapperId.current = null;
+    }
   };
 
   return (
     <div
       className={clsx(ss.dndWrapper, {
         [ss.dirY]: direction.name === "height",
+        [ss.containerTarget]:
+          isTargetContainer && sharedClass === fromSharedClass.current,
       })}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (sharedClass === fromSharedClass.current) {
+          setTargetContainer(true);
+        }
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
+
+        if (sharedClass === fromSharedClass.current) {
+          setTargetContainer(false);
+        }
+        setNextPosition(null);
+        setOverCard(null);
+        overNode.current = null;
+      }}
+      onDragEnd={() => {}}
+      onDrop={(e) => {
+        e.preventDefault();
+        setTargetContainer(false);
+      }}
+      draggable
     >
       {children &&
         Children.map(children, (child) => {
           return cloneElement(child, {
-            isDragging,
+            isTargetContainer,
             onDragEnd,
-            onDragLeave,
             onDragOver,
             onDragStart,
             onDrop,
             direction,
             sharedClass,
+            wrapperId,
+            overCard,
+            reverse,
           });
         })}
     </div>

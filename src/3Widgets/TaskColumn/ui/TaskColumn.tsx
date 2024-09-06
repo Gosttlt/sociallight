@@ -32,7 +32,7 @@ import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
 import { TasksCategoryResponseType } from "@/6Shared/api/types/TaskCategory";
 
 const TaskColumn: TaskColumnComponentType = (props) => {
-  const { fromItems, currentCard, dropCard, nextPosition } =
+  const { fromItems, fromCard, dropCard, isNextPosition } =
     useContext(DndContext);
 
   const { data } = props;
@@ -47,7 +47,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
       })?.taskCategory;
 
       const dragColumn = curCategory?.columns.find(
-        (column) => column.id === (currentCard as TaskType).columnId
+        (column) => column.id === (fromCard as TaskType).columnId
       );
       const dropColumn = curCategory?.columns.find(
         (column) => column.id === (dropCard.current as TaskType).columnId
@@ -58,7 +58,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         fields: {
           tasks(tasks) {
             return tasks.filter((task: { __ref: string }) => {
-              return task.__ref !== `Task:${currentCard!.id}`;
+              return task.__ref !== `Task:${fromCard!.id}`;
             });
           },
         },
@@ -67,7 +67,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         id: cache.identify(dropColumn!),
         fields: {
           tasks(tasks) {
-            return [...tasks, { __ref: `Task:${currentCard?.id}` }];
+            return [...tasks, { __ref: `Task:${fromCard?.id}` }];
           },
         },
       });
@@ -96,45 +96,46 @@ const TaskColumn: TaskColumnComponentType = (props) => {
     },
   });
 
-  const setDataFn = (newData: Array<TaskType>) => {
-    const newFromArr = fromItems
-      ?.filter((formItem) => formItem.id !== currentCard?.id)
-      .map(({ id }, i) => ({ id, order: i }));
+  // const setDataFn = (newData: Array<TaskType>) => {
+  //   const newFromArr = fromItems
+  //     ?.filter((formItem) => formItem.id !== fromCard?.id)
+  //     .map(({ id }, i) => ({ id, order: i }));
 
-    const newCurCard = {
-      ...currentCard!,
-      order: nextPosition
-        ? dropCard.current!.order + 0.1
-        : dropCard?.current!.order! - 0.1,
-      columnId: (dropCard?.current! as TaskType).columnId,
-    } as TaskType;
+  //   const newCurCard = {
+  //     ...fromCard!,
+  //     order: isNextPosition
+  //       ? dropCard.current!.order + 0.1
+  //       : dropCard?.current!.order! - 0.1,
+  //     columnId: (dropCard?.current! as TaskType).columnId,
+  //   } as TaskType;
 
-    newData?.push(newCurCard);
-    const newToArr = newData.toSorted(sortDndFn).map(({ id, columnId }, i) => {
-      if (id === currentCard?.id) {
-        return { id, order: i, columnId };
-      }
-      return { id, order: i };
-    });
+  //   newData?.push(newCurCard);
+  //   const newToArr = newData.toSorted(sortDndFn).map(({ id, columnId }, i) => {
+  //     if (id === fromCard?.id) {
+  //       return { id, order: i, columnId };
+  //     }
+  //     return { id, order: i };
+  //   });
 
-    if (
-      (currentCard as TaskType)?.columnId ===
-      (dropCard.current as TaskType)?.columnId
-    ) {
-      updateTask({
-        variables: {
-          tasks: newToArr,
-        },
-      });
-    } else {
-      updateTask({
-        variables: {
-          tasks: [...newFromArr!, ...newToArr],
-        },
-      });
-    }
-  };
+  //   if (
+  //     (fromCard as TaskType)?.columnId ===
+  //     (dropCard.current as TaskType)?.columnId
+  //   ) {
+  //     updateTask({
+  //       variables: {
+  //         tasks: newToArr,
+  //       },
+  //     });
+  //   } else {
+  //     updateTask({
+  //       variables: {
+  //         tasks: [...newFromArr!, ...newToArr],
+  //       },
+  //     });
+  //   }
+  // };
 
+  const setDataFn = () => {};
   const { focusId } = useContext(TaskContext);
 
   return (
@@ -163,6 +164,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         items={data?.tasks}
         setData={setDataFn}
         sharedClass="taskDnd"
+        wrapperId={data.id}
       >
         {data?.tasks &&
           data?.tasks.map((task) => (
