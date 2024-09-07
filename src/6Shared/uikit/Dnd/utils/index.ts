@@ -45,3 +45,112 @@ export const getStyleDnd = ({
 
 export const sortDndFn = (a: DndItemDataType, b: DndItemDataType) =>
   a.order - b.order;
+
+export const getDataCurrentParent = ({
+  fromCards,
+  dragCard,
+}: {
+  fromCards: DndItemDataType[];
+  dragCard: DndItemDataType;
+}) => {
+  let filterCards = fromCards.filter((curCard) => dragCard.id !== curCard.id);
+  filterCards.push(dragCard);
+  const sortCards = filterCards.map((curCard, index) => ({
+    ...curCard,
+    order: index,
+  }));
+  return sortCards;
+};
+
+export const getDataCurrentCard = ({
+  dragCard,
+  fromCards,
+  isNextPosition,
+  lastOverCard,
+}: {
+  fromCards: DndItemDataType[];
+  dragCard: DndItemDataType;
+  lastOverCard: DndItemDataType;
+  isNextPosition: boolean;
+}) => {
+  const cardOrder = isNextPosition ? 0.1 : -0.1;
+
+  const newCards = fromCards
+    .map((curCard: DndItemDataType) => {
+      if (curCard.id === dragCard?.id) {
+        return { ...curCard, order: lastOverCard.order + cardOrder };
+      }
+      return curCard;
+    })
+    .sort(sortDndFn)
+    .map((curCard: { id: string | number; order: number }, i: number) => ({
+      ...curCard,
+      order: i,
+    }));
+
+  return newCards;
+};
+
+export const getDataOtherParent = ({
+  fromCards,
+  toCards,
+  dragCard,
+  fromParentId,
+  toParentId,
+}: {
+  fromCards: DndItemDataType[];
+  toCards: DndItemDataType[];
+  dragCard: DndItemDataType;
+  fromParentId: string;
+  toParentId: string;
+}) => {
+  const filterFromCards = fromCards
+    .filter((curCard) => curCard.id !== dragCard.id)
+    .map((curCard, index) => ({ ...curCard, order: index }));
+
+  const sortCards = [...toCards, { ...dragCard, order: toCards.length }];
+
+  return {
+    fromCard: filterFromCards,
+    toCard: sortCards,
+    fromParentId,
+    toParentId,
+  };
+};
+
+export const getDataOtherCard = ({
+  dragCard,
+  fromCards,
+  toCards,
+  isNextPosition,
+  lastOverCard,
+  fromParentId,
+  toParentId,
+}: {
+  fromCards: DndItemDataType[];
+  toCards: DndItemDataType[];
+  dragCard: DndItemDataType;
+  lastOverCard: DndItemDataType;
+  isNextPosition: boolean;
+  fromParentId: string;
+  toParentId: string;
+}) => {
+  const filterFromCards = fromCards
+    .filter((curCard) => curCard.id !== dragCard.id)
+    .map((curCard, index) => ({ ...curCard, order: index }));
+
+  const cardOrder = isNextPosition ? 0.1 : -0.1;
+
+  const newDragCard = { ...dragCard, order: lastOverCard.order + cardOrder };
+
+  const newToCards = [...toCards, newDragCard]
+    .sort(sortDndFn)
+    .map((curCard, index) => ({ ...curCard, order: index }));
+
+  return {
+    fromCard: filterFromCards,
+    toCard: newToCards,
+    fromParentId,
+    toParentId,
+  };
+};

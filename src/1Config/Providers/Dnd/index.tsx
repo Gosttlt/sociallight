@@ -25,8 +25,8 @@ export type DndContextProviderType = {
   fromSharedClass: MutableRefObject<string | null>;
   toSharedClass: MutableRefObject<string | null>;
   overNode: MutableRefObject<HTMLDivElement | null>;
-  overCard: DndItemDataType | null;
-  setOverCard: Dispatch<SetStateAction<DndItemDataType | null>>;
+  lastOverCard: DndItemDataType | null;
+  setLastOverCard: Dispatch<SetStateAction<DndItemDataType | null>>;
   isTargetContainer: boolean;
   setTargetContainer: Dispatch<SetStateAction<boolean>>;
   fromWrapperId: MutableRefObject<string | null>;
@@ -40,7 +40,9 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const dropNode = useRef<null | HTMLDivElement>(null);
   const dropCard = useRef<null | DndItemDataType>(null);
   const overNode = useRef<null | HTMLDivElement>(null);
-  const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
+  const [lastOverCard, setLastOverCard] = useState<DndItemDataType | null>(
+    null
+  );
   const fromSharedClass = useRef<null | string>(null);
   const toSharedClass = useRef<null | string>(null);
   const [fromItems, setFromItems] = useState<DndItemDataType[] | null>(null);
@@ -56,8 +58,8 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
         isTargetContainer,
         setTargetContainer,
         overNode,
-        setOverCard,
-        overCard,
+        setLastOverCard,
+        lastOverCard,
         fromSharedClass,
         toSharedClass,
         isNextPosition,

@@ -11,35 +11,36 @@ const getStyleFromWrapper = ({
   isNextPosition,
   overCard,
   isTargetContainer,
-  direction,
+  backStyle,
+  frontStyle,
 }: {
   overCard?: DndItemDataType | null;
   data: DndItemDataType;
   fromCard: DndItemDataType;
   isNextPosition: boolean | null;
   isTargetContainer?: boolean | null;
-  direction: "width" | "height";
+  backStyle: string;
+  frontStyle: string;
 }) => {
   let style = {};
-  const back = direction === "height" ? s.tansformTop : s.tansformLeft;
-  const front = direction === "height" ? s.tansformBottom : s.tansformRight;
+
   if (!overCard) {
-    style = { [back]: data.order > fromCard.order };
+    style = { [backStyle]: data.order > fromCard.order };
   } else if (isTargetContainer && overCard) {
     if (isNextPosition) {
       if (data.order > fromCard.order && data.order <= overCard.order) {
-        style = { [back]: true };
+        style = { [backStyle]: true };
       } else if (data.order < fromCard.order && data.order > overCard.order) {
         style = {
-          [front]: true,
+          [frontStyle]: true,
         };
       }
     } else if (isNextPosition === false) {
       if (data.order > fromCard.order && data.order < overCard.order) {
-        style = { [back]: true };
+        style = { [backStyle]: true };
       } else if (data.order < fromCard.order && data.order >= overCard.order) {
         style = {
-          [front]: true,
+          [frontStyle]: true,
         };
       }
     }
@@ -50,22 +51,22 @@ const getStyleToWrapper = ({
   data,
   isNextPosition,
   overCard,
-  direction,
+  frontStyle,
 }: {
   isNextPosition: boolean | null;
   data: DndItemDataType;
   overCard: DndItemDataType;
-  direction: "width" | "height";
+  frontStyle: string;
 }) => {
   let style = {};
-  const front = direction === "height" ? s.tansformBottom : s.tansformRight;
+
   if (isNextPosition) {
     if (data.order > overCard.order) {
-      style = { [front]: true };
+      style = { [frontStyle]: true };
     }
   } else if (isNextPosition === false) {
     if (data.order >= overCard.order) {
-      style = { [front]: true };
+      style = { [frontStyle]: true };
     }
   }
   return style;
@@ -130,31 +131,6 @@ const getStyleYToReverseWrapper = ({
   }
   return style;
 };
-// if (direction?.name === "width") {
-//   if ( fromCard && fromCard.id !== data.id) {
-//     if (!overCard) {
-//       style = { [s.tansformLeft]: data.order > fromCard.order };
-//     } else if (overCard) {
-//       if (isNextPosition) {
-//         if (data.order > fromCard.order) {
-//           style = { [s.tansformLeft]: data.order <= overCard.order };
-//         } else {
-//           style = {
-//             [s.tansformRight]: data.order > overCard.order,
-//           };
-//         }
-//       } else {
-//         if (data.order > fromCard.order) {
-//           style = { [s.tansformLeft]: data.order < overCard.order };
-//         } else {
-//           style = {
-//             [s.tansformRight]: data.order >= overCard.order,
-//           };
-//         }
-//       }
-//     }
-//   }
-// }
 
 const DndItem: DndItemComponentType = (props) => {
   const {
@@ -172,11 +148,11 @@ const DndItem: DndItemComponentType = (props) => {
     wrapperId,
     overCard,
     reverse,
+    transition,
   } = props;
 
   const { fromCard, isNextPosition, fromSharedClass, fromWrapperId } =
     useContext(DndContext);
-
   let style = {};
 
   const isFromSharedClass =
@@ -187,6 +163,11 @@ const DndItem: DndItemComponentType = (props) => {
 
   const isToSharedClass =
     fromWrapperId.current !== wrapperId && overCard && isTargetContainer;
+
+  const backStyle =
+    direction?.name === "height" ? s.tansformTop : s.tansformLeft;
+  const frontStyle =
+    direction?.name === "height" ? s.tansformBottom : s.tansformRight;
 
   if (reverse) {
     if (isFromSharedClass) {
@@ -209,7 +190,8 @@ const DndItem: DndItemComponentType = (props) => {
         isNextPosition,
         overCard,
         isTargetContainer,
-        direction: direction!.name,
+        backStyle,
+        frontStyle,
       });
     }
     if (isToSharedClass) {
@@ -217,7 +199,7 @@ const DndItem: DndItemComponentType = (props) => {
         data,
         isNextPosition,
         overCard,
-        direction: direction!.name,
+        frontStyle,
       });
     }
   }
@@ -231,6 +213,9 @@ const DndItem: DndItemComponentType = (props) => {
       onDrop={(e) => onDrop?.(e, data)}
       className={clsx(s.dndItem, sharedClass, style)}
       id={`order` + data.order}
+      style={{
+        transition: !transition ? "none" : "0.3s",
+      }}
       draggable
     >
       <div className={clsx({ [s.noEvent]: isTargetContainer }, s.child)}>

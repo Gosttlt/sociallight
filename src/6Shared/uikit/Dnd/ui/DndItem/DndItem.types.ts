@@ -21,4 +21,5 @@ export type DndItemProps = {
   isTargetContainer?: boolean;
   overCard?: DndItemDataType | null;
   reverse?: boolean;
+  transition?: boolean;
 };

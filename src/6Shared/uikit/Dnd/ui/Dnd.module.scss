@@ -4,12 +4,11 @@
   border-radius: 4px;
   transition: 0.3s;
   height: 100%;
+  border: 1px solid red;
 }
 
 .containerTarget {
   box-shadow: 2px 1px 8px 4px #f8f8f8;
-  // background: red;
-  border: 1px solid red;
 }
 .dirY {
   flex-direction: column;

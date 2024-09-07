@@ -2,7 +2,7 @@ import s from "./DndItem/DndItem.module.scss";
 import ss from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
 import { Children, cloneElement, DragEvent, useContext, useState } from "react";
-import { sortDndFn } from "../utils";
+import { getDataCurrentCard, getDataCurrentParent, sortDndFn } from "../utils";
 import { DndItemDataType } from "./DndItem/DndItem.types";
 import clsx from "clsx";
 import { DndContext } from "@/1Config/Providers/Dnd";
@@ -28,17 +28,20 @@ const Dnd: DndComponentType = (props) => {
     setToItems,
     dropNode,
     dropCard,
-    isNextPosition,
     setNextPosition,
     fromSharedClass,
+    isNextPosition,
     toSharedClass,
     overNode,
-    // setOverCard,
     fromWrapperId,
+    lastOverCard,
+    setLastOverCard,
+    fromItems,
   } = useContext(DndContext);
 
   const [isTargetContainer, setTargetContainer] = useState(false);
   const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
+  const [transition, setTrnsition] = useState(true);
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     e.stopPropagation();
@@ -66,6 +69,7 @@ const Dnd: DndComponentType = (props) => {
       fromCardNode.current !== isSharedTarget
     ) {
       setOverCard(card);
+      setLastOverCard(card);
       overNode.current = currentTarget;
 
       if (direction.name === "height") {
@@ -86,51 +90,61 @@ const Dnd: DndComponentType = (props) => {
 
   const onDrop = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
-    e.stopPropagation();
-    dropCard.current = card;
-    dropNode.current = e.currentTarget as HTMLDivElement;
-    let middleElem;
-    let cursorPosition;
-    if (dropNode.current.closest(`.${fromSharedClass.current}`)) {
-      if (direction.name === "height") {
-        middleElem =
-          dropNode.current.getBoundingClientRect().height / 2 +
-          dropNode.current.getBoundingClientRect().y;
-
-        cursorPosition = e.clientY;
-      } else {
-        middleElem =
-          dropNode.current.getBoundingClientRect().width / 2 +
-          dropNode.current.getBoundingClientRect().x;
-
-        cursorPosition = e.clientX;
-      }
-
-      const isNext = cursorPosition >= middleElem;
-
-      const cardOrder = isNext ? 0.1 : -0.1;
-
-      const newState = items
-        .map((cardPrev: DndItemDataType) => {
-          if (cardPrev.id === fromCard?.id) {
-            return { ...cardPrev, order: card.order + cardOrder };
-          }
-          return cardPrev;
-        })
-        .sort(sortDndFn)
-        .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
-      toSharedClass.current = sharedClass;
-      setData(newState);
-      setToItems(items);
-    }
-    if (
-      setChildData &&
-      childSharedClass &&
-      childSharedClass === fromSharedClass.current
-    ) {
-      setChildData(card.id);
-    }
     setTargetContainer(false);
+    // e.stopPropagation();
+    // dropCard.current = card;
+    // dropNode.current = e.currentTarget as HTMLDivElement;
+    // let middleElem;
+    // let cursorPosition;
+    // console.log("e.currentTarget", e.currentTarget);
+    // console.log("sharedClass", sharedClass);
+    // console.log("childSharedClass", childSharedClass);
+    // console.log("wrapperId", wrapperId);
+    // console.log("fromSharedClass", fromSharedClass);
+    // console.log("toSharedClass", toSharedClass);
+    // console.log("fromWrapperId", fromWrapperId);
+    // console.log("setLastOverCard", setLastOverCard);
+
+    // if (dropNode.current.closest(`.${fromSharedClass.current}`)) {
+    //   if (direction.name === "height") {
+    //     middleElem =
+    //       dropNode.current.getBoundingClientRect().height / 2 +
+    //       dropNode.current.getBoundingClientRect().y;
+
+    //     cursorPosition = e.clientY;
+    //   } else {
+    //     middleElem =
+    //       dropNode.current.getBoundingClientRect().width / 2 +
+    //       dropNode.current.getBoundingClientRect().x;
+
+    //     cursorPosition = e.clientX;
+    //   }
+
+    //   const isNext = cursorPosition >= middleElem;
+
+    //   const cardOrder = isNext ? 0.1 : -0.1;
+
+    //   const newState = items
+    //     .map((cardPrev: DndItemDataType) => {
+    //       if (cardPrev.id === fromCard?.id) {
+    //         return { ...cardPrev, order: card.order + cardOrder };
+    //       }
+    //       return cardPrev;
+    //     })
+    //     .sort(sortDndFn)
+    //     .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
+    //   toSharedClass.current = sharedClass;
+    //   setData(newState);
+    //   setToItems(items);
+    // }
+
+    // if (
+    //   setChildData &&
+    //   childSharedClass &&
+    //   childSharedClass === fromSharedClass.current
+    // ) {
+    //   setChildData(card.id);
+    // }
   };
 
   const onDragEnd = (e: DragEvent) => {
@@ -170,11 +184,33 @@ const Dnd: DndComponentType = (props) => {
         }
         setNextPosition(null);
         setOverCard(null);
+        setLastOverCard(null);
         overNode.current = null;
       }}
-      onDragEnd={() => {}}
+      onDragOver={(e) => {
+        e.preventDefault();
+      }}
       onDrop={(e) => {
         e.preventDefault();
+        setTrnsition(false);
+        setTimeout(() => {
+          setTrnsition(true);
+        });
+        if (fromCard && fromItems && !lastOverCard) {
+          setData(
+            getDataCurrentParent({ dragCard: fromCard, fromCards: fromItems })
+          );
+        }
+        if (fromCard && fromItems && lastOverCard && isNextPosition !== null) {
+          setData(
+            getDataCurrentCard({
+              dragCard: fromCard,
+              fromCards: fromItems,
+              isNextPosition,
+              lastOverCard,
+            })
+          );
+        }
         setTargetContainer(false);
       }}
       draggable
@@ -192,6 +228,7 @@ const Dnd: DndComponentType = (props) => {
             wrapperId,
             overCard,
             reverse,
+            transition,
           });
         })}
     </div>

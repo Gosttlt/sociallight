@@ -105,6 +105,7 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
             setData={setDataFn}
             childSharedClass="taskDnd"
             sharedClass="taskColumnsDnd"
+            wrapperId="taskColumnsDnd"
           >
             {data.taskCategory.columns.map((column) => (
               <DndItem data={column} key={column.id}>
