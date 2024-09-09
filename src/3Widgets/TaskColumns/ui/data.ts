@@ -1,4 +1,4 @@
-export const data = {
+export const data1 = {
   taskCategory: {
     __typename: "TaskCategory",
     name: "Фичи",
@@ -96,7 +96,7 @@ export const data = {
     ],
   },
 };
-export const data1 = {
+export const data = {
   taskCategory: {
     __typename: "TaskCategory",
     name: "Фичи",

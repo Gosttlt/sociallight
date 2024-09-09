@@ -14,6 +14,8 @@ export type DndContextProviderType = {
   fromCard: DndItemDataType | null;
   setFromCard: Dispatch<SetStateAction<DndItemDataType | null>>;
   fromCardNode: MutableRefObject<HTMLDivElement | null>;
+  fromCardNodeRect: MutableRefObject<DOMRect | null>;
+  fromCursorStartPosition: MutableRefObject<number | null>;
   fromItems: DndItemDataType[] | null;
   toItems: DndItemDataType[] | null;
   setFromItems: Dispatch<SetStateAction<DndItemDataType[] | null>>;
@@ -27,6 +29,10 @@ export type DndContextProviderType = {
   overNode: MutableRefObject<HTMLDivElement | null>;
   lastOverCard: DndItemDataType | null;
   setLastOverCard: Dispatch<SetStateAction<DndItemDataType | null>>;
+  isDragStart: boolean;
+  setDragStart: Dispatch<SetStateAction<boolean>>;
+  isTransition: boolean;
+  setTransition: Dispatch<SetStateAction<boolean>>;
   isTargetContainer: boolean;
   setTargetContainer: Dispatch<SetStateAction<boolean>>;
   fromWrapperId: MutableRefObject<string | null>;
@@ -37,6 +43,8 @@ export const DndContext = createContext({} as DndContextProviderType);
 const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [fromCard, setFromCard] = useState<null | DndItemDataType>(null);
   const fromCardNode = useRef<null | HTMLDivElement>(null);
+  const fromCardNodeRect = useRef<null | DOMRect>(null);
+  const fromCursorStartPosition = useRef<null | number>(null);
   const dropNode = useRef<null | HTMLDivElement>(null);
   const dropCard = useRef<null | DndItemDataType>(null);
   const overNode = useRef<null | HTMLDivElement>(null);
@@ -50,10 +58,17 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isNextPosition, setNextPosition] = useState<boolean | null>(false);
   const [isTargetContainer, setTargetContainer] = useState<boolean>(false);
   const fromWrapperId = useRef<null | string>(null);
+  const [isDragStart, setDragStart] = useState<boolean>(false);
+  const [isTransition, setTransition] = useState<boolean>(true);
 
   return (
     <DndContext.Provider
       value={{
+        isTransition,
+        setTransition,
+        isDragStart,
+        setDragStart,
+        fromCursorStartPosition,
         fromWrapperId,
         isTargetContainer,
         setTargetContainer,
@@ -73,6 +88,7 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setFromItems,
         setToItems,
         dropNode,
+        fromCardNodeRect,
       }}
     >
       {children}

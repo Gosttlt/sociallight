@@ -37,17 +37,22 @@ const Dnd: DndComponentType = (props) => {
     lastOverCard,
     setLastOverCard,
     fromItems,
+    fromCardNodeRect,
+    setDragStart,
+    setTransition,
   } = useContext(DndContext);
 
   const [isTargetContainer, setTargetContainer] = useState(false);
   const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
-  const [transition, setTrnsition] = useState(true);
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     e.stopPropagation();
     setFromCard(card);
+    setDragStart(true);
     fromCardNode.current = e.currentTarget as HTMLDivElement;
-    fromCardNode.current.classList.add(s.drag);
+    // fromCardNode.current.classList.add(s.drag);
+    fromCardNodeRect.current = fromCardNode.current.getBoundingClientRect();
+
     setFromItems(items);
     fromSharedClass.current = sharedClass;
     if (wrapperId) {
@@ -58,7 +63,6 @@ const Dnd: DndComponentType = (props) => {
   const onDragOver = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
     e.stopPropagation();
-
     const currentTarget = e.currentTarget as HTMLDivElement;
 
     const isSharedTarget = currentTarget.closest(`.${fromSharedClass.current}`);
@@ -149,7 +153,11 @@ const Dnd: DndComponentType = (props) => {
 
   const onDragEnd = (e: DragEvent) => {
     e.stopPropagation();
-    (fromCardNode.current as HTMLDivElement).classList.remove(s.drag);
+
+    setDragStart(false);
+
+    // (fromCardNode.current as HTMLDivElement).classList.remove(s.drag);
+
     setTargetContainer(false);
 
     setFromCard(null);
@@ -192,10 +200,8 @@ const Dnd: DndComponentType = (props) => {
       }}
       onDrop={(e) => {
         e.preventDefault();
-        setTrnsition(false);
-        setTimeout(() => {
-          setTrnsition(true);
-        });
+        console.log("drop");
+
         if (fromCard && fromItems && !lastOverCard) {
           setData(
             getDataCurrentParent({ dragCard: fromCard, fromCards: fromItems })
@@ -211,6 +217,10 @@ const Dnd: DndComponentType = (props) => {
             })
           );
         }
+        setTransition(false);
+        setTimeout(() => {
+          setTransition(true);
+        }, 300);
         setTargetContainer(false);
       }}
       draggable
@@ -228,7 +238,6 @@ const Dnd: DndComponentType = (props) => {
             wrapperId,
             overCard,
             reverse,
-            transition,
           });
         })}
     </div>

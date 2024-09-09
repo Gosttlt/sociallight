@@ -14,7 +14,7 @@ export default function Home() {
       <TaskContextProvider>
         <DndContextProvider>
           <Catigories />
-          <TaskColumns />
+          {/* <TaskColumns /> */}
         </DndContextProvider>
       </TaskContextProvider>
     </Layout>

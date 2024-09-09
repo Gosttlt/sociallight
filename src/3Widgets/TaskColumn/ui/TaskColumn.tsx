@@ -165,7 +165,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         setData={setDataFn}
         sharedClass="taskDnd"
         wrapperId={data.id}
-        // reverse
+        reverse
       >
         {data?.tasks &&
           data?.tasks.map((task) => (

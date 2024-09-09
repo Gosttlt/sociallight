@@ -1,9 +1,23 @@
 .dndItem {
   transform: translate(0, 0);
-  transition: 0.3s;
+  transition: 0.5s;
   opacity: 1;
   transform: scale(1);
   box-sizing: content-box;
+}
+.appearance {
+  animation-duration: 0.3s;
+  animation-name: appearance;
+}
+
+@keyframes appearance {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 .child {
@@ -23,23 +37,4 @@
 
 .drag {
   transform: scale(0);
-  opacity: 0;
-}
-
-.tansformTop {
-  transform: translate(0, 0);
-  transform: translateY(-100%);
-}
-.tansformBottom {
-  transform: translate(0, 0);
-  transform: translateY(100%);
-}
-.tansformLeft {
-  transform: translate(0, 0);
-  transform: translateX(-100%);
-}
-
-.tansformRight {
-  transform: translate(0, 0);
-  transform: translateX(100%);
 }
