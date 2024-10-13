@@ -20,46 +20,17 @@ import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
 
 const Catigories: CatigoriesComponentType = (props) => {
   const { activeId, setActiveId } = useContext(TaskContext);
-  // const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
-  const [data, setDa] = useState({
-    taskCategories: [
-      {
-        __typename: "TaskCategory",
-        name: "Дом",
-        id: "cm09amfkn000a6fn446tl8mdb",
-        order: 0,
-      },
-      {
-        __typename: "TaskCategory",
-        name: "Last",
-        id: "cm0mpet8k0001jxq8albsrcsi",
-        order: 1,
-      },
-      {
-        __typename: "TaskCategory",
-        name: "Фичи",
-        id: "cm07udxi3000513evtfpctrtg",
-        order: 2,
-      },
-      {
-        __typename: "TaskCategory",
-        name: "Баги",
-        id: "cm07udvin000413evpjlxiec4",
-        order: 3,
-      },
-    ],
-  });
+  const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
+
   const setData = useApi("category");
   const setDataFn = (fromData: Array<DndItemDataType>) => {
-    // setData({
-    //   variables: {
-    //     categories: fromData.map(({ id, order }) => {
-    //       return { id, order };
-    //     }),
-    //   },
-    // });
-    // @ts-ignore
-    setDa({ taskCategories: fromData });
+    setData({
+      variables: {
+        categories: fromData.map(({ id, order }) => {
+          return { id, order };
+        }),
+      },
+    });
   };
   useEffect(() => {
     let curId = data?.taskCategories ? data.taskCategories[0]?.id : null;

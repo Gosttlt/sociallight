@@ -95,6 +95,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
       );
     },
   });
+  // console.log(data.tasks);
 
   // const setDataFn = (newData: Array<TaskType>) => {
   //   const newFromArr = fromItems
@@ -135,7 +136,9 @@ const TaskColumn: TaskColumnComponentType = (props) => {
   //   }
   // };
 
-  const setDataFn = () => {};
+  const setDataFn = () => {
+    console.log(312);
+  };
   const { focusId } = useContext(TaskContext);
 
   return (

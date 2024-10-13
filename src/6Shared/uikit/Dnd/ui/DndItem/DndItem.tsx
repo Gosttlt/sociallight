@@ -5,6 +5,7 @@ import s from "./DndItem.module.scss";
 import { DndItemComponentType, DndItemDataType } from "./DndItem.types";
 import { DndContext } from "@/1Config/Providers/Dnd";
 import { useContext, useEffect, useRef } from "react";
+import { unmountComponentAtNode } from "react-dom";
 
 const getStyleFromWrapper = ({
   data,
@@ -28,34 +29,38 @@ const getStyleFromWrapper = ({
   isTransition: boolean;
 }) => {
   let style = {};
+  const backStyleObj = {
+    transform: backStyle,
+    background: "red",
+    // transition: ".1s",
+  };
+  const frontStyleObj = {
+    transform: frontStyle,
+    background: "red",
+    // transition: ".1s",
+  };
   if (fromCard.id === data.id && isDragStart) {
     style = { transform: "scale(0)" };
   }
 
   if (!overCard && data.order > fromCard.order) {
-    style = { transform: backStyle };
+    style = backStyleObj;
   } else if (isTargetContainer && overCard) {
     if (isNextPosition) {
       if (data.order > fromCard.order && data.order <= overCard.order) {
-        style = { transform: backStyle };
+        style = backStyleObj;
       } else if (data.order < fromCard.order && data.order > overCard.order) {
-        style = {
-          transform: frontStyle,
-        };
+        style = frontStyleObj;
       }
     } else if (isNextPosition === false) {
       if (data.order > fromCard.order && data.order < overCard.order) {
-        style = { transform: backStyle };
+        style = backStyleObj;
       } else if (data.order < fromCard.order && data.order >= overCard.order) {
-        style = {
-          transform: frontStyle,
-        };
+        style = frontStyleObj;
       }
     }
   }
-  // if (!isTransition) {
-  //   style.transition = "none";
-  // }
+
   return style;
 };
 
@@ -171,7 +176,6 @@ const DndItem: DndItemComponentType = (props) => {
     overCard,
     reverse,
   } = props;
-
   const {
     isDragStart,
     fromCard,
@@ -182,6 +186,7 @@ const DndItem: DndItemComponentType = (props) => {
     isTransition,
   } = useContext(DndContext);
   let style = {};
+  console.log(fromCard?.id);
 
   const isFromSharedClass =
     fromCard &&
@@ -243,25 +248,10 @@ const DndItem: DndItemComponentType = (props) => {
       });
     }
   }
-  console.log(isDragStart);
-
-  const ref = useRef<null | HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isTransition && ref.current && fromCard && data.id !== fromCard.id) {
-      ref.current.style.transition = "none";
-    }
-    if (isTransition && ref.current) {
-      ref.current.style.transition = "";
-    }
-    return () => {
-      ref.current!.style.transition = "";
-    };
-  }, [isTransition]);
 
   return (
     <div
-      ref={ref}
+      // ref={ref}
       onDragStart={(e) => onDragStart?.(e, data)}
       onDragOver={(e) => onDragOver?.(e, data)}
       onDragEnd={onDragEnd}
@@ -274,6 +264,7 @@ const DndItem: DndItemComponentType = (props) => {
       style={{
         ...style,
       }}
+      id={data.name}
     >
       <div className={clsx({ [s.noEvent]: isTargetContainer }, s.child)}>
         {children}

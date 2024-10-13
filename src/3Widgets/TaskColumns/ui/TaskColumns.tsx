@@ -18,14 +18,14 @@ import { TaskType } from "@/6Shared/api/types/Task";
 import { UPDATE_TASK_ORDERS } from "@/4Features/Tasks/UpdateOrder/api/gql";
 import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
 import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
-import { data } from "./data";
+// import { data } from "./data";
 
 const TaskColumns: TaskColumnsComponentType = (props) => {
   const { className = "", children } = props;
   const { activeId } = useContext(TaskContext);
-  // const { data } = useQuery<TasksCategoryResponseType>(GET_TASK_CATEGORY, {
-  //   variables: { id: activeId },
-  // });
+  const { data } = useQuery<TasksCategoryResponseType>(GET_TASK_CATEGORY, {
+    variables: { id: activeId },
+  });
 
   const setData = useApi("column", activeId);
 
@@ -89,6 +89,7 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
     // } else if (id !== curCard.columnId) {
     // }
   };
+
   return (
     <>
       {data?.taskCategory && (

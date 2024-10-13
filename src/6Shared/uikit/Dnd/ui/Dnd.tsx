@@ -50,7 +50,6 @@ const Dnd: DndComponentType = (props) => {
     setFromCard(card);
     setDragStart(true);
     fromCardNode.current = e.currentTarget as HTMLDivElement;
-    // fromCardNode.current.classList.add(s.drag);
     fromCardNodeRect.current = fromCardNode.current.getBoundingClientRect();
 
     setFromItems(items);
@@ -156,8 +155,6 @@ const Dnd: DndComponentType = (props) => {
 
     setDragStart(false);
 
-    // (fromCardNode.current as HTMLDivElement).classList.remove(s.drag);
-
     setTargetContainer(false);
 
     setFromCard(null);
@@ -200,23 +197,34 @@ const Dnd: DndComponentType = (props) => {
       }}
       onDrop={(e) => {
         e.preventDefault();
-        console.log("drop");
 
-        if (fromCard && fromItems && !lastOverCard) {
-          setData(
-            getDataCurrentParent({ dragCard: fromCard, fromCards: fromItems })
-          );
+        if (
+          fromSharedClass.current === sharedClass &&
+          fromWrapperId.current === wrapperId
+        ) {
+          if (fromCard && fromItems && !lastOverCard) {
+            setData(
+              getDataCurrentParent({ dragCard: fromCard, fromCards: fromItems })
+            );
+          }
+          if (
+            fromCard &&
+            fromItems &&
+            lastOverCard &&
+            isNextPosition !== null
+          ) {
+            console.log("getDataCurrentCard");
+            setData(
+              getDataCurrentCard({
+                dragCard: fromCard,
+                fromCards: fromItems,
+                isNextPosition,
+                lastOverCard,
+              })
+            );
+          }
         }
-        if (fromCard && fromItems && lastOverCard && isNextPosition !== null) {
-          setData(
-            getDataCurrentCard({
-              dragCard: fromCard,
-              fromCards: fromItems,
-              isNextPosition,
-              lastOverCard,
-            })
-          );
-        }
+
         setTransition(false);
         setTimeout(() => {
           setTransition(true);
