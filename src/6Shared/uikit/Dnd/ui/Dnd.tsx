@@ -50,6 +50,8 @@ const Dnd: DndComponentType = (props) => {
     setFromCard(card);
     setDragStart(true);
     fromCardNode.current = e.currentTarget as HTMLDivElement;
+    fromCardNode.current.classList.add(s.drag);
+    fromCardNode.current.classList.add(s.transition);
     fromCardNodeRect.current = fromCardNode.current.getBoundingClientRect();
 
     setFromItems(items);
@@ -94,60 +96,6 @@ const Dnd: DndComponentType = (props) => {
   const onDrop = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
     setTargetContainer(false);
-    // e.stopPropagation();
-    // dropCard.current = card;
-    // dropNode.current = e.currentTarget as HTMLDivElement;
-    // let middleElem;
-    // let cursorPosition;
-    // console.log("e.currentTarget", e.currentTarget);
-    // console.log("sharedClass", sharedClass);
-    // console.log("childSharedClass", childSharedClass);
-    // console.log("wrapperId", wrapperId);
-    // console.log("fromSharedClass", fromSharedClass);
-    // console.log("toSharedClass", toSharedClass);
-    // console.log("fromWrapperId", fromWrapperId);
-    // console.log("setLastOverCard", setLastOverCard);
-
-    // if (dropNode.current.closest(`.${fromSharedClass.current}`)) {
-    //   if (direction.name === "height") {
-    //     middleElem =
-    //       dropNode.current.getBoundingClientRect().height / 2 +
-    //       dropNode.current.getBoundingClientRect().y;
-
-    //     cursorPosition = e.clientY;
-    //   } else {
-    //     middleElem =
-    //       dropNode.current.getBoundingClientRect().width / 2 +
-    //       dropNode.current.getBoundingClientRect().x;
-
-    //     cursorPosition = e.clientX;
-    //   }
-
-    //   const isNext = cursorPosition >= middleElem;
-
-    //   const cardOrder = isNext ? 0.1 : -0.1;
-
-    //   const newState = items
-    //     .map((cardPrev: DndItemDataType) => {
-    //       if (cardPrev.id === fromCard?.id) {
-    //         return { ...cardPrev, order: card.order + cardOrder };
-    //       }
-    //       return cardPrev;
-    //     })
-    //     .sort(sortDndFn)
-    //     .map((prev: DndItemDataType, i: number) => ({ ...prev, order: i }));
-    //   toSharedClass.current = sharedClass;
-    //   setData(newState);
-    //   setToItems(items);
-    // }
-
-    // if (
-    //   setChildData &&
-    //   childSharedClass &&
-    //   childSharedClass === fromSharedClass.current
-    // ) {
-    //   setChildData(card.id);
-    // }
   };
 
   const onDragEnd = (e: DragEvent) => {
@@ -161,6 +109,14 @@ const Dnd: DndComponentType = (props) => {
     overNode.current = null;
     if (wrapperId) {
       fromWrapperId.current = null;
+    }
+    if (fromCardNode.current) {
+      fromCardNode.current.classList.remove(s.drag);
+      setTimeout(() => {
+        if (fromCardNode.current) {
+          fromCardNode.current.classList.remove(s.transition);
+        }
+      }, 1000);
     }
   };
 

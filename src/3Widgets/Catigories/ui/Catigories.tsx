@@ -54,7 +54,7 @@ const Catigories: CatigoriesComponentType = (props) => {
         wrapperId="taskCategoryDnd"
       >
         {data &&
-          data.taskCategories.map((category, index) => (
+          data.taskCategories.map((category) => (
             <DndItem data={category} key={category.id}>
               <Category
                 onClick={() => setActiveId(category.id)}

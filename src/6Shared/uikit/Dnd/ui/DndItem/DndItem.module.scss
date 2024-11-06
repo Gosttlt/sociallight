@@ -1,6 +1,5 @@
 .dndItem {
   transform: translate(0, 0);
-  transition: 3s;
   opacity: 1;
   transform: scale(1);
   box-sizing: content-box;
@@ -37,4 +36,7 @@
 
 .drag {
   transform: scale(0);
+}
+.transition {
+  transition: 1s;
 }

@@ -32,16 +32,16 @@ const getStyleFromWrapper = ({
   const backStyleObj = {
     transform: backStyle,
     background: "red",
-    // transition: ".1s",
+    transition: "1s",
   };
   const frontStyleObj = {
     transform: frontStyle,
     background: "red",
-    // transition: ".1s",
+    transition: "1s",
   };
-  if (fromCard.id === data.id && isDragStart) {
-    style = { transform: "scale(0)" };
-  }
+  // if (fromCard.id === data.id && isDragStart) {
+  //   style = { transform: "scale(0)", transition: "0.3s" };
+  // }
 
   if (!overCard && data.order > fromCard.order) {
     style = backStyleObj;
@@ -186,7 +186,6 @@ const DndItem: DndItemComponentType = (props) => {
     isTransition,
   } = useContext(DndContext);
   let style = {};
-  console.log(fromCard?.id);
 
   const isFromSharedClass =
     fromCard &&
@@ -248,7 +247,7 @@ const DndItem: DndItemComponentType = (props) => {
       });
     }
   }
-
+  console.log(isDragStart);
   return (
     <div
       // ref={ref}
@@ -257,14 +256,11 @@ const DndItem: DndItemComponentType = (props) => {
       onDragEnd={onDragEnd}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop?.(e, data)}
-      className={clsx(s.dndItem, sharedClass, {
-        [s.drag]: isDragStart && fromCard && data.id === fromCard?.id,
-      })}
+      className={clsx(s.dndItem, sharedClass)}
       draggable
       style={{
         ...style,
       }}
-      id={data.name}
     >
       <div className={clsx({ [s.noEvent]: isTargetContainer }, s.child)}>
         {children}
