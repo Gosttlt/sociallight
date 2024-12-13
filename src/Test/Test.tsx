@@ -12,7 +12,7 @@ import {
 } from "react";
 import { getDataCurrentCard } from "@/6Shared/uikit/Dnd/utils";
 import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
-import { dndAppearance, dndDisappearance } from "./utils";
+import { dndAppearance, dndDisappearance, dndTransformLeft } from "./utils";
 
 type DndItemDataType = { id: number; order: number };
 
@@ -77,6 +77,49 @@ const getStyleFromWrapper = ({
   return style;
 };
 
+type СbTransformItemArgsType = {
+  refCurrentWidth: MutableRefObject<number | null>;
+  firstElem: HTMLDivElement;
+  direction:
+    | "left"
+    | "reverseLeft"
+    | "right"
+    | "reverseRight"
+    | "top"
+    | "reverseTop"
+    | "bot"
+    | "reverseBot";
+};
+
+const cbTransformItem = (
+  progress: number,
+  duration: number,
+  { refCurrentWidth, firstElem, direction }: СbTransformItemArgsType
+) => {
+  if (refCurrentWidth.current) {
+    if (direction === "left") {
+      const result = (progress / duration) * refCurrentWidth.current;
+      firstElem.style.transform = `translateX(${-result}px)`;
+    } else if (direction === "reverseLeft") {
+      const result =
+        refCurrentWidth.current -
+        (progress / duration) * refCurrentWidth.current;
+
+      firstElem.style.transform = `translateX(${-result}px)`;
+    } else if (direction === "right") {
+      const result = (progress / duration) * refCurrentWidth.current;
+
+      firstElem.style.transform = `translateX(${result}px)`;
+    } else if (direction === "reverseRight") {
+      const result =
+        refCurrentWidth.current -
+        (progress / duration) * refCurrentWidth.current;
+
+      firstElem.style.transform = `translateX(${result}px)`;
+    }
+  }
+};
+
 const Test: TestComponentType = (props) => {
   const { className = "", children } = props;
   const [items, setItems] = useState<Array<any>>(
@@ -85,54 +128,79 @@ const Test: TestComponentType = (props) => {
   const [draggedElement, setDraggedElement] = useState<null | DndItemDataType>(
     null
   );
+  const refCurrentWidth = useRef<null | number>(null);
   const refCurrent = useRef<null | HTMLDivElement>(null);
-  const rafDisApp = useAnimationFrame(refCurrent);
+  const rafDisApp = useAnimationFrame();
+  const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     const curentTarget = e.currentTarget as HTMLDivElement;
+    refCurrentWidth.current = curentTarget.getBoundingClientRect().width;
     refCurrent.current = curentTarget;
-    rafDisApp(dndDisappearance, 300);
+    rafDisApp(dndDisappearance, 300, refCurrent);
     setDraggedElement(card);
   };
 
   const dragEnd = (e: DragEvent, card: DndItemDataType) => {
-    rafDisApp(dndAppearance, 300);
+    rafDisApp(dndAppearance, 300, refCurrent);
     setDraggedElement(null);
   };
 
   const dragOver = (e: DragEvent) => {
     items.forEach((item) => {
       if (draggedElement && item.id > draggedElement.id) {
-        // item.ref.current.classList.remove(s.removeTransformLeft);
-        // item.ref.current.classList.add(s.transformLeft);
       }
     });
   };
   const ref = useRef<null | HTMLDivElement>(null);
-
+  const firstElem = items[0].ref.current as HTMLDivElement;
   return (
     <div>
       <button
         onClick={() => {
-          rafDisApp(dndAppearance, 2000);
+          rafTransform(cbTransformItem, 1000, {
+            firstElem,
+            refCurrentWidth,
+            direction: "left",
+          });
         }}
       >
-        click
+        click1
       </button>
       <button
         onClick={() => {
-          rafDisApp(dndDisappearance, 2000);
+          rafTransform(cbTransformItem, 1000, {
+            firstElem,
+            refCurrentWidth,
+            direction: "reverseLeft",
+          });
         }}
       >
-        click
+        click2
       </button>
       <button
         onClick={() => {
-          asd();
+          rafTransform(cbTransformItem, 1000, {
+            firstElem,
+            refCurrentWidth,
+            direction: "right",
+          });
         }}
       >
         click3
       </button>
+      <button
+        onClick={() => {
+          rafTransform(cbTransformItem, 1000, {
+            firstElem,
+            refCurrentWidth,
+            direction: "reverseRight",
+          });
+        }}
+      >
+        click4
+      </button>
+
       <div ref={ref} className={clsx(s.lol, s.lol1)}>
         asdasdas
       </div>
@@ -155,3 +223,10 @@ const Test: TestComponentType = (props) => {
 };
 
 export default Test;
+
+// @ts-ignore
+Array.prototype.castomMap = function (cb) {
+  console.log(this);
+};
+// @ts-ignore
+[1, 2, 3].castomMap((el, i) => el + i);

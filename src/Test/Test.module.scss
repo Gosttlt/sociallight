@@ -9,7 +9,7 @@
   border: 1px solid red;
   padding: 6px;
   cursor: pointer;
-  transition: 0.3s;
+  // transition: 0.3s;
 }
 .startEl {
   animation: hiddenDragElement 1s forwards;
@@ -55,7 +55,6 @@
 .lol {
   margin-top: 100px;
   margin-left: 100px;
-  // transform: translateY(500px);
   transform: scale(1);
   background: red;
   width: fit-content;
@@ -64,7 +63,6 @@
   border: 2px solid black;
 }
 .lol1 {
-  // transform: rotate(30deg);
   background: red;
   width: fit-content;
   color: #000;
