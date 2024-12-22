@@ -97,19 +97,18 @@ const Test: TestComponentType = (props) => {
   const [draggedElement, setDraggedElement] = useState<null | DndItemDataType>(
     null
   );
-  const refDragNodeWidth = useRef<null | number>(null);
+  const refDragNode = useRef<null | HTMLDivElement>(null);
   const refCurrent = useRef<null | HTMLDivElement>(null);
   const rafDisApp = useAnimationFrame();
   const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     const curentTarget = e.currentTarget as HTMLDivElement;
-    refDragNodeWidth.current = curentTarget.getBoundingClientRect().width;
+    refDragNode.current = curentTarget;
     refCurrent.current = curentTarget;
     rafDisApp(dndDisappearance, 1000, refCurrent);
     setDraggedElement(card);
   };
-
   const dragEnd = (e: DragEvent, card: DndItemDataType) => {
     rafDisApp(dndAppearance, 1000, refCurrent);
     setDraggedElement(null);
@@ -126,51 +125,97 @@ const Test: TestComponentType = (props) => {
 
   return (
     <div>
-      <button
-        onClick={() => {
-          rafTransform(cbTransformItem, 2000, {
-            thisNode,
-            refDragNodeWidth,
-            direction: "left",
-          });
-        }}
-      >
-        click1
-      </button>
-      <button
-        onClick={() => {
-          rafTransform(cbTransformItem, 2000, {
-            thisNode,
-            refDragNodeWidth,
-            direction: "reverseLeft",
-          });
-        }}
-      >
-        click2
-      </button>
-      <button
-        onClick={() => {
-          rafTransform(cbTransformItem, 2000, {
-            thisNode,
-            refDragNodeWidth,
-            direction: "right",
-          });
-        }}
-      >
-        click3
-      </button>
-      <button
-        onClick={() => {
-          rafTransform(cbTransformItem, 2000, {
-            thisNode,
-            refDragNodeWidth,
-            direction: "reverseRight",
-          });
-        }}
-      >
-        click4
-      </button>
-
+      <button onClick={() => console.log(refDragNode)}>asd</button>
+      <div style={{ display: "flex", gap: "4px" }}>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "left",
+            });
+          }}
+        >
+          Left
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "reverseLeft",
+            });
+          }}
+        >
+          Left Reverse
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "right",
+            });
+          }}
+        >
+          Right
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "reverseRight",
+            });
+          }}
+        >
+          Right Reverse
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "top",
+            });
+          }}
+        >
+          Top
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "reverseTop",
+            });
+          }}
+        >
+          Top Reverse
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "bot",
+            });
+          }}
+        >
+          Bottom
+        </button>
+        <button
+          onClick={() => {
+            rafTransform(cbTransformItem, 2000, {
+              thisNode,
+              refDragNode,
+              direction: "reverseBot",
+            });
+          }}
+        >
+          Bottom Reverse
+        </button>
+      </div>
       <div ref={ref} className={clsx(s.lol, s.lol1)}>
         asdasdas
       </div>

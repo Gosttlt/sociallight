@@ -38,19 +38,15 @@ export const dndDisappearance = (
     ref.current.style.transform = `matrix(${curValue})`;
   }
 };
+type XDirectionTypes = "left" | "reverseLeft" | "right" | "reverseRight";
+type YDirectionTypes = "top" | "reverseTop" | "bot" | "reverseBot";
+
+type DirectionsType = XDirectionTypes | YDirectionTypes;
 
 export type СbTransformItemArgsType = {
-  refDragNodeWidth: MutableRefObject<number | null>;
+  refDragNode: MutableRefObject<HTMLDivElement | null>;
   thisNode: HTMLDivElement;
-  direction:
-    | "left"
-    | "reverseLeft"
-    | "right"
-    | "reverseRight"
-    | "top"
-    | "reverseTop"
-    | "bot"
-    | "reverseBot";
+  direction: DirectionsType;
 };
 const getDurationCoefficientDecriment = (
   progress: number,
@@ -69,10 +65,10 @@ const getLeftTransformValue = (
   dragElemWidth: number,
   progress: number,
   duration: number,
-  refAdditionalDuration: MutableRefObject<number>,
+  refReductionDuration: MutableRefObject<number>,
   startPosition: number
 ) => {
-  refAdditionalDuration.current =
+  refReductionDuration.current =
     (Math.abs(startPosition) / dragElemWidth) * duration;
 
   let newTransformPosition =
@@ -84,10 +80,10 @@ const getLeftReversTransformValue = (
   dragElemWidth: number,
   progress: number,
   duration: number,
-  refAdditionalDuration: MutableRefObject<number>,
+  refReductionDuration: MutableRefObject<number>,
   startPosition: number
 ) => {
-  refAdditionalDuration.current =
+  refReductionDuration.current =
     (1 - Math.abs(startPosition) / dragElemWidth) * duration;
 
   const newTransformPosition =
@@ -101,54 +97,147 @@ const getLeftReversTransformValue = (
 
   return -newTransformPosition + additionalTransformPosition;
 };
+const getRightTransformValue = (
+  dragElemWidth: number,
+  progress: number,
+  duration: number,
+  refReductionDuration: MutableRefObject<number>,
+  startPosition: number
+) => {
+  let coefficientCompletedDistance = startPosition / dragElemWidth;
+  refReductionDuration.current = coefficientCompletedDistance * duration;
+
+  let newTransformPosition =
+    getDurationCoefficientIncrement(progress, duration) * dragElemWidth +
+    startPosition;
+  return newTransformPosition;
+};
+
+const getRightReversTransformValue = (
+  dragElemWidth: number,
+  progress: number,
+  duration: number,
+  refReductionDuration: MutableRefObject<number>,
+  startPosition: number
+) => {
+  let coefficientCompletedDistance = 1 - startPosition / dragElemWidth;
+  refReductionDuration.current = coefficientCompletedDistance * duration;
+
+  const newTransformPosition =
+    getDurationCoefficientDecriment(progress, duration) * dragElemWidth;
+
+  let additionalTransformCoefficient =
+    1 - Math.abs(startPosition) / dragElemWidth;
+
+  let additionalTransformPosition =
+    additionalTransformCoefficient * dragElemWidth;
+
+  return newTransformPosition - additionalTransformPosition;
+};
+
+let xDirectionValues: XDirectionTypes[] = [
+  "left",
+  "right",
+  "reverseLeft",
+  "reverseRight",
+];
+let yDirectionValues: YDirectionTypes[] = [
+  "top",
+  "bot",
+  "reverseTop",
+  "reverseBot",
+];
+
+type getDragNodeFnType = (dragNodeSizes: DOMRect) => number;
+
+const getDragNodeWidth: getDragNodeFnType = (dragNodeSizes) => {
+  return Math.floor(dragNodeSizes.width);
+};
+const getDragNodeHeight: getDragNodeFnType = (dragNodeSizes) => {
+  return Math.floor(dragNodeSizes.height);
+};
+
+const directionSetting: Record<DirectionsType, { getTransformValue?: any }> = {
+  left: {
+    getTransformValue: getLeftTransformValue,
+  },
+  reverseLeft: {
+    getTransformValue: getLeftReversTransformValue,
+  },
+  right: {
+    getTransformValue: getRightTransformValue,
+  },
+  reverseRight: {
+    getTransformValue: getRightReversTransformValue,
+  },
+  top: {
+    getTransformValue: getLeftTransformValue,
+  },
+  reverseTop: {
+    getTransformValue: getLeftReversTransformValue,
+  },
+  bot: {
+    getTransformValue: getRightTransformValue,
+  },
+  reverseBot: {
+    getTransformValue: getRightReversTransformValue,
+  },
+};
+
+const getAxis = (direction: DirectionsType): AxisType => {
+  return xDirectionValues.includes(direction as XDirectionTypes) ? "x" : "y";
+};
+
+type AxisType = "x" | "y";
+
+const axisSetting: Record<
+  AxisType,
+  { getDragNodeSize: getDragNodeFnType; matrixTranslateNumber: number }
+> = {
+  x: { getDragNodeSize: getDragNodeWidth, matrixTranslateNumber: 4 },
+  y: { getDragNodeSize: getDragNodeHeight, matrixTranslateNumber: 5 },
+};
 
 export const cbTransformItem = (
   progress: number,
   duration: number,
   {
-    refDragNodeWidth,
+    refDragNode,
     thisNode,
     direction,
     isFirstCall,
     refStartValueThisNode,
-    refAdditionalDuration,
+    refReductionDuration,
   }: СbTransformItemArgsType & {
     isFirstCall: boolean;
     refStartValueThisNode: MutableRefObject<number>;
-    refAdditionalDuration: MutableRefObject<number>;
+    refReductionDuration: MutableRefObject<number>;
   }
 ) => {
-  if (refDragNodeWidth.current && thisNode) {
+  if (refDragNode.current && thisNode) {
+    let axis = getAxis(direction);
+    let dragNodeSizes = refDragNode.current.getBoundingClientRect();
     let result = 0;
     let curMatrixValue = getTransformValueArr(thisNode);
-    let floorDragNodeWidth = Math.floor(refDragNodeWidth.current);
+    let floorDragNodeSize = axisSetting[axis].getDragNodeSize(dragNodeSizes);
+    console.log(floorDragNodeSize);
     if (isFirstCall) {
-      refStartValueThisNode.current = Number(curMatrixValue[4]);
+      if (xDirectionValues.includes(direction as XDirectionTypes)) {
+        refStartValueThisNode.current = Number(curMatrixValue[4]);
+      } else if (yDirectionValues.includes(direction as YDirectionTypes)) {
+        refStartValueThisNode.current = Number(curMatrixValue[5]);
+      }
     }
 
-    if (direction === "left") {
-      result = getLeftTransformValue(
-        floorDragNodeWidth,
-        progress,
-        duration,
-        refAdditionalDuration,
-        refStartValueThisNode.current
-      );
-    } else if (direction === "reverseLeft") {
-      result = getLeftReversTransformValue(
-        floorDragNodeWidth,
-        progress,
-        duration,
-        refAdditionalDuration,
-        refStartValueThisNode.current
-      );
-    } else if (direction === "right") {
-      result = (progress / duration) * floorDragNodeWidth;
-    } else if (direction === "reverseRight") {
-      result = floorDragNodeWidth - (progress / duration) * floorDragNodeWidth;
-    }
+    result = directionSetting[direction].getTransformValue(
+      floorDragNodeSize,
+      progress,
+      duration,
+      refReductionDuration,
+      refStartValueThisNode.current
+    );
 
-    curMatrixValue[4] = String(result);
+    curMatrixValue[axisSetting[axis].matrixTranslateNumber] = result.toFixed(1);
     thisNode.style.transform = `matrix(${curMatrixValue})`;
   }
 };
