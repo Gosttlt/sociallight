@@ -1,34 +1,50 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 
-// const useAnimationFrame = (ref: MutableRefObject<HTMLElement | null>) => {
 const useAnimationFrame = <T,>() => {
-  const refTimeStart = useRef<null | number>(null);
   const refAnimateId = useRef<null | number>(null);
+  const refStartValueThisNode = useRef<number>(0);
+  const refAdditionalDuration = useRef<number>(0);
 
   const returnCb = (cb: Function, duration: number, options?: T) => {
     let lastId: number | null = null;
-    let isLastCall: boolean = false;
-
+    let wasLastCall: boolean = false;
+    let isFirstCall: boolean = true;
+    let timeStart: null | number = null;
     const animate = (timestamp: number) => {
       if (lastId === null) lastId = refAnimateId.current;
-      if (refTimeStart.current === null) refTimeStart.current = timestamp;
+      if (timeStart === null) timeStart = timestamp;
 
-      const progress = timestamp - refTimeStart.current;
-      if (progress <= duration && refAnimateId.current === lastId) {
-        cb(progress, duration, options);
+      const progress = timestamp - timeStart;
+      let timeStopCalling = duration - refAdditionalDuration.current;
+      if (progress <= timeStopCalling && refAnimateId.current === lastId) {
+        cb(progress, duration, {
+          ...options,
+          isFirstCall,
+          refStartValueThisNode,
+          refAdditionalDuration,
+        });
+        if (isFirstCall) {
+          isFirstCall = false;
+        }
         requestAnimationFrame(animate);
       } else if (
-        progress > duration &&
+        progress > timeStopCalling &&
         refAnimateId.current === lastId &&
-        !isLastCall
+        !wasLastCall
       ) {
-        isLastCall = true;
-        cb(duration, duration, options);
+        cb(timeStopCalling, duration, {
+          ...options,
+          isFirstCall,
+          refStartValueThisNode,
+          refAdditionalDuration,
+        });
+        wasLastCall = true;
       }
     };
 
     refAnimateId.current = requestAnimationFrame(animate);
-    refTimeStart.current = null;
+    refStartValueThisNode.current = 0;
+    refAdditionalDuration.current = 0;
   };
   return returnCb;
 };

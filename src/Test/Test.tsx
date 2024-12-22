@@ -1,4 +1,6 @@
+// @ts-nocheck
 "use client";
+
 import clsx from "clsx";
 
 import s from "./Test.module.scss";
@@ -7,12 +9,22 @@ import {
   DragEvent,
   MutableRefObject,
   RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { getDataCurrentCard } from "@/6Shared/uikit/Dnd/utils";
 import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
-import { dndAppearance, dndDisappearance, dndTransformLeft } from "./utils";
+import {
+  dndAppearance,
+  dndDisappearance,
+  СbTransformItemArgsType,
+  cbTransformItem,
+} from "./utils";
+import { current } from "@reduxjs/toolkit";
 
 type DndItemDataType = { id: number; order: number };
 
@@ -77,49 +89,6 @@ const getStyleFromWrapper = ({
   return style;
 };
 
-type СbTransformItemArgsType = {
-  refCurrentWidth: MutableRefObject<number | null>;
-  firstElem: HTMLDivElement;
-  direction:
-    | "left"
-    | "reverseLeft"
-    | "right"
-    | "reverseRight"
-    | "top"
-    | "reverseTop"
-    | "bot"
-    | "reverseBot";
-};
-
-const cbTransformItem = (
-  progress: number,
-  duration: number,
-  { refCurrentWidth, firstElem, direction }: СbTransformItemArgsType
-) => {
-  if (refCurrentWidth.current) {
-    if (direction === "left") {
-      const result = (progress / duration) * refCurrentWidth.current;
-      firstElem.style.transform = `translateX(${-result}px)`;
-    } else if (direction === "reverseLeft") {
-      const result =
-        refCurrentWidth.current -
-        (progress / duration) * refCurrentWidth.current;
-
-      firstElem.style.transform = `translateX(${-result}px)`;
-    } else if (direction === "right") {
-      const result = (progress / duration) * refCurrentWidth.current;
-
-      firstElem.style.transform = `translateX(${result}px)`;
-    } else if (direction === "reverseRight") {
-      const result =
-        refCurrentWidth.current -
-        (progress / duration) * refCurrentWidth.current;
-
-      firstElem.style.transform = `translateX(${result}px)`;
-    }
-  }
-};
-
 const Test: TestComponentType = (props) => {
   const { className = "", children } = props;
   const [items, setItems] = useState<Array<any>>(
@@ -128,21 +97,21 @@ const Test: TestComponentType = (props) => {
   const [draggedElement, setDraggedElement] = useState<null | DndItemDataType>(
     null
   );
-  const refCurrentWidth = useRef<null | number>(null);
+  const refDragNodeWidth = useRef<null | number>(null);
   const refCurrent = useRef<null | HTMLDivElement>(null);
   const rafDisApp = useAnimationFrame();
   const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     const curentTarget = e.currentTarget as HTMLDivElement;
-    refCurrentWidth.current = curentTarget.getBoundingClientRect().width;
+    refDragNodeWidth.current = curentTarget.getBoundingClientRect().width;
     refCurrent.current = curentTarget;
-    rafDisApp(dndDisappearance, 300, refCurrent);
+    rafDisApp(dndDisappearance, 1000, refCurrent);
     setDraggedElement(card);
   };
 
   const dragEnd = (e: DragEvent, card: DndItemDataType) => {
-    rafDisApp(dndAppearance, 300, refCurrent);
+    rafDisApp(dndAppearance, 1000, refCurrent);
     setDraggedElement(null);
   };
 
@@ -153,14 +122,15 @@ const Test: TestComponentType = (props) => {
     });
   };
   const ref = useRef<null | HTMLDivElement>(null);
-  const firstElem = items[0].ref.current as HTMLDivElement;
+  const thisNode = items[0].ref.current as HTMLDivElement;
+
   return (
     <div>
       <button
         onClick={() => {
-          rafTransform(cbTransformItem, 1000, {
-            firstElem,
-            refCurrentWidth,
+          rafTransform(cbTransformItem, 2000, {
+            thisNode,
+            refDragNodeWidth,
             direction: "left",
           });
         }}
@@ -169,9 +139,9 @@ const Test: TestComponentType = (props) => {
       </button>
       <button
         onClick={() => {
-          rafTransform(cbTransformItem, 1000, {
-            firstElem,
-            refCurrentWidth,
+          rafTransform(cbTransformItem, 2000, {
+            thisNode,
+            refDragNodeWidth,
             direction: "reverseLeft",
           });
         }}
@@ -180,9 +150,9 @@ const Test: TestComponentType = (props) => {
       </button>
       <button
         onClick={() => {
-          rafTransform(cbTransformItem, 1000, {
-            firstElem,
-            refCurrentWidth,
+          rafTransform(cbTransformItem, 2000, {
+            thisNode,
+            refDragNodeWidth,
             direction: "right",
           });
         }}
@@ -191,9 +161,9 @@ const Test: TestComponentType = (props) => {
       </button>
       <button
         onClick={() => {
-          rafTransform(cbTransformItem, 1000, {
-            firstElem,
-            refCurrentWidth,
+          rafTransform(cbTransformItem, 2000, {
+            thisNode,
+            refDragNodeWidth,
             direction: "reverseRight",
           });
         }}
@@ -223,10 +193,3 @@ const Test: TestComponentType = (props) => {
 };
 
 export default Test;
-
-// @ts-ignore
-Array.prototype.castomMap = function (cb) {
-  console.log(this);
-};
-// @ts-ignore
-[1, 2, 3].castomMap((el, i) => el + i);
