@@ -8,36 +8,28 @@ export const getTransformValueArr = (el: HTMLDivElement) => {
   return ["1", "0", "0", "1", "0", "0"];
 };
 
-export const dndAppearance = (
+export type SetScaleType = {
+  refThisNode: MutableRefObject<HTMLDivElement | null>;
+  direction: "appearance" | "disappearance";
+};
+
+export const setScale = (
   progress: number,
   duration: number,
-  ref: MutableRefObject<HTMLDivElement | null>
+  { refThisNode, direction }: SetScaleType
 ) => {
-  if (ref.current) {
-    const result = progress / duration;
-    const curValue = getTransformValueArr(ref.current);
+  if (refThisNode.current) {
+    let result = progress / duration;
+    if (direction === "disappearance") result = 1 - result;
+    const curValue = getTransformValueArr(refThisNode.current);
     if (Array.isArray(curValue)) {
       curValue[0] = String(result);
       curValue[3] = String(result);
     }
-    ref.current.style.transform = `matrix(${curValue})`;
+    refThisNode.current.style.transform = `matrix(${curValue})`;
   }
 };
-export const dndDisappearance = (
-  progress: number,
-  duration: number,
-  ref: MutableRefObject<HTMLDivElement | null>
-) => {
-  if (ref.current) {
-    const result = 1 - progress / duration;
-    const curValue = getTransformValueArr(ref.current);
-    if (Array.isArray(curValue)) {
-      curValue[0] = String(result);
-      curValue[3] = String(result);
-    }
-    ref.current.style.transform = `matrix(${curValue})`;
-  }
-};
+
 type XDirectionTypes = "left" | "reverseLeft" | "right" | "reverseRight";
 type YDirectionTypes = "top" | "reverseTop" | "bot" | "reverseBot";
 
@@ -198,7 +190,7 @@ const axisSetting: Record<
   y: { getDragNodeSize: getDragNodeHeight, matrixTranslateNumber: 5 },
 };
 
-export const cbTransformItem = (
+export const setTransform = (
   progress: number,
   duration: number,
   {
@@ -220,7 +212,6 @@ export const cbTransformItem = (
     let result = 0;
     let curMatrixValue = getTransformValueArr(thisNode);
     let floorDragNodeSize = axisSetting[axis].getDragNodeSize(dragNodeSizes);
-    console.log(floorDragNodeSize);
     if (isFirstCall) {
       if (xDirectionValues.includes(direction as XDirectionTypes)) {
         refStartValueThisNode.current = Number(curMatrixValue[4]);

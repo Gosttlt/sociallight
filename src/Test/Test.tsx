@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import clsx from "clsx";
@@ -19,10 +18,10 @@ import {
 import { getDataCurrentCard } from "@/6Shared/uikit/Dnd/utils";
 import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
 import {
-  dndAppearance,
-  dndDisappearance,
   СbTransformItemArgsType,
-  cbTransformItem,
+  setTransform,
+  setScale,
+  SetScaleType,
 } from "./utils";
 import { current } from "@reduxjs/toolkit";
 
@@ -99,18 +98,26 @@ const Test: TestComponentType = (props) => {
   );
   const refDragNode = useRef<null | HTMLDivElement>(null);
   const refCurrent = useRef<null | HTMLDivElement>(null);
-  const rafDisApp = useAnimationFrame();
+  const rafDisApp = useAnimationFrame<SetScaleType>();
   const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
+  const rafTransformm = useAnimationFrame<СbTransformItemArgsType>();
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     const curentTarget = e.currentTarget as HTMLDivElement;
     refDragNode.current = curentTarget;
     refCurrent.current = curentTarget;
-    rafDisApp(dndDisappearance, 1000, refCurrent);
+    console.log(refCurrent);
+    rafDisApp(setScale, 1000, {
+      refThisNode: refCurrent,
+      direction: "disappearance",
+    });
     setDraggedElement(card);
   };
   const dragEnd = (e: DragEvent, card: DndItemDataType) => {
-    rafDisApp(dndAppearance, 1000, refCurrent);
+    rafDisApp(setScale, 1000, {
+      refThisNode: refCurrent,
+      direction: "appearance",
+    });
     setDraggedElement(null);
   };
 
@@ -122,14 +129,15 @@ const Test: TestComponentType = (props) => {
   };
   const ref = useRef<null | HTMLDivElement>(null);
   const thisNode = items[0].ref.current as HTMLDivElement;
+  const thisNode123 = items[1].ref.current as HTMLDivElement;
 
   return (
     <div>
-      <button onClick={() => console.log(refDragNode)}>asd</button>
+      <button onClick={() => console.log(thisNode123)}>asd</button>
       <div style={{ display: "flex", gap: "4px" }}>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "left",
@@ -140,7 +148,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "reverseLeft",
@@ -151,7 +159,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "right",
@@ -162,7 +170,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "reverseRight",
@@ -173,7 +181,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "top",
@@ -184,7 +192,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "reverseTop",
@@ -195,7 +203,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "bot",
@@ -206,7 +214,7 @@ const Test: TestComponentType = (props) => {
         </button>
         <button
           onClick={() => {
-            rafTransform(cbTransformItem, 2000, {
+            rafTransform(setTransform, 2000, {
               thisNode,
               refDragNode,
               direction: "reverseBot",
