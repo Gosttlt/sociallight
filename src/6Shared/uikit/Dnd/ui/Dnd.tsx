@@ -6,6 +6,8 @@ import { getDataCurrentCard, getDataCurrentParent, sortDndFn } from "../utils";
 import { DndItemDataType } from "./DndItem/DndItem.types";
 import clsx from "clsx";
 import { DndContext } from "@/1Config/Providers/Dnd";
+import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
+import { setScale, SetScaleType } from "@/Test/utils";
 
 const Dnd: DndComponentType = (props) => {
   const {
@@ -19,6 +21,8 @@ const Dnd: DndComponentType = (props) => {
     wrapperId,
     reverse,
   } = props;
+
+  const rafDisApp = useAnimationFrame<SetScaleType>();
 
   const {
     fromCard,
@@ -50,8 +54,10 @@ const Dnd: DndComponentType = (props) => {
     setFromCard(card);
     setDragStart(true);
     fromCardNode.current = e.currentTarget as HTMLDivElement;
-    fromCardNode.current.classList.add(s.drag);
-    fromCardNode.current.classList.add(s.transition);
+    rafDisApp(setScale, 1000, {
+      refThisNode: fromCardNode,
+      direction: "disappearance",
+    });
     fromCardNodeRect.current = fromCardNode.current.getBoundingClientRect();
 
     setFromItems(items);
@@ -111,12 +117,10 @@ const Dnd: DndComponentType = (props) => {
       fromWrapperId.current = null;
     }
     if (fromCardNode.current) {
-      fromCardNode.current.classList.remove(s.drag);
-      setTimeout(() => {
-        if (fromCardNode.current) {
-          fromCardNode.current.classList.remove(s.transition);
-        }
-      }, 1000);
+      rafDisApp(setScale, 1000, {
+        refThisNode: fromCardNode,
+        direction: "appearance",
+      });
     }
   };
 
@@ -153,7 +157,6 @@ const Dnd: DndComponentType = (props) => {
       }}
       onDrop={(e) => {
         e.preventDefault();
-
         if (
           fromSharedClass.current === sharedClass &&
           fromWrapperId.current === wrapperId
@@ -169,7 +172,6 @@ const Dnd: DndComponentType = (props) => {
             lastOverCard &&
             isNextPosition !== null
           ) {
-            console.log("getDataCurrentCard");
             setData(
               getDataCurrentCard({
                 dragCard: fromCard,

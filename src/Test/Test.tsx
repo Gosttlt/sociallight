@@ -96,17 +96,15 @@ const Test: TestComponentType = (props) => {
   const [draggedElement, setDraggedElement] = useState<null | DndItemDataType>(
     null
   );
-  const refDragNode = useRef<null | HTMLDivElement>(null);
+  const refDragNodeRect = useRef<DOMRect | null>(null);
   const refCurrent = useRef<null | HTMLDivElement>(null);
   const rafDisApp = useAnimationFrame<SetScaleType>();
   const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
-  const rafTransformm = useAnimationFrame<СbTransformItemArgsType>();
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     const curentTarget = e.currentTarget as HTMLDivElement;
-    refDragNode.current = curentTarget;
+    refDragNodeRect.current = curentTarget.getBoundingClientRect();
     refCurrent.current = curentTarget;
-    console.log(refCurrent);
     rafDisApp(setScale, 1000, {
       refThisNode: refCurrent,
       direction: "disappearance",
@@ -139,7 +137,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "left",
             });
           }}
@@ -150,7 +148,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "reverseLeft",
             });
           }}
@@ -161,7 +159,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "right",
             });
           }}
@@ -172,7 +170,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "reverseRight",
             });
           }}
@@ -183,7 +181,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "top",
             });
           }}
@@ -194,7 +192,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "reverseTop",
             });
           }}
@@ -205,7 +203,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "bot",
             });
           }}
@@ -216,7 +214,7 @@ const Test: TestComponentType = (props) => {
           onClick={() => {
             rafTransform(setTransform, 2000, {
               thisNode,
-              refDragNode,
+              refDragNodeRect,
               direction: "reverseBot",
             });
           }}

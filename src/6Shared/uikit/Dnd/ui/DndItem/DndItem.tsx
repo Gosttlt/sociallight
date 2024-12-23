@@ -4,12 +4,13 @@ import clsx from "clsx";
 import s from "./DndItem.module.scss";
 import { DndItemComponentType, DndItemDataType } from "./DndItem.types";
 import { DndContext } from "@/1Config/Providers/Dnd";
-import { useContext, useEffect, useRef } from "react";
-import { unmountComponentAtNode } from "react-dom";
+import { MutableRefObject, useContext, useEffect, useRef } from "react";
+import { setTransform, СbTransformItemArgsType } from "@/Test/utils";
+import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
 
 const getStyleFromWrapper = ({
-  data,
-  fromCard,
+  data, //currantCard
+  fromCard, // dragCard
   isNextPosition,
   overCard,
   isTargetContainer,
@@ -17,7 +18,13 @@ const getStyleFromWrapper = ({
   frontStyle,
   isDragStart,
   isTransition,
+  rafTransform,
+  thisNode,
+  fromCardNodeRect,
 }: {
+  fromCardNodeRect: MutableRefObject<DOMRect | null>;
+  thisNode: HTMLDivElement | null;
+  rafTransform: any;
   overCard?: DndItemDataType | null;
   data: DndItemDataType;
   fromCard: DndItemDataType;
@@ -44,19 +51,44 @@ const getStyleFromWrapper = ({
   // }
 
   if (!overCard && data.order > fromCard.order) {
-    style = backStyleObj;
+    rafTransform(setTransform, 1000, {
+      thisNode,
+      refDragNodeRect: fromCardNodeRect,
+      direction: "left",
+    });
+    // style = backStyleObj;
   } else if (isTargetContainer && overCard) {
     if (isNextPosition) {
       if (data.order > fromCard.order && data.order <= overCard.order) {
-        style = backStyleObj;
+        // style = backStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "left",
+        });
       } else if (data.order < fromCard.order && data.order > overCard.order) {
-        style = frontStyleObj;
+        // style = frontStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "reverseLeft",
+        });
       }
     } else if (isNextPosition === false) {
       if (data.order > fromCard.order && data.order < overCard.order) {
-        style = backStyleObj;
+        // style = backStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "left",
+        });
       } else if (data.order < fromCard.order && data.order >= overCard.order) {
-        style = frontStyleObj;
+        // style = frontStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "reverseLeft",
+        });
       }
     }
   }
@@ -183,10 +215,12 @@ const DndItem: DndItemComponentType = (props) => {
     fromSharedClass,
     fromWrapperId,
     fromCardNodeRect,
+    fromCardNode,
     isTransition,
   } = useContext(DndContext);
   let style = {};
-
+  const rafTransform = useAnimationFrame<СbTransformItemArgsType>();
+  const refThisNode = useRef<HTMLDivElement | null>(null);
   const isFromSharedClass =
     fromCard &&
     fromCard.id !== data.id &&
@@ -227,6 +261,9 @@ const DndItem: DndItemComponentType = (props) => {
   } else {
     if (isFromSharedClass) {
       style = getStyleFromWrapper({
+        fromCardNodeRect,
+        thisNode: refThisNode.current,
+        rafTransform,
         data,
         fromCard,
         isNextPosition,
@@ -247,10 +284,9 @@ const DndItem: DndItemComponentType = (props) => {
       });
     }
   }
-  console.log(isDragStart);
   return (
     <div
-      // ref={ref}
+      ref={refThisNode}
       onDragStart={(e) => onDragStart?.(e, data)}
       onDragOver={(e) => onDragOver?.(e, data)}
       onDragEnd={onDragEnd}

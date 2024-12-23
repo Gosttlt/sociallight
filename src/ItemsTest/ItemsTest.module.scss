@@ -1,0 +1,13 @@
+.item {
+  border: 1px solid gray;
+  width: 32px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+
+  cursor: pointer;
+}
+.itemsTestWrapper {
+  display: flex;
+}

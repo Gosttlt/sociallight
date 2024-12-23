@@ -36,7 +36,7 @@ type YDirectionTypes = "top" | "reverseTop" | "bot" | "reverseBot";
 type DirectionsType = XDirectionTypes | YDirectionTypes;
 
 export type СbTransformItemArgsType = {
-  refDragNode: MutableRefObject<HTMLDivElement | null>;
+  refDragNodeRect: MutableRefObject<DOMRect | null>;
   thisNode: HTMLDivElement;
   direction: DirectionsType;
 };
@@ -194,7 +194,7 @@ export const setTransform = (
   progress: number,
   duration: number,
   {
-    refDragNode,
+    refDragNodeRect,
     thisNode,
     direction,
     isFirstCall,
@@ -206,12 +206,13 @@ export const setTransform = (
     refReductionDuration: MutableRefObject<number>;
   }
 ) => {
-  if (refDragNode.current && thisNode) {
+  if (refDragNodeRect.current && thisNode) {
     let axis = getAxis(direction);
-    let dragNodeSizes = refDragNode.current.getBoundingClientRect();
     let result = 0;
     let curMatrixValue = getTransformValueArr(thisNode);
-    let floorDragNodeSize = axisSetting[axis].getDragNodeSize(dragNodeSizes);
+    let floorDragNodeSize = axisSetting[axis].getDragNodeSize(
+      refDragNodeRect.current
+    );
     if (isFirstCall) {
       if (xDirectionValues.includes(direction as XDirectionTypes)) {
         refStartValueThisNode.current = Number(curMatrixValue[4]);
@@ -219,6 +220,7 @@ export const setTransform = (
         refStartValueThisNode.current = Number(curMatrixValue[5]);
       }
     }
+    console.log(direction, curMatrixValue, floorDragNodeSize);
 
     result = directionSetting[direction].getTransformValue(
       floorDragNodeSize,

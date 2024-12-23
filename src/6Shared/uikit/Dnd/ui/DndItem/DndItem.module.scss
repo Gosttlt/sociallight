@@ -4,20 +4,20 @@
   transform: scale(1);
   box-sizing: content-box;
 }
-.appearance {
-  animation-duration: 0.3s;
-  animation-name: appearance;
-}
+// .appearance {
+//   animation-duration: 0.3s;
+//   animation-name: appearance;
+// }
 
-@keyframes appearance {
-  from {
-    transform: scale(0);
-  }
+// @keyframes appearance {
+//   from {
+//     transform: scale(0);
+//   }
 
-  to {
-    transform: scale(1);
-  }
-}
+//   to {
+//     transform: scale(1);
+//   }
+// }
 
 .child {
   height: 100%;
@@ -34,9 +34,9 @@
   pointer-events: none;
 }
 
-.drag {
-  transform: scale(0);
-}
-.transition {
-  transition: 1s;
-}
+// .drag {
+//   transform: scale(0);
+// }
+// .transition {
+//   transition: 1s;
+// }
