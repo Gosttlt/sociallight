@@ -198,11 +198,11 @@ export const setTransform = (
     thisNode,
     direction,
     isFirstCall,
-    refStartValueThisNode,
+    refStartPositionThisNode,
     refReductionDuration,
   }: СbTransformItemArgsType & {
     isFirstCall: boolean;
-    refStartValueThisNode: MutableRefObject<number>;
+    refStartPositionThisNode: MutableRefObject<number>;
     refReductionDuration: MutableRefObject<number>;
   }
 ) => {
@@ -215,19 +215,18 @@ export const setTransform = (
     );
     if (isFirstCall) {
       if (xDirectionValues.includes(direction as XDirectionTypes)) {
-        refStartValueThisNode.current = Number(curMatrixValue[4]);
+        refStartPositionThisNode.current = Number(curMatrixValue[4]);
       } else if (yDirectionValues.includes(direction as YDirectionTypes)) {
-        refStartValueThisNode.current = Number(curMatrixValue[5]);
+        refStartPositionThisNode.current = Number(curMatrixValue[5]);
       }
     }
-    console.log(direction, curMatrixValue, floorDragNodeSize);
 
     result = directionSetting[direction].getTransformValue(
       floorDragNodeSize,
       progress,
       duration,
       refReductionDuration,
-      refStartValueThisNode.current
+      refStartPositionThisNode.current
     );
 
     curMatrixValue[axisSetting[axis].matrixTranslateNumber] = result.toFixed(1);

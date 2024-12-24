@@ -1,9 +1,14 @@
-import type { DragEvent, FC, ReactNode } from "react";
+import type { DragEvent, FC, MutableRefObject, ReactNode } from "react";
 import { DndDirectionType } from "../Dnd.types";
 
 export type DndItemComponentType = FC<DndItemProps>;
 
 export type DndItemDataType = { id: string; order: number };
+
+export type RefLastOverCardForItemType = {
+  positionOverCard: "start" | "end";
+  card: DndItemDataType;
+};
 
 export type DndItemProps = {
   children?: ReactNode;
@@ -20,5 +25,6 @@ export type DndItemProps = {
   wrapperId?: string;
   isTargetContainer?: boolean;
   overCard?: DndItemDataType | null;
+  refLastOverCardForItem?: MutableRefObject<RefLastOverCardForItemType | null>;
   reverse?: boolean;
 };

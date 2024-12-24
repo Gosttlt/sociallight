@@ -14,6 +14,19 @@ const elems: Array<DndItemDataType & { name: string }> = [
   { id: "3", order: 3, name: "3" },
   { id: "4", order: 4, name: "4" },
   { id: "5", order: 5, name: "5" },
+  { id: "6", order: 6, name: "6" },
+  { id: "7", order: 7, name: "7" },
+  { id: "8", order: 8, name: "8" },
+  { id: "9", order: 9, name: "9" },
+  // { id: "10", order: 10, name: "10" },
+  // { id: "11", order: 11, name: "11" },
+  // { id: "12", order: 12, name: "12" },
+  // { id: "13", order: 13, name: "13" },
+  // { id: "14", order: 14, name: "14" },
+  // { id: "15", order: 15, name: "15" },
+  // { id: "16", order: 16, name: "16" },
+  // { id: "17", order: 17, name: "17" },
+  // { id: "18", order: 18, name: "18" },
 ];
 
 const ItemsTest: ItemsTestComponentType = (props) => {

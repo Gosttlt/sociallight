@@ -1,9 +1,19 @@
 import s from "./DndItem/DndItem.module.scss";
 import ss from "./Dnd.module.scss";
 import { DndComponentType } from "./Dnd.types";
-import { Children, cloneElement, DragEvent, useContext, useState } from "react";
+import {
+  Children,
+  cloneElement,
+  DragEvent,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { getDataCurrentCard, getDataCurrentParent, sortDndFn } from "../utils";
-import { DndItemDataType } from "./DndItem/DndItem.types";
+import {
+  DndItemDataType,
+  RefLastOverCardForItemType,
+} from "./DndItem/DndItem.types";
 import clsx from "clsx";
 import { DndContext } from "@/1Config/Providers/Dnd";
 import useAnimationFrame from "@/6Shared/hooks/uiHooks/useAnimationFrame";
@@ -45,9 +55,11 @@ const Dnd: DndComponentType = (props) => {
     setDragStart,
     setTransition,
   } = useContext(DndContext);
-
   const [isTargetContainer, setTargetContainer] = useState(false);
   const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
+  const refLastOverCardForItem = useRef<RefLastOverCardForItemType | null>(
+    null
+  );
 
   const onDragStart = (e: DragEvent, card: DndItemDataType) => {
     e.stopPropagation();
@@ -81,6 +93,7 @@ const Dnd: DndComponentType = (props) => {
     ) {
       setOverCard(card);
       setLastOverCard(card);
+
       overNode.current = currentTarget;
 
       if (direction.name === "height") {
@@ -89,12 +102,20 @@ const Dnd: DndComponentType = (props) => {
           currentTarget.getBoundingClientRect().height / 2 +
           currentTarget.getBoundingClientRect().y;
         setNextPosition(cursorPosition > middleElem);
+        refLastOverCardForItem.current = {
+          card,
+          positionOverCard: cursorPosition > middleElem ? "start" : "end",
+        };
       } else {
         const cursorPosition = e.clientX;
         const middleElem =
           currentTarget.getBoundingClientRect().width / 2 +
           currentTarget.getBoundingClientRect().x;
         setNextPosition(cursorPosition > middleElem);
+        refLastOverCardForItem.current = {
+          card,
+          positionOverCard: cursorPosition > middleElem ? "start" : "end",
+        };
       }
     }
   };
@@ -106,7 +127,7 @@ const Dnd: DndComponentType = (props) => {
 
   const onDragEnd = (e: DragEvent) => {
     e.stopPropagation();
-
+    refLastOverCardForItem.current = null;
     setDragStart(false);
 
     setTargetContainer(false);
@@ -143,6 +164,7 @@ const Dnd: DndComponentType = (props) => {
         e.stopPropagation();
 
         if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
+        console.log("dragLeave");
 
         if (sharedClass === fromSharedClass.current) {
           setTargetContainer(false);
@@ -204,6 +226,7 @@ const Dnd: DndComponentType = (props) => {
             wrapperId,
             overCard,
             reverse,
+            refLastOverCardForItem,
           });
         })}
     </div>
