@@ -1,7 +1,7 @@
 .sidebarWrapper {
   width: 222px;
   box-shadow: 1px 1px 0px 0px #ebebeb;
-  padding: 16px 0;
+  padding: 0;
   overflow: hidden;
 }
 .sideBarItem {
@@ -11,16 +11,24 @@
   padding: 4px 8px;
   transition: 0.3s;
   width: 100%;
-  &:hover {
+  &:hover:not(.activeMenuItem) {
     cursor: pointer;
-    background-color: var(--color-hover-blue);
+    background-color: var(--color-hover-gray);
   }
+}
+.mainMenuItem {
+  font-size: 22px;
+  text-align: center;
+  padding: 8px;
 }
 .text {
   font-size: 20px;
 }
+.activeMenuItem {
+  background-color: var(--color-white-blue);
+}
 
 .taskSvg,
 .calendarSvg {
-  fill: var(--color-blue);
+  fill: var(--color-gray);
 }

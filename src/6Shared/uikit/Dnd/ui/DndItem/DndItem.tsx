@@ -59,7 +59,9 @@ const getStyleFromWrapper = ({
   // isAfterOverCard
   const isAfterDragCard = data.order > fromCard.order;
   const isBeforeDragCard = data.order < fromCard.order;
-  console.log(refLastOverCardForItem?.current);
+  const isRefLastOverCardForItem =
+    refLastOverCardForItem && refLastOverCardForItem.current;
+  // console.log(refLastOverCardForItem?.current);
   if (!overCard) {
     if (isAfterDragCard) {
       rafTransform(setTransform, 1000, {
@@ -67,8 +69,26 @@ const getStyleFromWrapper = ({
         refDragNodeRect: fromCardNodeRect,
         direction: "left",
       });
-    } else if (refLastOverCardForItem?.current && isBeforeDragCard) {
-      // console.log(data);
+    } else if (
+      refLastOverCardForItem?.current?.positionOverCard === "end" &&
+      isBeforeDragCard &&
+      refLastOverCardForItem?.current?.card.order < data.order
+    ) {
+      rafTransform(setTransform, 1000, {
+        thisNode,
+        refDragNodeRect: fromCardNodeRect,
+        direction: "reverseRight",
+      });
+    } else if (
+      refLastOverCardForItem?.current?.positionOverCard === "start" &&
+      isBeforeDragCard &&
+      refLastOverCardForItem?.current?.card.order <= data.order
+    ) {
+      rafTransform(setTransform, 1000, {
+        thisNode,
+        refDragNodeRect: fromCardNodeRect,
+        direction: "reverseRight",
+      });
     }
 
     // style = backStyleObj;
@@ -77,6 +97,7 @@ const getStyleFromWrapper = ({
     const isAfterOverCard = data.order > overCard.order;
 
     const isBeforeOrEqualOverCard = data.order <= overCard.order;
+    const isAfterOrEquaOverCard = data.order >= overCard.order;
 
     if (isNextPosition) {
       if (isAfterOverCard && isAfterDragCard) {
@@ -110,26 +131,31 @@ const getStyleFromWrapper = ({
       //     direction: "right",
       //   });
       // }
+    } else if (isNextPosition === false) {
+      if (isBeforeDragCard && isAfterOrEquaOverCard) {
+        // style = backStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "right",
+        });
+      } else if (isAfterDragCard && isAfterOrEquaOverCard) {
+        // style = frontStyleObj;
+        rafTransform(setTransform, 1000, {
+          thisNode,
+          refDragNodeRect: fromCardNodeRect,
+          direction: "reverseLeft",
+        });
+      }
+      // else if (data.order < fromCard.order && data.order >= overCard.order) {
+      //   // style = frontStyleObj;
+      //   rafTransform(setTransform, 1000, {
+      //     thisNode,
+      //     refDragNodeRect: fromCardNodeRect,
+      //     direction: "reverseLeft",
+      //   });
+      // }
     }
-    // else if (isNextPosition === false) {
-    //   if (data.order > fromCard.order && data.order < overCard.order) {
-    //     // style = backStyleObj;
-    //     // console.log(data);
-    //     rafTransform(setTransform, 1000, {
-    //       thisNode,
-    //       refDragNodeRect: fromCardNodeRect,
-    //       direction: "left",
-    //     });
-    //   }
-    //   else if (data.order < fromCard.order && data.order >= overCard.order) {
-    //     // style = frontStyleObj;
-    //     rafTransform(setTransform, 1000, {
-    //       thisNode,
-    //       refDragNodeRect: fromCardNodeRect,
-    //       direction: "reverseLeft",
-    //     });
-    //   }
-    // }
   }
 
   return style;
@@ -343,6 +369,15 @@ const DndItem: DndItemComponentType = (props) => {
       refLastOverCardForItem,
     });
   }
+
+  console.log("isTargetContainer", isTargetContainer);
+  console.log("isDragStart", isDragStart);
+
+  const objic = {
+    targetContainer: {},
+    isNotTarget: {},
+  };
+
   return (
     <div
       ref={refThisNode}

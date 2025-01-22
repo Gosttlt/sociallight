@@ -6,6 +6,7 @@ import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
 import { useRef, useState } from "react";
 import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
 import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
+import Test from "@/Test/Test";
 
 const elems: Array<DndItemDataType & { name: string }> = [
   { id: "0", order: 0, name: "0" },
@@ -28,6 +29,46 @@ const elems: Array<DndItemDataType & { name: string }> = [
   // { id: "17", order: 17, name: "17" },
   // { id: "18", order: 18, name: "18" },
 ];
+
+const fn = (
+  relativeToDragCard: "prev" | "next",
+  cursorRelativeToElem: "start" | "end",
+  elemRelativeToCursor: "prev" | "next" | "on",
+  isContainer: boolean
+) => {
+  if (1 > 2) {
+    return "left";
+  } else if (1 > 2) {
+    return "reverseLeft";
+  } else if (1 > 2) {
+    return "right";
+  } else if (1 > 2) {
+    return "reverseRight";
+  }
+};
+
+const obj = {
+  relativeToDragCard: {
+    prev: "prev",
+    next: "next",
+  },
+  cursorRelativeToElem: {
+    start: "start",
+    end: "end",
+  },
+  elemRelativeToCursor: {
+    prev: "prev",
+    next: "next",
+    on: "on",
+  },
+};
+
+const objee = {
+  left: "left",
+  reverseLeft: "reverseLeft",
+  right: "right",
+  reverseRight: "reverseRight",
+};
 
 const ItemsTest: ItemsTestComponentType = (props) => {
   const { className = "", children } = props;

@@ -104,7 +104,7 @@ const Dnd: DndComponentType = (props) => {
         setNextPosition(cursorPosition > middleElem);
         refLastOverCardForItem.current = {
           card,
-          positionOverCard: cursorPosition > middleElem ? "start" : "end",
+          positionOverCard: cursorPosition > middleElem ? "end" : "start",
         };
       } else {
         const cursorPosition = e.clientX;
@@ -114,7 +114,7 @@ const Dnd: DndComponentType = (props) => {
         setNextPosition(cursorPosition > middleElem);
         refLastOverCardForItem.current = {
           card,
-          positionOverCard: cursorPosition > middleElem ? "start" : "end",
+          positionOverCard: cursorPosition > middleElem ? "end" : "start",
         };
       }
     }
@@ -164,7 +164,6 @@ const Dnd: DndComponentType = (props) => {
         e.stopPropagation();
 
         if (e.currentTarget.contains(e.relatedTarget as HTMLElement)) return;
-        console.log("dragLeave");
 
         if (sharedClass === fromSharedClass.current) {
           setTargetContainer(false);

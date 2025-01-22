@@ -3,25 +3,20 @@
 import clsx from "clsx";
 import s from "./Sidebar.module.scss";
 import type { SidebarComponentType } from "./Sidebar.types";
-import Task from "@/6Shared/assets/svg/Task.svg";
-import Calendar from "@/6Shared/assets/svg/Calendar.svg";
 
-const Sidebar: SidebarComponentType = () => {
+const Sidebar: SidebarComponentType = ({ menuItems }) => {
   return (
-    <div className={clsx(s.sidebarWrapper)}>
-      <div className={s.sideBarItem}>
-        <Task className={s.taskSvg} />
-        <div className={s.text}>Задачи</div>
-      </div>
-      <div className={s.sideBarItem}>
-        <Calendar className={s.calendarSvg} />
-        <div className={s.text}>Календарь</div>
-      </div>
-      <div className={s.sideBarItem}>
-        <Calendar className={s.calendarSvg} />
-        <div className={s.text}>Блакнот</div>
-      </div>
-    </div>
+    <nav>
+      <div className={s.mainMenuItem}>Избранное</div>
+      <ul className={clsx(s.sidebarWrapper)}>
+        {menuItems.map(({ isActive, name, Svg }) => (
+          <li className={clsx(s.sideBarItem, { [s.activeMenuItem]: isActive })}>
+            <Svg className={s.taskSvg} />
+            <div className={s.text}>{name}</div>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
 
