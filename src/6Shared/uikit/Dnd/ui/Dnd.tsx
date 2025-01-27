@@ -54,8 +54,9 @@ const Dnd: DndComponentType = (props) => {
     fromCardNodeRect,
     setDragStart,
     setTransition,
+    isDragStart,
   } = useContext(DndContext);
-  const [isTargetContainer, setTargetContainer] = useState(false);
+  const [isTargetContainer, setTargetContainer] = useState(true);
   const [overCard, setOverCard] = useState<DndItemDataType | null>(null);
   const refLastOverCardForItem = useRef<RefLastOverCardForItemType | null>(
     null
@@ -85,13 +86,14 @@ const Dnd: DndComponentType = (props) => {
     const currentTarget = e.currentTarget as HTMLDivElement;
 
     const isSharedTarget = currentTarget.closest(`.${fromSharedClass.current}`);
-
+    if (isDragStart) {
+      setOverCard(card);
+    }
     if (
       fromCardNode.current &&
       isSharedTarget &&
       fromCardNode.current !== isSharedTarget
     ) {
-      setOverCard(card);
       setLastOverCard(card);
 
       overNode.current = currentTarget;
@@ -122,7 +124,7 @@ const Dnd: DndComponentType = (props) => {
 
   const onDrop = (e: DragEvent, card: DndItemDataType) => {
     e.preventDefault();
-    setTargetContainer(false);
+    setTargetContainer(true);
   };
 
   const onDragEnd = (e: DragEvent) => {
@@ -130,7 +132,7 @@ const Dnd: DndComponentType = (props) => {
     refLastOverCardForItem.current = null;
     setDragStart(false);
 
-    setTargetContainer(false);
+    setTargetContainer(true);
 
     setFromCard(null);
     overNode.current = null;

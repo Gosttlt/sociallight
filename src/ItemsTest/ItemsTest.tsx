@@ -28,6 +28,21 @@ const elems: Array<DndItemDataType & { name: string }> = [
   // { id: "16", order: 16, name: "16" },
   // { id: "17", order: 17, name: "17" },
   // { id: "18", order: 18, name: "18" },
+  // { id: "19", order: 19, name: "19" },
+  // { id: "20", order: 20, name: "20" },
+  // { id: "21", order: 21, name: "21" },
+  // { id: "22", order: 22, name: "22" },
+  // { id: "23", order: 23, name: "23" },
+  // { id: "24", order: 24, name: "24" },
+  // { id: "25", order: 25, name: "25" },
+  // { id: "26", order: 26, name: "26" },
+  // { id: "27", order: 27, name: "27" },
+  // { id: "28", order: 28, name: "28" },
+  // { id: "29", order: 29, name: "29" },
+  // { id: "30", order: 30, name: "30" },
+  // { id: "31", order: 31, name: "31" },
+  // { id: "32", order: 32, name: "32" },
+  // { id: "33", order: 33, name: "33" },
 ];
 
 const fn = (
@@ -93,7 +108,7 @@ const ItemsTest: ItemsTestComponentType = (props) => {
         sharedClass="taskCategoryDnd"
         wrapperId="taskCategoryDnd"
       >
-        {items.map((item) => (
+        {elems.map((item) => (
           <DndItem data={item} key={item.id}>
             <div className={s.item} key={item.id}>
               {item.name}

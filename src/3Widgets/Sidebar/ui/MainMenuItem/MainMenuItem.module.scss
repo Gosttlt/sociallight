@@ -1,0 +1,30 @@
+.mainMenuItemWrapper {
+  font-size: 24px;
+  text-align: center;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-gray);
+  &:hover:not(.activeMenuItem) {
+    cursor: pointer;
+    background-color: var(--color-hover-gray);
+    box-shadow: inset -20px -1px 20px 0px #ffffff;
+  }
+}
+
+.text {
+  color: var(--color-gray);
+}
+.svgChevron {
+  rotate: 180deg;
+  transition: 0.3s;
+  width: 24px;
+  height: 24px;
+  font-weight: 100;
+  fill: var(--color-gray);
+}
+.svgChevronOpen {
+  rotate: 270deg;
+}

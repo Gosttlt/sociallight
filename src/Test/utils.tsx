@@ -210,6 +210,7 @@ export const setTransform = (
     let axis = getAxis(direction);
     let result = 0;
     let curMatrixValue = getTransformValueArr(thisNode);
+
     let floorDragNodeSize = axisSetting[axis].getDragNodeSize(
       refDragNodeRect.current
     );

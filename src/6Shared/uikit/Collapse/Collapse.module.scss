@@ -1,9 +1,19 @@
+// .collapsWrapper {
+//   transition: height 0.3s ease-in-out, opacity 0.3s ease-in;
+//   overflow: hidden;
+//   opacity: 0;
+//   &.open {
+//     opacity: 1;
+//   }
+// }
+
 .collapsWrapper {
-  transition: height 0.3s ease-in-out, opacity 0.5s ease-in;
   opacity: 0;
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: 0.3s;
   &.open {
+    grid-template-rows: 1fr;
     opacity: 1;
-    overflow: unset;
   }
 }

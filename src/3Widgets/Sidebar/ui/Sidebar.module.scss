@@ -1,6 +1,11 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+}
 .sidebarWrapper {
   width: 222px;
-  box-shadow: 1px 1px 0px 0px #ebebeb;
   padding: 0;
   overflow: hidden;
 }
@@ -14,21 +19,24 @@
   &:hover:not(.activeMenuItem) {
     cursor: pointer;
     background-color: var(--color-hover-gray);
+    box-shadow: inset -20px -1px 20px 0px #ffffff;
   }
 }
-.mainMenuItem {
-  font-size: 22px;
-  text-align: center;
-  padding: 8px;
-}
+
 .text {
   font-size: 20px;
 }
 .activeMenuItem {
+  box-shadow: inset -20px -1px 20px 0px #ffffff;
   background-color: var(--color-white-blue);
 }
 
 .taskSvg,
 .calendarSvg {
   fill: var(--color-gray);
+}
+
+.hr {
+  border: 1px solid var(--color-white-gray);
+  border-radius: 8px;
 }

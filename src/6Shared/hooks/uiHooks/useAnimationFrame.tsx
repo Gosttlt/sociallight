@@ -4,13 +4,11 @@ const useAnimationFrame = <T,>() => {
   const refAnimateId = useRef<null | number>(null);
   const refStartPositionThisNode = useRef<number>(0);
   const refReductionDuration = useRef<number>(0);
-
   const returnCb = (cb: Function, duration: number, options?: T) => {
     let lastId: number | null = null;
     let wasLastCall: boolean = false;
     let isFirstCall: boolean = true;
     let timeStart: null | number = null;
-
     const animate = (timestamp: number) => {
       if (lastId === null) lastId = refAnimateId.current;
       if (timeStart === null) timeStart = timestamp;
