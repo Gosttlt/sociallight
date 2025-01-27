@@ -40,7 +40,7 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
               />
               <Collapse isOpen={isActive} isBlock>
                 <ul className={clsx(s.sidebarWrapper)}>
-                  {subMenu.map(({ Svg, id: subMenuItemId, isActive, name }) => (
+                  {subMenu.map(({ Svg, id: subMenuItemId, name }) => (
                     <li
                       onClick={() => {
                         setActiveMenu({ mainMenuItemId: id, subMenuItemId });

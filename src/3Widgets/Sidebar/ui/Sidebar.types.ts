@@ -6,7 +6,6 @@ export type SubSidebarMenuItemType = {
   id: number;
   name: string;
   Svg: FC<SVGProps<SVGElement>>;
-  isActive: boolean;
 };
 
 export type SidebarMenuItemMenuType = {
