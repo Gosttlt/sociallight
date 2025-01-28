@@ -2,11 +2,7 @@
 import clsx from "clsx";
 
 import s from "./DndItem.module.scss";
-import {
-  DndItemComponentType,
-  DndItemDataType,
-  RefLastOverCardForItemType,
-} from "./DndItem.types";
+import { DndItemComponentType, DndItemDataType } from "./DndItem.types";
 import { DndContext } from "@/1Config/Providers/Dnd";
 import { MutableRefObject, useContext, useEffect, useRef } from "react";
 import { setTransform, СbTransformItemArgsType } from "@/Test/utils";

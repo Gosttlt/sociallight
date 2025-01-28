@@ -81,45 +81,47 @@ const Dnd: DndComponentType = (props) => {
   };
 
   const onDragOver = (e: DragEvent, card: DndItemDataType) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const currentTarget = e.currentTarget as HTMLDivElement;
+    overNode.current = e.currentTarget as HTMLDivElement;
+    setOverCard(card);
+    // e.preventDefault();
+    // e.stopPropagation();
+    // const currentTarget = e.currentTarget as HTMLDivElement;
 
-    const isSharedTarget = currentTarget.closest(`.${fromSharedClass.current}`);
-    if (isDragStart) {
-      setOverCard(card);
-    }
-    if (
-      fromCardNode.current &&
-      isSharedTarget &&
-      fromCardNode.current !== isSharedTarget
-    ) {
-      setLastOverCard(card);
+    // const isSharedTarget = currentTarget.closest(`.${fromSharedClass.current}`);
+    // if (isDragStart) {
+    //   setOverCard(card);
+    // }
+    // if (
+    //   fromCardNode.current &&
+    //   isSharedTarget &&
+    //   fromCardNode.current !== isSharedTarget
+    // ) {
+    //   setLastOverCard(card);
 
-      overNode.current = currentTarget;
+    //   overNode.current = currentTarget;
 
-      if (direction.name === "height") {
-        const cursorPosition = e.clientY;
-        const middleElem =
-          currentTarget.getBoundingClientRect().height / 2 +
-          currentTarget.getBoundingClientRect().y;
-        setNextPosition(cursorPosition > middleElem);
-        refLastOverCardForItem.current = {
-          card,
-          positionOverCard: cursorPosition > middleElem ? "end" : "start",
-        };
-      } else {
-        const cursorPosition = e.clientX;
-        const middleElem =
-          currentTarget.getBoundingClientRect().width / 2 +
-          currentTarget.getBoundingClientRect().x;
-        setNextPosition(cursorPosition > middleElem);
-        refLastOverCardForItem.current = {
-          card,
-          positionOverCard: cursorPosition > middleElem ? "end" : "start",
-        };
-      }
-    }
+    //   if (direction.name === "height") {
+    //     const cursorPosition = e.clientY;
+    //     const middleElem =
+    //       currentTarget.getBoundingClientRect().height / 2 +
+    //       currentTarget.getBoundingClientRect().y;
+    //     setNextPosition(cursorPosition > middleElem);
+    //     refLastOverCardForItem.current = {
+    //       card,
+    //       positionOverCard: cursorPosition > middleElem ? "end" : "start",
+    //     };
+    //   } else {
+    //     const cursorPosition = e.clientX;
+    //     const middleElem =
+    //       currentTarget.getBoundingClientRect().width / 2 +
+    //       currentTarget.getBoundingClientRect().x;
+    //     setNextPosition(cursorPosition > middleElem);
+    //     refLastOverCardForItem.current = {
+    //       card,
+    //       positionOverCard: cursorPosition > middleElem ? "end" : "start",
+    //     };
+    //   }
+    // }
   };
 
   const onDrop = (e: DragEvent, card: DndItemDataType) => {

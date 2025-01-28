@@ -8,7 +8,6 @@ const Collapse: CollapseComponentType = (props) => {
   const { children, isBlock, isOpen } = props;
   const collapsBody = useRef<HTMLDivElement | null>(null);
 
-  console.log(isBlock);
   return (
     <div
       ref={collapsBody}

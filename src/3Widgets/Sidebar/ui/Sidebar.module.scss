@@ -16,24 +16,38 @@
   padding: 4px 8px;
   transition: 0.3s;
   width: 100%;
+  cursor: pointer;
+  user-select: none;
   &:hover:not(.activeMenuItem) {
-    cursor: pointer;
     background-color: var(--color-hover-gray);
     box-shadow: inset -20px -1px 20px 0px #ffffff;
+  }
+  &:active {
+    background-color: var(--color-white-blue) !important;
   }
 }
 
 .text {
-  font-size: 20px;
+  font-size: 16px;
 }
 .activeMenuItem {
   box-shadow: inset -20px -1px 20px 0px #ffffff;
-  background-color: var(--color-white-blue);
+
+  background-color: var(--color-blue);
+  .taskSvg,
+  .calendarSvg {
+    fill: white;
+  }
+  .text {
+    color: white;
+  }
 }
 
 .taskSvg,
 .calendarSvg {
-  fill: var(--color-gray);
+  fill: var(--color-blue);
+  width: 24px;
+  height: 24px;
 }
 
 .hr {
