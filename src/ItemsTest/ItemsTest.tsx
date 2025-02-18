@@ -2,121 +2,157 @@ import clsx from "clsx";
 
 import s from "./ItemsTest.module.scss";
 import type { ItemsTestComponentType } from "./ItemsTest.types";
-import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
-import { useRef, useState } from "react";
-import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
-import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
-import Test from "@/Test/Test";
+import React, { MouseEvent, useRef, useState } from "react";
+import {
+  DndItemDataType,
+  getSortedDataDnd,
+  removeAllSelectionsFromDocument,
+} from "./Dnd/utils";
+import { useDndStore } from "./State";
+import DndContainer from "./Dnd/DndContainer/DndContainer";
+import DndItem from "./Dnd/DndItems/DndItem";
 
-const elems: Array<DndItemDataType & { name: string }> = [
-  { id: "0", order: 0, name: "0" },
-  { id: "1", order: 1, name: "1" },
-  { id: "2", order: 2, name: "2" },
-  { id: "3", order: 3, name: "3" },
-  { id: "4", order: 4, name: "4" },
-  { id: "5", order: 5, name: "5" },
-  { id: "6", order: 6, name: "6" },
-  { id: "7", order: 7, name: "7" },
-  { id: "8", order: 8, name: "8" },
-  { id: "9", order: 9, name: "9" },
-  { id: "10", order: 10, name: "10" },
-  { id: "11", order: 11, name: "11" },
-  { id: "12", order: 12, name: "12" },
-  { id: "13", order: 13, name: "13" },
-  { id: "14", order: 14, name: "14" },
-  { id: "15", order: 15, name: "15" },
-  { id: "16", order: 16, name: "16" },
-  { id: "17", order: 17, name: "17" },
-  { id: "18", order: 18, name: "18" },
-  { id: "19", order: 19, name: "19" },
-  { id: "20", order: 20, name: "20" },
-  // { id: "21", order: 21, name: "21" },
-  // { id: "22", order: 22, name: "22" },
-  // { id: "23", order: 23, name: "23" },
-  // { id: "24", order: 24, name: "24" },
-  // { id: "25", order: 25, name: "25" },
-  // { id: "26", order: 26, name: "26" },
-  // { id: "27", order: 27, name: "27" },
-  // { id: "28", order: 28, name: "28" },
-  // { id: "29", order: 29, name: "29" },
-  // { id: "30", order: 30, name: "30" },
-  // { id: "31", order: 31, name: "31" },
-  // { id: "32", order: 32, name: "32" },
-  // { id: "33", order: 33, name: "33" },
+const data: DndItemDataType[] = [
+  { id: "1", name: "1", order: 1 },
+  { id: "2", name: "2", order: 2 },
+  { id: "3", name: "3", order: 3 },
+  { id: "4", name: "4", order: 4 },
+  { id: "5", name: "5", order: 5 },
+  { id: "6", name: "6", order: 6 },
+  { id: "7", name: "7", order: 7 },
+  { id: "8", name: "8", order: 8 },
 ];
-
-const fn = (
-  relativeToDragCard: "prev" | "next",
-  cursorRelativeToElem: "start" | "end",
-  elemRelativeToCursor: "prev" | "next" | "on",
-  isContainer: boolean
-) => {
-  if (1 > 2) {
-    return "left";
-  } else if (1 > 2) {
-    return "reverseLeft";
-  } else if (1 > 2) {
-    return "right";
-  } else if (1 > 2) {
-    return "reverseRight";
-  }
-};
-
-const obj = {
-  relativeToDragCard: {
-    prev: "prev",
-    next: "next",
-  },
-  cursorRelativeToElem: {
-    start: "start",
-    end: "end",
-  },
-  elemRelativeToCursor: {
-    prev: "prev",
-    next: "next",
-    on: "on",
-  },
-};
-
-const objee = {
-  left: "left",
-  reverseLeft: "reverseLeft",
-  right: "right",
-  reverseRight: "reverseRight",
-};
 
 const ItemsTest: ItemsTestComponentType = (props) => {
   const { className = "", children } = props;
-  const [items, setItems] =
-    useState<Array<DndItemDataType & { name: string }>>(elems);
 
-  const fn = (fromData: Array<DndItemDataType & { name: string }>) => {
-    setItems(fromData);
+  const {
+    isDragStart,
+    setDragStart,
+    dragNode,
+    setDragNode,
+    dragNodeRect,
+    setDragNodeRect,
+    diffDragNodeAndCursor,
+    setDiffDragNodeAndCursor,
+    dragCard,
+    setDragCard,
+    overNode,
+    setOverNode,
+    overCard,
+    setOverCard,
+    fromContainerNode,
+    setFromContainerNode,
+    toContainerNode,
+    setToContainerNode,
+    overContainerNode,
+    setOverContainerNode,
+    dndItemsFrom,
+    setDndItemsFrom,
+    dndItemsTo,
+    setDndItemsTo,
+  } = useDndStore();
+
+  const onDragStart = (e: MouseEvent, card: DndItemDataType) => {
+    removeAllSelectionsFromDocument();
+    const target = e.target as HTMLDivElement;
+    const targetRect = target.getBoundingClientRect();
+
+    setDragStart(true);
+    setDragNode(target);
+    setDragNodeRect(targetRect);
+
+    const { height, width, x, y } = targetRect;
+
+    const diffPositionCursorAndCardX = e.clientX - x;
+    const diffPositionCursorAndCardY = e.clientY - y;
+    target.style.position = "fixed";
+    target.style.left = e.clientX - diffPositionCursorAndCardX + "px";
+    target.style.top = e.clientY - diffPositionCursorAndCardY + "px";
+    target.style.pointerEvents = "none";
+
+    document.documentElement.style.cursor = "grabbing";
+    // On Drag Move
+
+    const onDragMove = (e: globalThis.MouseEvent) => {
+      const isNodeInCurrentContainer =
+        fromContainerNode &&
+        fromContainerNode.contains(e.target as Node) &&
+        e.target !== fromContainerNode;
+
+      if (isNodeInCurrentContainer && dragNodeRect) {
+        const target = e.target as HTMLDivElement;
+        target.style.transform = `translateX(${dragNodeRect.width}px)`;
+        target.style.transition = `${1}s`;
+      }
+      if (dragNode && isDragStart) {
+        dragNode.style.left = e.clientX - diffPositionCursorAndCardX + "px";
+        dragNode.style.top = e.clientY - diffPositionCursorAndCardY + "px";
+      } else {
+        window.removeEventListener("mousemove", onDragMove);
+      }
+    };
+
+    window.addEventListener("mousemove", onDragMove);
+
+    // /On Drag Move
+
+    // On Drag End
+
+    const onDragEnd = (e: globalThis.MouseEvent) => {
+      if (dragNode) {
+        dragNode.style.pointerEvents = "";
+        setDragStart(false);
+        setDragNode(null);
+      }
+      if (fromContainerNode) {
+        console.log(fromContainerNode.contains(e.target as Node));
+      }
+      document.documentElement.style.cursor = "";
+      document.documentElement.style.cursor = "";
+
+      window.removeEventListener("mouseup", onDragEnd);
+    };
+
+    window.addEventListener("mouseup", onDragEnd);
+
+    // /On Drag End
+  };
+
+  const testEvent = () => {
+    console.log(fromContainerNode);
   };
 
   return (
-    <div className={clsx(s.itemsTestWrapper, className)}>
-      <Dnd
-        direction={{
-          name: "width",
-          value: 404,
-          paddingDefolt: 10,
-          paddingStreach: 60,
-        }}
-        items={items}
-        setData={fn}
-        sharedClass="taskCategoryDnd"
-        wrapperId="taskCategoryDnd"
-      >
-        {elems.map((item) => (
-          <DndItem data={item} key={item.id}>
-            <div className={s.item} key={item.id}>
-              {item.name}
-            </div>
-          </DndItem>
-        ))}
-      </Dnd>
-    </div>
+    <DndContainer items={data} sharedId="testSharedId">
+      {data.map((card) => (
+        <DndItem card={card}>
+          <div key={card.id} draggable="false" className={s.item}>
+            <div style={{ pointerEvents: "none" }}>{card.name}</div>
+          </div>
+        </DndItem>
+      ))}
+    </DndContainer>
+    // <div
+    //   ref={setFromContainerNode}
+    //   className={clsx(s.itemsTestWrapper, className)}
+    // >
+
+    //   <button onClick={testEvent}>testEvent</button>
+    //   {dndItemsFrom?.map((card) => (
+    //     <div
+    //       key={card.id}
+    //       draggable="false"
+    //       onMouseDown={(e) => onDragStart(e, card)}
+    //       onMouseUp={() => {
+    //         console.log("onMouseUp");
+    //       }}
+    //       className={s.item}
+    //     >
+    //       <div style={{ pointerEvents: "none" }}>{card.name}</div>
+    //     </div>
+    //   ))}
+    // </div>
   );
 };
 

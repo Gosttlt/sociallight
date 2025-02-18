@@ -39,7 +39,7 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
     // });
   };
 
-  const { fromItems, fromCard, dropCard } = useContext(DndContext);
+  const { fromItems, dragCard, dropCard } = useContext(DndContext);
 
   const [updateTask] = useMutation<{
     updateTaskOrders: TaskType[];
@@ -53,7 +53,7 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
               ...cacheData.taskCategory,
               columns: cacheData.taskCategory.columns.map(
                 (column: TasksCulumnType) => {
-                  if (column.id === (fromCard as TaskType).columnId) {
+                  if (column.id === (dragCard as TaskType).columnId) {
                     return {
                       ...column,
                       tasks: data?.updateTaskOrders,
@@ -70,7 +70,7 @@ const TaskColumns: TaskColumnsComponentType = (props) => {
   });
 
   const setDataTaskOrders = (id: string) => {
-    // let curCard = fromCard as TaskType;
+    // let curCard = dragCard as TaskType;
     // if (curCard.columnId === id && fromItems) {
     //   const filterItems = fromItems.filter((item) => item.id !== curCard.id);
     //   const newItems = filterItems?.reduce((acc, prev, i) => {

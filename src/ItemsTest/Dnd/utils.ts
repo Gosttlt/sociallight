@@ -1,83 +1,36 @@
-import { DndDirectionType } from "../ui/Dnd.types";
-import { DndItemDataType } from "../ui/DndItem/DndItem.types";
-
-type StyleType = "default" | "stretch" | "hidden";
-export type DndStylePadding =
-  | "paddingLeft"
-  | "paddingRight"
-  | "paddingTop"
-  | "paddingBottom";
-export const getStyleDnd = ({
-  node,
-  type,
-  paddingDirection,
-  direction,
-}: {
-  node: HTMLDivElement;
-  type: StyleType;
-  paddingDirection?: DndStylePadding;
-  direction?: DndDirectionType;
-}) => {
-  if (type === "default" && direction) {
-    if (direction.name === "height") {
-      node.style.padding = `${direction.paddingDefolt}px 0px`;
-    } else {
-      node.style.padding = `0px ${direction.paddingDefolt}px`;
-    }
-    node.style[direction.name] = `${direction.value}px`;
-    node.style.transform = "scale(1)";
-    node.style.opacity = "1";
-  } else if (type === "stretch" && paddingDirection && direction) {
-    if (direction.name === "height") {
-      node.style.padding = `${direction.paddingDefolt}px 0px`;
-    } else {
-      node.style.padding = `0px ${direction.paddingDefolt}px`;
-    }
-    node.style[paddingDirection] = `${direction.paddingStreach}px`;
-    node.style.transform = "scale(1)";
-    node.style.opacity = "1";
-  } else if (type === "hidden" && direction) {
-    node.style[direction.name] = `0`;
-    node.style.transform = "scale(0)";
-    node.style.opacity = "0";
+export const removeAllSelectionsFromDocument = () => {
+  const sel = document.getSelection();
+  if (sel) {
+    sel.removeAllRanges();
   }
 };
+
+export type DndItemDataType = { id: string | number; order: number } & {
+  [key: string]: any;
+};
+
+// Sorted
 
 export const sortDndFn = (a: DndItemDataType, b: DndItemDataType) =>
   a.order - b.order;
 
-export const getDataCurrentParent = ({
-  fromCards,
+export const inOneContainer = ({
   dragCard,
-}: {
-  fromCards: DndItemDataType[];
-  dragCard: DndItemDataType;
-}) => {
-  let filterCards = fromCards.filter((curCard) => dragCard.id !== curCard.id);
-  filterCards.push(dragCard);
-  const sortCards = filterCards.map((curCard, index) => ({
-    ...curCard,
-    order: index,
-  }));
-  return sortCards;
-};
-
-export const getDataCurrentCard = ({
-  dragCard,
-  fromCards,
+  cards,
   isNextPosition,
   lastOverCard,
 }: {
-  fromCards: DndItemDataType[];
+  cards: DndItemDataType[];
   dragCard: DndItemDataType;
   lastOverCard: DndItemDataType;
   isNextPosition: boolean;
-}) => {
+}): DndItemDataType[] => {
   const cardOrder = isNextPosition ? 0.1 : -0.1;
+  const firstOrder = cards[0].order;
 
-  const newCards = fromCards
+  const newCards: DndItemDataType[] = cards
     .map((curCard: DndItemDataType) => {
-      if (curCard.id === dragCard?.id) {
+      if (curCard.id === dragCard.id) {
         return { ...curCard, order: lastOverCard.order + cardOrder };
       }
       return curCard;
@@ -85,10 +38,30 @@ export const getDataCurrentCard = ({
     .sort(sortDndFn)
     .map((curCard: { id: string | number; order: number }, i: number) => ({
       ...curCard,
-      order: i,
+      order: i + firstOrder,
     }));
 
   return newCards;
+};
+export const getSortedDataDnd = {
+  inOneContainer,
+  inOneContainerLast: () => {},
+};
+export const getDataCurrentParent = ({
+  cards,
+  dragCard,
+}: {
+  cards: DndItemDataType[];
+  dragCard: DndItemDataType;
+}) => {
+  const firstOrder = cards[0].order;
+  let filterCards = cards.filter((curCard) => dragCard.id !== curCard.id);
+  filterCards.push(dragCard);
+  const sortCards = filterCards.map((curCard, index) => ({
+    ...curCard,
+    order: index + firstOrder,
+  }));
+  return sortCards;
 };
 
 export const getDataOtherParent = ({
@@ -154,3 +127,5 @@ export const getDataOtherCard = ({
     toParentId,
   };
 };
+
+// /Sorted

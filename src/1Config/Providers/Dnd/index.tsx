@@ -10,11 +10,16 @@ import {
   useState,
 } from "react";
 
+export type DndCursorСoordsWhenDraggingType = {
+  x: number | null;
+  y: number | null;
+};
+
 export type DndContextProviderType = {
-  fromCard: DndItemDataType | null;
-  setFromCard: Dispatch<SetStateAction<DndItemDataType | null>>;
-  fromCardNode: MutableRefObject<HTMLDivElement | null>;
-  fromCardNodeRect: MutableRefObject<DOMRect | null>;
+  dragCard: DndItemDataType | null;
+  setDragCard: Dispatch<SetStateAction<DndItemDataType | null>>;
+  dragCardNode: MutableRefObject<HTMLDivElement | null>;
+  dragCardNodeRect: MutableRefObject<DOMRect | null>;
   fromCursorStartPosition: MutableRefObject<number | null>;
   fromItems: DndItemDataType[] | null;
   toItems: DndItemDataType[] | null;
@@ -36,14 +41,15 @@ export type DndContextProviderType = {
   isTargetContainer: boolean;
   setTargetContainer: Dispatch<SetStateAction<boolean>>;
   fromWrapperId: MutableRefObject<string | null>;
+  cursorCoordsWhenDragStart: MutableRefObject<DndCursorСoordsWhenDraggingType>;
 };
 
 export const DndContext = createContext({} as DndContextProviderType);
 
 const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [fromCard, setFromCard] = useState<null | DndItemDataType>(null);
-  const fromCardNode = useRef<null | HTMLDivElement>(null);
-  const fromCardNodeRect = useRef<null | DOMRect>(null);
+  const [dragCard, setDragCard] = useState<null | DndItemDataType>(null);
+  const dragCardNode = useRef<null | HTMLDivElement>(null);
+  const dragCardNodeRect = useRef<null | DOMRect>(null);
   const fromCursorStartPosition = useRef<null | number>(null);
   const dropNode = useRef<null | HTMLDivElement>(null);
   const dropCard = useRef<null | DndItemDataType>(null);
@@ -58,6 +64,10 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isNextPosition, setNextPosition] = useState<boolean | null>(false);
   const [isTargetContainer, setTargetContainer] = useState<boolean>(false);
   const fromWrapperId = useRef<null | string>(null);
+  const cursorCoordsWhenDragStart = useRef<DndCursorСoordsWhenDraggingType>({
+    x: null,
+    y: null,
+  });
   const [isDragStart, setDragStart] = useState<boolean>(false);
   const [isTransition, setTransition] = useState<boolean>(true);
 
@@ -80,15 +90,16 @@ const DndContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
         isNextPosition,
         setNextPosition,
         dropCard,
-        fromCard,
-        setFromCard,
-        fromCardNode,
+        dragCard,
+        setDragCard,
+        dragCardNode,
         fromItems,
         toItems,
         setFromItems,
         setToItems,
         dropNode,
-        fromCardNodeRect,
+        dragCardNodeRect,
+        cursorCoordsWhenDragStart,
       }}
     >
       {children}

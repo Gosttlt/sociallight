@@ -5,9 +5,12 @@
   border-radius: 8px;
   display: flex;
   justify-content: center;
-
-  cursor: pointer;
+  user-select: none;
+  cursor: grab;
+  background: white;
 }
 .itemsTestWrapper {
+  background: gray;
+
   display: flex;
 }

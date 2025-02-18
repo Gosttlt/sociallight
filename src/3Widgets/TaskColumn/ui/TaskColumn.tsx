@@ -32,7 +32,7 @@ import { sortDndFn } from "@/6Shared/uikit/Dnd/utils";
 import { TasksCategoryResponseType } from "@/6Shared/api/types/TaskCategory";
 
 const TaskColumn: TaskColumnComponentType = (props) => {
-  const { fromItems, fromCard, dropCard, isNextPosition } =
+  const { fromItems, dragCard, dropCard, isNextPosition } =
     useContext(DndContext);
 
   const { data } = props;
@@ -47,7 +47,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
       })?.taskCategory;
 
       const dragColumn = curCategory?.columns.find(
-        (column) => column.id === (fromCard as TaskType).columnId
+        (column) => column.id === (dragCard as TaskType).columnId
       );
       const dropColumn = curCategory?.columns.find(
         (column) => column.id === (dropCard.current as TaskType).columnId
@@ -58,7 +58,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         fields: {
           tasks(tasks) {
             return tasks.filter((task: { __ref: string }) => {
-              return task.__ref !== `Task:${fromCard!.id}`;
+              return task.__ref !== `Task:${dragCard!.id}`;
             });
           },
         },
@@ -67,7 +67,7 @@ const TaskColumn: TaskColumnComponentType = (props) => {
         id: cache.identify(dropColumn!),
         fields: {
           tasks(tasks) {
-            return [...tasks, { __ref: `Task:${fromCard?.id}` }];
+            return [...tasks, { __ref: `Task:${dragCard?.id}` }];
           },
         },
       });
@@ -99,11 +99,11 @@ const TaskColumn: TaskColumnComponentType = (props) => {
 
   // const setDataFn = (newData: Array<TaskType>) => {
   //   const newFromArr = fromItems
-  //     ?.filter((formItem) => formItem.id !== fromCard?.id)
+  //     ?.filter((formItem) => formItem.id !== dragCard?.id)
   //     .map(({ id }, i) => ({ id, order: i }));
 
   //   const newCurCard = {
-  //     ...fromCard!,
+  //     ...dragCard!,
   //     order: isNextPosition
   //       ? dropCard.current!.order + 0.1
   //       : dropCard?.current!.order! - 0.1,
@@ -112,14 +112,14 @@ const TaskColumn: TaskColumnComponentType = (props) => {
 
   //   newData?.push(newCurCard);
   //   const newToArr = newData.toSorted(sortDndFn).map(({ id, columnId }, i) => {
-  //     if (id === fromCard?.id) {
+  //     if (id === dragCard?.id) {
   //       return { id, order: i, columnId };
   //     }
   //     return { id, order: i };
   //   });
 
   //   if (
-  //     (fromCard as TaskType)?.columnId ===
+  //     (dragCard as TaskType)?.columnId ===
   //     (dropCard.current as TaskType)?.columnId
   //   ) {
   //     updateTask({

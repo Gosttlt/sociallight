@@ -7,7 +7,6 @@ import Catigories from "@/3Widgets/Catigories";
 import TaskContextProvider from "@/1Config/Providers/Task";
 import DndContextProvider from "@/1Config/Providers/Dnd";
 import TaskColumns from "@/3Widgets/TaskColumns";
-import Test from "@/Test/Test";
 import ItemsTest from "@/ItemsTest/ItemsTest";
 import { sidebarMenuItems } from "@/3Widgets/Sidebar/assets";
 
@@ -17,14 +16,14 @@ export default function Home() {
       header={<Header />}
       sidebar={<Sidebar menuItems={sidebarMenuItems} />}
     >
-      <TaskContextProvider>
-        <DndContextProvider>
-          {/* <Catigories />
+      {/* <TaskContextProvider> */}
+      {/* <DndContextProvider> */}
+      {/* <Catigories />
           <TaskColumns /> */}
-          <ItemsTest />
-          {/* <Test /> */}
-        </DndContextProvider>
-      </TaskContextProvider>
+      <ItemsTest />
+      {/* <Test /> */}
+      {/* </DndContextProvider> */}
+      {/* </TaskContextProvider> */}
     </Layout>
   );
 }
