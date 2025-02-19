@@ -67,7 +67,7 @@ const Dnd: DndComponentType = (props) => {
     setFromCard(card);
     setDragStart(true);
     fromCardNode.current = e.currentTarget as HTMLDivElement;
-    rafDisApp(setScale, 1000, {
+    rafDisApp(setScale, 300, {
       refThisNode: fromCardNode,
       direction: "disappearance",
     });
