@@ -89,6 +89,8 @@ const DndItem: DndItemComponentType = (props) => {
   const { className = "", children, card } = props;
   const ref = useRef<null | HTMLDivElement>(null);
   const {
+    isStartAfterDropAnimation,
+    setStatusAfterDropAnimation,
     isCursorStartPositionFromOverCard,
     setCursorPositionFromOverCard,
     cursorCoords,
@@ -155,13 +157,25 @@ const DndItem: DndItemComponentType = (props) => {
     dragCard &&
     ref.current &&
     dragNodeRect &&
-    !ref.current.style.transition
+    !ref.current.style.transition &&
+    !isInContainer
   ) {
     if (card.order > dragCard.order) {
       ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
     } else if (card.order < dragCard.order) {
       ref.current.style.transform = `translate(0px, 0px)`;
     }
+  }
+  if (
+    ref.current &&
+    dragCard &&
+    dragNodeRect &&
+    isStartAfterDropAnimation &&
+    !isDragStart &&
+    !isInContainer &&
+    card.order > dragCard.order
+  ) {
+    ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
   }
 
   if (ref.current && ref.current.dataset.dndItemReady) {

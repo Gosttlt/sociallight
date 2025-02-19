@@ -1,3 +1,16 @@
+export const getTransformValue = (node: HTMLDivElement) => {
+  const transform = node.style.transform;
+  let re = /translate\(([^()]+)\)/;
+  if (transform) {
+    const valuesTransformAfterRe = transform.match(re);
+    if (valuesTransformAfterRe) {
+      const transformValuesArr = valuesTransformAfterRe[1].split("px,");
+      return Number(transformValuesArr[0]);
+    }
+  }
+  return 0;
+};
+
 export const removeAllSelectionsFromDocument = () => {
   const sel = document.getSelection();
   if (sel) {

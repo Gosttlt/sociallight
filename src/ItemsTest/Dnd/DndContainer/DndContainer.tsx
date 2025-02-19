@@ -2,15 +2,15 @@ import clsx from "clsx";
 
 import s from "./DndContainer.module.scss";
 import type { DndContainerComponentType } from "./DndContainer.types";
-import { removeAllSelectionsFromDocument } from "../utils";
+import { getTransformValue, removeAllSelectionsFromDocument } from "../utils";
 import { useDndStore } from "@/ItemsTest/State";
 import { MouseEvent, useEffect } from "react";
 
 const DndContainer: DndContainerComponentType = (props) => {
   const { className = "", children, items, sharedId } = props;
   const {
-    isDropAnimationEnd,
-    setDropAnimationEnd,
+    isStartAfterDropAnimation,
+    setStatusAfterDropAnimation,
     isCursorStartPositionFromOverCard,
     setCursorPositionFromOverCard,
     cursorCoords,
@@ -111,23 +111,47 @@ const DndContainer: DndContainerComponentType = (props) => {
   };
   const onDragEnd = (e: globalThis.MouseEvent) => {
     setDragStart(false);
-    setSharedContainerId(null);
-    setDndItemsFrom(null);
-    setFromContainerNode(null);
-    setDiffDragNodeAndCursor(null);
-    setDragNode(null);
-    setDragNodeRect(null);
-    setInContainer(false);
-    setCursorCoords(null);
-    setDropAnimationEnd(false);
+    // setSharedContainerId(null);
+    // setDndItemsFrom(null);
+    // setFromContainerNode(null);
+    // setDiffDragNodeAndCursor(null);
+    // setDragNode(null);
+    // setDragNodeRect(null);
+    // setInContainer(false);
+    // setCursorCoords(null);
+    setStatusAfterDropAnimation(true);
 
-    if (
-      overNode &&
-      isCursorStartPositionFromOverCard &&
-      e.target instanceof HTMLDivElement &&
-      e.target.closest("[data-dnd-tvo='true']")
-    ) {
-      console.log(123);
+    if (dragNode && e.target instanceof HTMLDivElement) {
+      dragNode.style.transition = "1s";
+      if (overNode && e.target.closest("[data-dnd-tvo='true']")) {
+        const { right, top, left, width } = overNode.getBoundingClientRect();
+        const transformValue = getTransformValue(overNode);
+        console.log(transformValue);
+        if (isCursorStartPositionFromOverCard) {
+          console.log("start", width);
+          dragNode.style.transform = `translate(0px, ${0}px)`;
+          dragNode.style.left = `${left - width}px`;
+          dragNode.style.top = `${top}px`;
+        } else {
+          console.log("end");
+          console.log(overNode);
+          console.log(isCursorStartPositionFromOverCard);
+
+          dragNode.style.transform = `translate(0px, ${0}px)`;
+          dragNode.style.left = `${right}px`;
+          dragNode.style.top = `${top}px`;
+        }
+      } else {
+        console.log("else");
+        dragNode.style.transform = `translate(0px, ${0}px)`;
+      }
+
+      const setAfterOverCardEndAnimation = () => {};
+
+      dragNode.addEventListener("transitionend", function (event) {
+        console.log("Переход завершен!");
+        setStatusAfterDropAnimation(false);
+      });
     }
   };
 
@@ -143,7 +167,7 @@ const DndContainer: DndContainerComponentType = (props) => {
       window.removeEventListener("mouseup", onDragEnd);
       window.removeEventListener("mousemove", onDragMove);
     };
-  }, [isDragStart, dragNode]);
+  }, [isDragStart, dragNode, overNode, isCursorStartPositionFromOverCard]);
 
   return (
     <div
@@ -161,3 +185,10 @@ export default DndContainer;
 
 // как найти ближайшего родителя с определенным дата атребутом
 // button.closest("[data-id='123']");
+// 1. Нужно завершить анимацию
+//  1) со
+
+// Кейсы
+// 1) Выкинул за пределы котнейнера
+// 2) Выкинул в соседний кнтейнер
+// 3)

@@ -4,13 +4,13 @@ import { DndItemDataType } from "../Dnd/utils";
 type CoordsType = { x: number; y: number };
 
 interface DndState {
+  isStartAfterDropAnimation: boolean;
+  setStatusAfterDropAnimation: (coords: boolean) => void;
+
   isCursorStartPositionFromOverCard: boolean;
   setCursorPositionFromOverCard: (
     isCursorStartPositionFromOverCard: boolean
   ) => void;
-
-  isDropAnimationEnd: boolean;
-  setDropAnimationEnd: (coords: boolean) => void;
 
   cursorCoords: CoordsType | null;
   setCursorCoords: (coords: CoordsType | null) => void;
@@ -62,9 +62,9 @@ interface DndState {
 }
 
 export const useDndStore = create<DndState>((set) => ({
-  isDropAnimationEnd: true,
-  setDropAnimationEnd: (isDropAnimationEnd: boolean) =>
-    set({ isDropAnimationEnd }),
+  isStartAfterDropAnimation: false,
+  setStatusAfterDropAnimation: (isStartAfterDropAnimation: boolean) =>
+    set({ isStartAfterDropAnimation }),
 
   isCursorStartPositionFromOverCard: false,
   setCursorPositionFromOverCard: (isCursorStartPositionFromOverCard) =>
