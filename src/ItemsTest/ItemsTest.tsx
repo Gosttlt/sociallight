@@ -35,13 +35,13 @@ const ItemsTest: ItemsTestComponentType = (props) => {
       <DndContainer
         setData={(items: any) => {
           // console.log(items);
-          // setData(items);
+          setData(items);
         }}
         items={data}
         sharedId="testSharedId"
       >
         {data.map((card, index) => (
-          <DndItem index={index} card={card}>
+          <DndItem index={index} card={card} key={card.id}>
             <div key={card.id} draggable="false" className={s.item}>
               <div style={{ pointerEvents: "none" }}>{card.name}</div>
             </div>

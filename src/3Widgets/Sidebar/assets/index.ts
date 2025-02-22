@@ -31,17 +31,17 @@ export const sidebarMenuItems: SidebarMenuItemMenuType[] = [
     isActive: false,
     subMenu: [
       {
-        id: 1,
+        id: 4,
         name: "Задачи",
         Svg: Task,
       },
       {
-        id: 2,
+        id: 5,
         name: "Календарь",
         Svg: Calendar,
       },
       {
-        id: 3,
+        id: 6,
         name: "Блакнот",
         Svg: Calendar,
       },
@@ -53,17 +53,17 @@ export const sidebarMenuItems: SidebarMenuItemMenuType[] = [
     isActive: false,
     subMenu: [
       {
-        id: 1,
+        id: 7,
         name: "Задачи",
         Svg: Task,
       },
       {
-        id: 2,
+        id: 8,
         name: "Календарь",
         Svg: Calendar,
       },
       {
-        id: 3,
+        id: 9,
         name: "Блакнот",
         Svg: Calendar,
       },

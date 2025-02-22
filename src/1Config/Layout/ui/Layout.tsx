@@ -1,5 +1,4 @@
 import clsx from "clsx";
-
 import s from "./Layout.module.scss";
 import type { LayoutComponentType } from "./Layout.types";
 

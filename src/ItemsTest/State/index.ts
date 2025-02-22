@@ -56,7 +56,7 @@ interface DndState {
   setDragCard: (dragCard: DndItemDataType | null) => void;
 
   overNode: HTMLElement | null;
-  setOverNode: (node: HTMLElement) => void;
+  setOverNode: (node: HTMLElement | null) => void;
 
   overCard: DndItemDataType | null;
   setOverCard: (overCard: DndItemDataType | null) => void;
@@ -65,7 +65,7 @@ interface DndState {
   setFromContainerNode: (node: HTMLElement | null) => void;
 
   toContainerNode: HTMLElement | null;
-  setToContainerNode: (node: HTMLElement) => void;
+  setToContainerNode: (node: HTMLElement | null) => void;
 
   overContainerNode: HTMLElement | null;
   setOverContainerNode: (node: HTMLElement | null) => void;
@@ -91,7 +91,7 @@ export const useDndStore = create<DndState>((set) => ({
   setOverNodeRectOnFirstTouch: (overNodeRectOnFirstTouch) =>
     set({ overNodeRectOnFirstTouch }),
 
-  dndDuration: 3000,
+  dndDuration: 300,
   setDndDuration: (dndDuration) => set({ dndDuration }),
 
   isStartAfterDropAnimation: false,

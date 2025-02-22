@@ -24,13 +24,12 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
       })
     );
   };
-
   return (
     <nav className={s.nav}>
       {menuItemsState.map(({ id, name, subMenu, isActive }, index) => {
         return (
-          <>
-            <ul key={id}>
+          <div key={id}>
+            <ul>
               <MainMenuItem
                 isOpenCollapse={isActive}
                 text={name}
@@ -45,7 +44,7 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
                       onClick={() => {
                         setActiveMenu({ mainMenuItemId: id, subMenuItemId });
                       }}
-                      key={id}
+                      key={subMenuItemId}
                       className={clsx(s.sideBarItem, {
                         [s.activeMenuItem]:
                           activeMenu.mainMenuItemId === id &&
@@ -60,7 +59,7 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
               </Collapse>
             </ul>
             {index !== menuItems.length - 1 && <hr className={s.hr} />}
-          </>
+          </div>
         );
       })}
     </nav>

@@ -9,6 +9,7 @@ import DndContextProvider from "@/1Config/Providers/Dnd";
 import TaskColumns from "@/3Widgets/TaskColumns";
 import ItemsTest from "@/ItemsTest/ItemsTest";
 import { sidebarMenuItems } from "@/3Widgets/Sidebar/assets";
+import { useDndStore } from "@/ItemsTest/State";
 
 export default function Home() {
   return (

@@ -16,7 +16,6 @@ const Header: HeaderComponentType = (props) => {
   const { email } = useAppSelector(selectUser);
   const { className = "" } = props;
   const navigate = useRouter();
-
   return (
     <header className={clsx(s.headerWrapper, className)}>
       <Link className={s.logo} href="/">

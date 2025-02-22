@@ -58,22 +58,22 @@ const setAnimationDragNodeAfterDrop = ({
 
     if (isOutsideContainer) {
       dragNode.style.transform = `translate(0px, ${0}px)`;
-      console.log("isOutsideContainer");
+      // console.log("isOutsideContainer");
     }
     //
     else if (isInContainer) {
-      console.log("isInContainer");
+      // console.log("isInContainer");
       //
       if (isEndContainer) {
         const { right } = overContainerNode.getBoundingClientRect();
         dragNode.style.transform = `translate(${
           right - dragNodeRect.x - dragNodeRect.width
         }px, ${0}px)`;
-        console.log("isEndContainer");
+        // console.log("isEndContainer");
       }
       //
       else if (isAfterDragStartPos && currentOverNode instanceof HTMLElement) {
-        console.log("isAfterDragStartPos");
+        // console.log("isAfterDragStartPos");
 
         if (isStartPositionOverCard) {
           let allLeftWidth = 0;
@@ -94,7 +94,7 @@ const setAnimationDragNodeAfterDrop = ({
           dragNode.style.transform = `translate(${
             allLeftWidth - dragNodeRect.width - diffDragXAndContainerX
           }px, ${0}px)`;
-          console.log("isStartPositionOverCard111");
+          // console.log("isStartPositionOverCard111");
         }
         //
         else if (isEndPositionFromOverCard) {
@@ -120,12 +120,12 @@ const setAnimationDragNodeAfterDrop = ({
           dragNode.style.transform = `translate(${
             allLeftWidth - dragNodeRect.width - diffDragXAndContainerX
           }px, ${0}px)`;
-          console.log("isEndPositionFromOverCard222");
+          // console.log("isEndPositionFromOverCard222");
         }
       }
       //
       else if (isBeforeDragStartPos && currentOverNode instanceof HTMLElement) {
-        console.log("isBeforeDragStartPos");
+        // console.log("isBeforeDragStartPos");
         if (isStartPositionOverCard) {
           let allLeftWidth = 0;
           const tvoOverNodeIndex = currentOverNode.dataset.tvoIndex;
@@ -146,7 +146,7 @@ const setAnimationDragNodeAfterDrop = ({
             allLeftWidth - diffDragXAndContainerX
           }px, ${0}px)`;
 
-          console.log("isStartPositionOverCard333");
+          // console.log("isStartPositionOverCard333");
         }
         //
         else if (isEndPositionFromOverCard) {
@@ -173,7 +173,7 @@ const setAnimationDragNodeAfterDrop = ({
             allLeftWidth - diffDragXAndContainerX
           }px, ${0}px)`;
 
-          console.log("isEndPositionFromOverCard 44");
+          // console.log("isEndPositionFromOverCard 44");
         }
       }
     }
@@ -230,35 +230,48 @@ const DndContainer: DndContainerComponentType = (props) => {
   } = useDndStore();
 
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
-    const currentTarget = e.currentTarget as HTMLElement;
-    const target = e.target as HTMLElement;
+    if (!isStartAfterDropAnimation) {
+      const currentTarget = e.currentTarget as HTMLElement;
+      const target = e.target as HTMLElement;
 
-    removeAllSelectionsFromDocument();
+      setInContainer(true);
+      removeAllSelectionsFromDocument();
 
-    if (target.dataset.dndItem === "dndItem") {
-      const targetRect = target.getBoundingClientRect();
-      const { height, width, x, y } = targetRect;
-      const diffDragNodeAndCursorX = e.clientX - x;
-      const diffDragNodeAndCursorY = e.clientY - y;
-      target.style.position = "fixed";
-      target.style.zIndex = "1000";
-      target.style.left = e.clientX - diffDragNodeAndCursorX + "px";
-      target.style.top = e.clientY - diffDragNodeAndCursorY + "px";
-      target.style.pointerEvents = "none";
+      if (target.dataset.dndItem === "dndItem") {
+        const targetRect = target.getBoundingClientRect();
+        const { height, width, x, y } = targetRect;
+        const diffDragNodeAndCursorX = e.clientX - x;
+        const diffDragNodeAndCursorY = e.clientY - y;
+        target.style.position = "fixed";
+        target.style.zIndex = "1000";
+        target.style.left = e.clientX - diffDragNodeAndCursorX + "px";
+        target.style.top = e.clientY - diffDragNodeAndCursorY + "px";
+        target.style.pointerEvents = "none";
 
-      currentTarget.style.width = currentTarget.offsetWidth + width + "px";
+        currentTarget.childNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            const tvoIndex = node.dataset.tvoIndex;
+            const dragNodeIndex = target.dataset.tvoIndex;
+            if (tvoIndex && dragNodeIndex && tvoIndex > dragNodeIndex) {
+              node.style.transform = `translate(${targetRect.width}px, 0px)`;
+            }
+          }
+        });
 
-      setDragStart(true);
-      setSharedContainerId(sharedId);
-      setDndItemsFrom(items);
-      setFromContainerNode(currentTarget);
-      setDiffDragNodeAndCursor({
-        x: diffDragNodeAndCursorX,
-        y: diffDragNodeAndCursorY,
-      });
-      setDragNode(target);
-      setDragNodeRect(targetRect);
-      setCursorCoords({ x: e.clientX, y: e.clientY });
+        currentTarget.style.width = currentTarget.offsetWidth + width + "px";
+
+        setDragStart(true);
+        setSharedContainerId(sharedId);
+        setDndItemsFrom(items);
+        setFromContainerNode(currentTarget);
+        setDiffDragNodeAndCursor({
+          x: diffDragNodeAndCursorX,
+          y: diffDragNodeAndCursorY,
+        });
+        setDragNode(target);
+        setDragNodeRect(targetRect);
+        setCursorCoords({ x: e.clientX, y: e.clientY });
+      }
     }
   };
 
@@ -298,6 +311,12 @@ const DndContainer: DndContainerComponentType = (props) => {
 
     // \Очещяем фирст овер реакт и курент овер ноду при выходе из контейнера
 
+    // очищяем оверкард
+    // const isHtmlElement = e.target instanceof HTMLElement;
+    // if (!isHtmlElement || !e.target.dataset.dndItem) {
+    //   setOverCard(null);
+    // }
+
     // Прочее
     if (e.target instanceof HTMLElement && e.target.dataset.dndItem) {
       if (currentOverNode !== e.target) {
@@ -336,42 +355,73 @@ const DndContainer: DndContainerComponentType = (props) => {
       isTargetInContainer: !!isTargetContainer,
       overNodeTransformOnFirstTouch,
     });
-    // if (dragNode) {
-    //   dragNode.addEventListener("transitionend", () => {
+    if (dragNode) {
+      dragNode.addEventListener("transitionend", function transitionEnd() {
+        console.log("transitionend");
+        let newItems;
+        if (dragCard && dndItemsFrom) {
+          if (overCard) {
+            newItems = inOneContainer({
+              cards: dndItemsFrom,
+              dragCard: dragCard,
+              isNextPosition: !isCursorStartPositionFromOverCard,
+              lastOverCard: overCard,
+            });
+          }
+          dragNode.style.transform = "";
+          dragNode.style.transition = "";
+          dragNode.style.position = "";
+          dragNode.style.pointerEvents = "";
+          dragNode.style.top = "";
+          dragNode.style.left = "";
+          dragNode.style.zIndex = "";
 
-    //     if (dragCard && overCard && dndItemsFrom) {
-    //       const newItems = inOneContainer({
-    //         cards: dndItemsFrom,
-    //         dragCard: dragCard,
-    //         isNextPosition: !isCursorStartPositionFromOverCard,
-    //         lastOverCard: overCard,
-    //       });
-    //       dragNode.style.transform = "";
-    //       dragNode.style.position = "";
-    //       dragNode.style.pointerEvents = "";
-    //       dragNode.style.top = "";
-    //       dragNode.style.left = "";
-    //       dragNode.style.zIndex = "";
-    //       setData(newItems);
-    //     }
-    //     setStatusAfterDropAnimation(false);
-    //   });
-    // }
+          if (fromContainerNode) {
+            fromContainerNode.style.width = "";
+            fromContainerNode.childNodes.forEach((node) => {
+              if (node instanceof HTMLElement) {
+                node.style.transform = ``;
+                node.style.transition = "";
+              }
+            });
+          }
+          if (newItems) {
+            setData(newItems);
+          }
+        }
+        //
+        setCurrentOverNode(null);
+        setCursorCoords(null);
+        setDiffDragNodeAndCursor(null);
+        setDragCard(null);
+        setDragNode(null);
+        setDragNodeRect(null);
+        setFromContainerNode(null);
+        setStatusAfterDropAnimation(false);
+        setOverCard(null);
+        setOverContainerNode(null);
+        setOverNode(null);
+        setOverNodeRectOnFirstTouch(null);
+        setToContainerNode(null);
+        dragNode.removeEventListener("transitionend", transitionEnd);
+      });
+    }
   };
-
+  console.log(overCard);
   useEffect(() => {
     if (isDragStart && dragNode) {
       window.addEventListener("mousemove", onDragMove);
       window.addEventListener("mouseup", onDragEnd);
-    } else {
-      window.removeEventListener("mousemove", onDragMove);
-      window.removeEventListener("mouseup", onDragEnd);
     }
+
     return () => {
       window.removeEventListener("mouseup", onDragEnd);
       window.removeEventListener("mousemove", onDragMove);
     };
   }, [
+    setData,
+    items,
+    dndItemsFrom,
     overNodeTransformOnFirstTouch,
     setOverNodeTransformOnFirstTouch,
     currentOverNode,
@@ -431,11 +481,4 @@ const DndContainer: DndContainerComponentType = (props) => {
 
 export default DndContainer;
 
-// я имею трансформ он равен 0
-// я имею позицию от 450 до 482
-// я имею width от 32
-// как узнать пределы позиции width
-// я знаю что движение идет на снижение
-
-// захожу трансформ 0  поз 455
-// положение на экране
+// TODO чистим оверноду что бы в аутсайд после овера по нодам не улитала функция сет дата?

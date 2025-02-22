@@ -1,3 +1,6 @@
+// eslint-disable-next-line
+import Symbol_observable from "symbol-observable";
+
 import type { Metadata } from "next";
 
 import { Inter } from "next/font/google";

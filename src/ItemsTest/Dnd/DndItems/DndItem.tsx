@@ -149,44 +149,7 @@ const DndItem: DndItemComponentType = (props) => {
     }
   };
 
-  // Дать трансформ без транзишена
-  // Както узнать что дали
-  // Повесить транзишены
-  // Продолжеть анимацию
-
-  //  Если нету transition то вешаем и делаем первый мув элементами что бы избежать дерганья в начале из за позишена fixed
-  if (
-    dragCard &&
-    ref.current &&
-    dragNodeRect &&
-    !ref.current.style.transition &&
-    !isInContainer &&
-    !ref.current.dataset.dndItemReady &&
-    ref.current !== dragNode
-  ) {
-    if (card.order > dragCard.order) {
-      ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
-    } else if (card.order < dragCard.order) {
-      ref.current.style.transform = `translate(0px, 0px)`;
-    }
-  }
-
-  //  Если есть трансформ то можно перетаскивать
-  if (
-    isDragStart &&
-    ref.current &&
-    ref.current !== dragNode &&
-    dragNodeRect &&
-    !!ref.current.style.transform &&
-    !ref.current.dataset.dndItemReady
-  ) {
-    console.log("first move");
-    ref.current.dataset.dndItemReady = "true";
-  }
-
-  // анимация после подготовительных работ
-
-  if (ref.current && ref.current.dataset.dndItemReady) {
+  if (ref.current && dragNode && ref.current !== dragNode) {
     getStyleFromWrapper({
       overNodeRectOnFirstTouch,
       card,
@@ -212,11 +175,6 @@ const DndItem: DndItemComponentType = (props) => {
     card.order > dragCard.order
   ) {
     ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
-  }
-
-  //По оканчанию драги снемаем датасет
-  if (!isDragStart && ref.current) {
-    delete ref.current.dataset.dndItemReady;
   }
 
   return (
