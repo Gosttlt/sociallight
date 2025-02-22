@@ -6,5 +6,6 @@ export type DndItemComponentType = FC<DndItemProps>;
 export type DndItemProps = {
   children?: ReactNode;
   className?: string;
+  index: number;
   card: DndItemDataType;
 };

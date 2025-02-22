@@ -8,4 +8,5 @@ export type DndContainerProps = {
   className?: string;
   items: DndItemDataType[];
   sharedId: string;
+  setData: any;
 };

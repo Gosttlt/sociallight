@@ -22,6 +22,10 @@ export type DndItemDataType = { id: string | number; order: number } & {
   [key: string]: any;
 };
 
+// Styled
+
+// \Styled
+
 // Sorted
 
 export const sortDndFn = (a: DndItemDataType, b: DndItemDataType) =>

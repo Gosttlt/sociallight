@@ -15,8 +15,10 @@ const getStyleFromWrapper = ({
   isDragStart,
   thisNode,
   dragNodeRect,
+  dndDuration,
+  overNodeRectOnFirstTouch,
 }: {
-  thisNode: HTMLDivElement | null;
+  thisNode: HTMLElement | null;
   overCard?: DndItemDataType | null;
   card: DndItemDataType;
   dragCard?: DndItemDataType | null;
@@ -24,15 +26,17 @@ const getStyleFromWrapper = ({
   isInContainer?: boolean | null;
   isDragStart: boolean;
   dragNodeRect: DOMRect | null;
+  overNodeRectOnFirstTouch: DOMRect | null;
+  dndDuration: number;
 }) => {
   if (dragCard && isDragStart && thisNode && dragNodeRect) {
-    thisNode.style.transition = "1s";
+    thisNode.style.transition = `${dndDuration / 1000}s`;
     // Элементы относительно перетаскиваемого
     const isThisNodeBeforeDragCard = card.order < dragCard.order;
     const isThisNodeAfterDragCard = card.order > dragCard.order;
 
     if (isInContainer) {
-      if (overCard) {
+      if (overCard && overNodeRectOnFirstTouch) {
         // Курсор относительно элемента
         const isCursorBeforeThisNode = card.order < overCard.order;
         const isCursorAfterThisNode = card.order > overCard.order;
@@ -86,9 +90,18 @@ const getStyleFromWrapper = ({
 };
 
 const DndItem: DndItemComponentType = (props) => {
-  const { className = "", children, card } = props;
+  const { className = "", children, card, index } = props;
   const ref = useRef<null | HTMLDivElement>(null);
+
   const {
+    overNodeTransformOnFirstTouch,
+    setOverNodeTransformOnFirstTouch,
+    currentOverNode,
+    setCurrentOverNode,
+    overNodeRectOnFirstTouch,
+    setOverNodeRectOnFirstTouch,
+    dndDuration,
+    setDndDuration,
     isStartAfterDropAnimation,
     setStatusAfterDropAnimation,
     isCursorStartPositionFromOverCard,
@@ -136,29 +149,20 @@ const DndItem: DndItemComponentType = (props) => {
     }
   };
 
-  if (
-    isDragStart &&
-    ref.current &&
-    ref.current !== dragNode &&
-    dragNodeRect &&
-    !!ref.current.style.transform
-  ) {
-    ref.current.dataset.dndItemReady = "true";
-  }
+  // Дать трансформ без транзишена
+  // Както узнать что дали
+  // Повесить транзишены
+  // Продолжеть анимацию
 
-  if (!isDragStart && ref.current) {
-    delete ref.current.dataset.dndItemReady;
-  }
-
-  // if (ref.current && dragNode && dragNode === ref.current) {
-  //   console.log(isDragStart);
-  // }
+  //  Если нету transition то вешаем и делаем первый мув элементами что бы избежать дерганья в начале из за позишена fixed
   if (
     dragCard &&
     ref.current &&
     dragNodeRect &&
     !ref.current.style.transition &&
-    !isInContainer
+    !isInContainer &&
+    !ref.current.dataset.dndItemReady &&
+    ref.current !== dragNode
   ) {
     if (card.order > dragCard.order) {
       ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
@@ -166,6 +170,38 @@ const DndItem: DndItemComponentType = (props) => {
       ref.current.style.transform = `translate(0px, 0px)`;
     }
   }
+
+  //  Если есть трансформ то можно перетаскивать
+  if (
+    isDragStart &&
+    ref.current &&
+    ref.current !== dragNode &&
+    dragNodeRect &&
+    !!ref.current.style.transform &&
+    !ref.current.dataset.dndItemReady
+  ) {
+    console.log("first move");
+    ref.current.dataset.dndItemReady = "true";
+  }
+
+  // анимация после подготовительных работ
+
+  if (ref.current && ref.current.dataset.dndItemReady) {
+    getStyleFromWrapper({
+      overNodeRectOnFirstTouch,
+      card,
+      isDragStart,
+      isCursorStartPositionFromOverCard,
+      thisNode: ref.current,
+      dragCard,
+      overCard,
+      isInContainer,
+      dragNodeRect,
+      dndDuration,
+    });
+  }
+
+  // После дропа за пределы контейнера возвращяем this ноды и ждем пока позишен станет не фиксед
   if (
     ref.current &&
     dragCard &&
@@ -178,22 +214,15 @@ const DndItem: DndItemComponentType = (props) => {
     ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`;
   }
 
-  if (ref.current && ref.current.dataset.dndItemReady) {
-    getStyleFromWrapper({
-      card,
-      isDragStart,
-      isCursorStartPositionFromOverCard,
-      thisNode: ref.current,
-      dragCard,
-      overCard,
-      isInContainer,
-      dragNodeRect,
-    });
+  //По оканчанию драги снемаем датасет
+  if (!isDragStart && ref.current) {
+    delete ref.current.dataset.dndItemReady;
   }
 
   return (
     <div
       ref={ref}
+      data-tvo-index={index}
       onMouseMove={onMouseMove}
       onMouseDown={onDrag}
       data-dnd-item="dndItem"
@@ -205,11 +234,3 @@ const DndItem: DndItemComponentType = (props) => {
 };
 
 export default DndItem;
-
-// 1. Как узнать что это контейнер?
-//  1) Повесить дата сет
-// 2. Как узнать что это шаристый контейнер
-//  2). Добавить датасет шар
-// 3. Как дочернему элементу узнать что он в шарестом контейнер
-// 4. Как дочернему элементу узнать что он из фрома
-//  1) Проверить что он контейница во фроме

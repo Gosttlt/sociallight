@@ -4,6 +4,22 @@ import { DndItemDataType } from "../Dnd/utils";
 type CoordsType = { x: number; y: number };
 
 interface DndState {
+  overNodeTransformOnFirstTouch: string | null;
+  setOverNodeTransformOnFirstTouch: (
+    overNodeTransformOnFirstTouch: string | null
+  ) => void;
+
+  currentOverNode: HTMLElement | null;
+  setCurrentOverNode: (currentOverNode: HTMLElement | null) => void;
+
+  overNodeRectOnFirstTouch: DOMRect | null;
+  setOverNodeRectOnFirstTouch: (
+    overNodeRectOnFirstTouch: DOMRect | null
+  ) => void;
+
+  dndDuration: number;
+  setDndDuration: (dndDuration: number) => void;
+
   isStartAfterDropAnimation: boolean;
   setStatusAfterDropAnimation: (coords: boolean) => void;
 
@@ -27,8 +43,8 @@ interface DndState {
   isDragStart: boolean;
   setDragStart: (state: boolean) => void;
 
-  dragNode: HTMLDivElement | null;
-  setDragNode: (node: HTMLDivElement | null) => void;
+  dragNode: HTMLElement | null;
+  setDragNode: (node: HTMLElement | null) => void;
 
   dragNodeRect: DOMRect | null;
   setDragNodeRect: (nodeRect: DOMRect | null) => void;
@@ -39,20 +55,20 @@ interface DndState {
   dragCard: DndItemDataType | null;
   setDragCard: (dragCard: DndItemDataType | null) => void;
 
-  overNode: HTMLDivElement | null;
-  setOverNode: (node: HTMLDivElement) => void;
+  overNode: HTMLElement | null;
+  setOverNode: (node: HTMLElement) => void;
 
   overCard: DndItemDataType | null;
   setOverCard: (overCard: DndItemDataType | null) => void;
 
-  fromContainerNode: HTMLDivElement | null;
-  setFromContainerNode: (node: HTMLDivElement | null) => void;
+  fromContainerNode: HTMLElement | null;
+  setFromContainerNode: (node: HTMLElement | null) => void;
 
-  toContainerNode: HTMLDivElement | null;
-  setToContainerNode: (node: HTMLDivElement) => void;
+  toContainerNode: HTMLElement | null;
+  setToContainerNode: (node: HTMLElement) => void;
 
-  overContainerNode: HTMLDivElement | null;
-  setOverContainerNode: (node: HTMLDivElement) => void;
+  overContainerNode: HTMLElement | null;
+  setOverContainerNode: (node: HTMLElement | null) => void;
 
   dndItemsFrom: DndItemDataType[] | null;
   setDndItemsFrom: (items: DndItemDataType[] | null) => void;
@@ -61,7 +77,23 @@ interface DndState {
   setDndItemsTo: (items: DndItemDataType[]) => void;
 }
 
+// Как определить конечную точку драг ноды когда драговер в движении
+
 export const useDndStore = create<DndState>((set) => ({
+  overNodeTransformOnFirstTouch: null,
+  setOverNodeTransformOnFirstTouch: (overNodeTransformOnFirstTouch) =>
+    set({ overNodeTransformOnFirstTouch }),
+
+  currentOverNode: null,
+  setCurrentOverNode: (currentOverNode) => set({ currentOverNode }),
+
+  overNodeRectOnFirstTouch: null,
+  setOverNodeRectOnFirstTouch: (overNodeRectOnFirstTouch) =>
+    set({ overNodeRectOnFirstTouch }),
+
+  dndDuration: 3000,
+  setDndDuration: (dndDuration) => set({ dndDuration }),
+
   isStartAfterDropAnimation: false,
   setStatusAfterDropAnimation: (isStartAfterDropAnimation: boolean) =>
     set({ isStartAfterDropAnimation }),
