@@ -1,12 +1,12 @@
-import type { FC, ReactNode } from "react";
-import { DndItemDataType } from "../utils";
+import type {FC, ReactNode} from 'react'
+import {DndItemDataType} from '../utils'
 
-export type DndContainerComponentType = FC<DndContainerProps>;
+export type DndContainerComponentType = FC<DndContainerProps>
 
 export type DndContainerProps = {
-  children?: ReactNode;
-  className?: string;
-  items: DndItemDataType[];
-  sharedId: string;
-  setData: any;
-};
+  children?: ReactNode
+  className?: string
+  items: DndItemDataType[]
+  sharedId: string
+  setData: any
+}

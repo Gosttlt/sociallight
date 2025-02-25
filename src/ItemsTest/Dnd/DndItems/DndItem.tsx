@@ -155,7 +155,11 @@ const DndItem: DndItemComponentType = props => {
   }
 
   if (ref.current && dragNode && ref.current !== dragNode) {
-    if (overContainerNode === fromContainerNode) {
+    if (
+      fromContainerNode &&
+      fromContainerNode.contains(ref.current) &&
+      fromContainerNode.contains(overNode)
+    ) {
       getStyleFromWrapper({
         overNodeRectOnFirstTouch,
         card,

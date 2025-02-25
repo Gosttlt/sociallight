@@ -9,7 +9,8 @@ import {
   removeAllSelectionsFromDocument,
 } from '../utils'
 import {CoordsType, useDndStore} from '@/ItemsTest/State'
-import {MouseEvent, useEffect} from 'react'
+import {Children, cloneElement, MouseEvent, useEffect} from 'react'
+import DndItem from '../DndItems/DndItem'
 
 const setAnimationDragNodeAfterDrop = ({
   currentOverNode,
@@ -355,6 +356,7 @@ const DndContainer: DndContainerComponentType = props => {
 
   const onDragMove = (e: globalThis.MouseEvent) => {
     const {clientX, clientY} = e
+    console.log(123)
 
     // Трансфармируем перетаскиваемый элемент по курсору
     if (dragNode && dragNodeRect && diffDragNodeAndCursor) {
@@ -366,7 +368,6 @@ const DndContainer: DndContainerComponentType = props => {
         dragNodeRect,
       })
     }
-
     const isTargetInContainer =
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']")
@@ -402,84 +403,78 @@ const DndContainer: DndContainerComponentType = props => {
   }
 
   const onDragEnd = (e: globalThis.MouseEvent) => {
-    setDragStart(false)
-
-    setStatusAfterDropAnimation(true)
-
-    const isTargetContainer =
-      e.target instanceof HTMLElement &&
-      e.target.closest("[data-dnd-tvo='true']")
-
-    setAnimationDragNodeAfterDrop({
-      currentOverNode,
-      overContainerNode,
-      dragCard,
-      dragNode,
-      dragNodeRect,
-      isCursorStartPositionFromOverCard,
-      overCard,
-      overNodeRectOnFirstTouch,
-      duration: dndDuration,
-      isTargetInContainer: !!isTargetContainer,
-    })
-
-    if (dragNode) {
-      dragNode.addEventListener('transitionend', function transitionEnd() {
-        document.querySelector('body')!.style.userSelect = ''
-
-        let newItems
-        if (dragCard && dndItemsFrom) {
-          if (overCard && isTargetContainer) {
-            newItems = inOneContainer({
-              cards: dndItemsFrom,
-              dragCard: dragCard,
-              isNextPosition: !isCursorStartPositionFromOverCard,
-              lastOverCard: overCard,
-            })
-          } else if (!currentOverNode && isTargetContainer) {
-            newItems = getDataCurrentParent({
-              cards: dndItemsFrom,
-              dragCard: dragCard,
-            })
-          }
-          dragNode.style.transform = ''
-          dragNode.style.transition = ''
-          dragNode.style.position = ''
-          dragNode.style.pointerEvents = ''
-          dragNode.style.top = ''
-          dragNode.style.left = ''
-          dragNode.style.zIndex = ''
-
-          if (fromContainerNode) {
-            fromContainerNode.style.width = ''
-            fromContainerNode.childNodes.forEach(node => {
-              if (node instanceof HTMLElement) {
-                node.style.transform = ``
-                node.style.transition = ''
-              }
-            })
-          }
-          if (newItems) {
-            setData(newItems)
-          }
-        }
-        //
-        setCurrentOverNode(null)
-        setCursorCoords(null)
-        setDiffDragNodeAndCursor(null)
-        setDragCard(null)
-        setDragNode(null)
-        setDragNodeRect(null)
-        setFromContainerNode(null)
-        setStatusAfterDropAnimation(false)
-        setOverCard(null)
-        setOverContainerNode(null)
-        setOverNode(null)
-        setOverNodeRectOnFirstTouch(null)
-        setToContainerNode(null)
-        dragNode.removeEventListener('transitionend', transitionEnd)
-      })
-    }
+    // setDragStart(false)
+    // setStatusAfterDropAnimation(true)
+    // const isTargetContainer =
+    //   e.target instanceof HTMLElement &&
+    //   e.target.closest("[data-dnd-tvo='true']")
+    // setAnimationDragNodeAfterDrop({
+    //   currentOverNode,
+    //   overContainerNode,
+    //   dragCard,
+    //   dragNode,
+    //   dragNodeRect,
+    //   isCursorStartPositionFromOverCard,
+    //   overCard,
+    //   overNodeRectOnFirstTouch,
+    //   duration: dndDuration,
+    //   isTargetInContainer: !!isTargetContainer,
+    // })
+    // if (dragNode) {
+    //   dragNode.addEventListener('transitionend', function transitionEnd() {
+    //     document.querySelector('body')!.style.userSelect = ''
+    //     let newItems
+    //     if (dragCard && dndItemsFrom) {
+    //       if (overCard && isTargetContainer) {
+    //         newItems = inOneContainer({
+    //           cards: dndItemsFrom,
+    //           dragCard: dragCard,
+    //           isNextPosition: !isCursorStartPositionFromOverCard,
+    //           lastOverCard: overCard,
+    //         })
+    //       } else if (!currentOverNode && isTargetContainer) {
+    //         newItems = getDataCurrentParent({
+    //           cards: dndItemsFrom,
+    //           dragCard: dragCard,
+    //         })
+    //       }
+    //       dragNode.style.transform = ''
+    //       dragNode.style.transition = ''
+    //       dragNode.style.position = ''
+    //       dragNode.style.pointerEvents = ''
+    //       dragNode.style.top = ''
+    //       dragNode.style.left = ''
+    //       dragNode.style.zIndex = ''
+    //       if (fromContainerNode) {
+    //         fromContainerNode.style.width = ''
+    //         fromContainerNode.childNodes.forEach(node => {
+    //           if (node instanceof HTMLElement) {
+    //             node.style.transform = ``
+    //             node.style.transition = ''
+    //           }
+    //         })
+    //       }
+    //       if (newItems) {
+    //         setData(newItems)
+    //       }
+    //     }
+    //     //
+    //     setCurrentOverNode(null)
+    //     setCursorCoords(null)
+    //     setDiffDragNodeAndCursor(null)
+    //     setDragCard(null)
+    //     setDragNode(null)
+    //     setDragNodeRect(null)
+    //     setFromContainerNode(null)
+    //     setStatusAfterDropAnimation(false)
+    //     setOverCard(null)
+    //     setOverContainerNode(null)
+    //     setOverNode(null)
+    //     setOverNodeRectOnFirstTouch(null)
+    //     setToContainerNode(null)
+    //     dragNode.removeEventListener('transitionend', transitionEnd)
+    //   })
+    // }
   }
 
   useEffect(() => {
@@ -539,8 +534,7 @@ const DndContainer: DndContainerComponentType = props => {
     dndItemsTo,
     setDndItemsTo,
   ])
-  console.log(overContainerNode, 'overContainerNode')
-  console.log(fromContainerNode, 'fromContainerNode')
+
   return (
     <div
       data-dnd-tvo={true}
