@@ -94,8 +94,6 @@ const DndItem: DndItemComponentType = props => {
   const ref = useRef<null | HTMLDivElement>(null)
 
   const {
-    overNodeTransformOnFirstTouch,
-    setOverNodeTransformOnFirstTouch,
     currentOverNode,
     setCurrentOverNode,
     overNodeRectOnFirstTouch,
@@ -143,7 +141,7 @@ const DndItem: DndItemComponentType = props => {
   const onDrag = () => {
     setDragCard(card)
   }
-  const onMouseMove = () => {
+  const onMouseOver = () => {
     if (isDragStart) {
       setOverCard(card)
     }
@@ -186,7 +184,7 @@ const DndItem: DndItemComponentType = props => {
     <div
       ref={ref}
       data-tvo-index={index}
-      onMouseMove={onMouseMove}
+      onMouseOver={onMouseOver}
       onMouseDown={onDrag}
       data-dnd-item='dndItem'
       className={clsx(s.dndItemWrapper, className)}

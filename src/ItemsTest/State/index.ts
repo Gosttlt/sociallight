@@ -1,153 +1,144 @@
-import { create } from "zustand";
-import { DndItemDataType } from "../Dnd/utils";
+import {create} from 'zustand'
+import {DndItemDataType} from '../Dnd/utils'
 
-type CoordsType = { x: number; y: number };
+export type CoordsType = {x: number; y: number}
 
 interface DndState {
-  overNodeTransformOnFirstTouch: string | null;
-  setOverNodeTransformOnFirstTouch: (
-    overNodeTransformOnFirstTouch: string | null
-  ) => void;
+  currentOverNode: HTMLElement | null
+  setCurrentOverNode: (currentOverNode: HTMLElement | null) => void
 
-  currentOverNode: HTMLElement | null;
-  setCurrentOverNode: (currentOverNode: HTMLElement | null) => void;
-
-  overNodeRectOnFirstTouch: DOMRect | null;
+  overNodeRectOnFirstTouch: DOMRect | null
   setOverNodeRectOnFirstTouch: (
-    overNodeRectOnFirstTouch: DOMRect | null
-  ) => void;
+    overNodeRectOnFirstTouch: DOMRect | null,
+  ) => void
 
-  dndDuration: number;
-  setDndDuration: (dndDuration: number) => void;
+  dndDuration: number
+  setDndDuration: (dndDuration: number) => void
 
-  isStartAfterDropAnimation: boolean;
-  setStatusAfterDropAnimation: (coords: boolean) => void;
+  isStartAfterDropAnimation: boolean
+  setStatusAfterDropAnimation: (coords: boolean) => void
 
-  isCursorStartPositionFromOverCard: boolean;
+  isCursorStartPositionFromOverCard: boolean
   setCursorPositionFromOverCard: (
-    isCursorStartPositionFromOverCard: boolean
-  ) => void;
+    isCursorStartPositionFromOverCard: boolean,
+  ) => void
 
-  cursorCoords: CoordsType | null;
-  setCursorCoords: (coords: CoordsType | null) => void;
+  cursorCoords: CoordsType | null
+  setCursorCoords: (coords: CoordsType | null) => void
 
-  isInContainer: boolean;
-  setInContainer: (isInContainer: boolean) => void;
+  isInContainer: boolean
+  setInContainer: (isInContainer: boolean) => void
 
-  sharedContainerId: string | null;
-  setSharedContainerId: (id: string | null) => void;
+  sharedContainerId: string | null
+  setSharedContainerId: (id: string | null) => void
 
-  isDragNodeFix: boolean;
-  setDragNodeFix: (state: boolean) => void;
+  isDragNodeFix: boolean
+  setDragNodeFix: (state: boolean) => void
 
-  isDragStart: boolean;
-  setDragStart: (state: boolean) => void;
+  isDragStart: boolean
+  setDragStart: (state: boolean) => void
 
-  dragNode: HTMLElement | null;
-  setDragNode: (node: HTMLElement | null) => void;
+  dragNode: HTMLElement | null
+  setDragNode: (node: HTMLElement | null) => void
 
-  dragNodeRect: DOMRect | null;
-  setDragNodeRect: (nodeRect: DOMRect | null) => void;
+  dragNodeRect: DOMRect | null
+  setDragNodeRect: (nodeRect: DOMRect | null) => void
 
-  diffDragNodeAndCursor: CoordsType | null;
-  setDiffDragNodeAndCursor: (coords: CoordsType | null) => void;
+  diffDragNodeAndCursor: CoordsType | null
+  setDiffDragNodeAndCursor: (coords: CoordsType | null) => void
 
-  dragCard: DndItemDataType | null;
-  setDragCard: (dragCard: DndItemDataType | null) => void;
+  dragCard: DndItemDataType | null
+  setDragCard: (dragCard: DndItemDataType | null) => void
 
-  overNode: HTMLElement | null;
-  setOverNode: (node: HTMLElement | null) => void;
+  overNode: HTMLElement | null
+  setOverNode: (node: HTMLElement | null) => void
 
-  overCard: DndItemDataType | null;
-  setOverCard: (overCard: DndItemDataType | null) => void;
+  overCard: DndItemDataType | null
+  setOverCard: (overCard: DndItemDataType | null) => void
 
-  fromContainerNode: HTMLElement | null;
-  setFromContainerNode: (node: HTMLElement | null) => void;
+  fromContainerNode: HTMLElement | null
+  setFromContainerNode: (node: HTMLElement | null) => void
 
-  toContainerNode: HTMLElement | null;
-  setToContainerNode: (node: HTMLElement | null) => void;
+  toContainerNode: HTMLElement | null
+  setToContainerNode: (node: HTMLElement | null) => void
 
-  overContainerNode: HTMLElement | null;
-  setOverContainerNode: (node: HTMLElement | null) => void;
+  overContainerNode: HTMLElement | null
+  setOverContainerNode: (node: HTMLElement | null) => void
 
-  dndItemsFrom: DndItemDataType[] | null;
-  setDndItemsFrom: (items: DndItemDataType[] | null) => void;
+  dndItemsFrom: DndItemDataType[] | null
+  setDndItemsFrom: (items: DndItemDataType[] | null) => void
 
-  dndItemsTo: DndItemDataType[] | null;
-  setDndItemsTo: (items: DndItemDataType[]) => void;
+  dndItemsTo: DndItemDataType[] | null
+  setDndItemsTo: (items: DndItemDataType[]) => void
 }
 
 // Как определить конечную точку драг ноды когда драговер в движении
 
-export const useDndStore = create<DndState>((set) => ({
-  overNodeTransformOnFirstTouch: null,
-  setOverNodeTransformOnFirstTouch: (overNodeTransformOnFirstTouch) =>
-    set({ overNodeTransformOnFirstTouch }),
-
+export const useDndStore = create<DndState>(set => ({
   currentOverNode: null,
-  setCurrentOverNode: (currentOverNode) => set({ currentOverNode }),
+  setCurrentOverNode: currentOverNode => set({currentOverNode}),
 
   overNodeRectOnFirstTouch: null,
-  setOverNodeRectOnFirstTouch: (overNodeRectOnFirstTouch) =>
-    set({ overNodeRectOnFirstTouch }),
+  setOverNodeRectOnFirstTouch: overNodeRectOnFirstTouch =>
+    set({overNodeRectOnFirstTouch}),
 
   dndDuration: 300,
-  setDndDuration: (dndDuration) => set({ dndDuration }),
+  setDndDuration: dndDuration => set({dndDuration}),
 
   isStartAfterDropAnimation: false,
   setStatusAfterDropAnimation: (isStartAfterDropAnimation: boolean) =>
-    set({ isStartAfterDropAnimation }),
+    set({isStartAfterDropAnimation}),
 
   isCursorStartPositionFromOverCard: false,
-  setCursorPositionFromOverCard: (isCursorStartPositionFromOverCard) =>
-    set({ isCursorStartPositionFromOverCard }),
+  setCursorPositionFromOverCard: isCursorStartPositionFromOverCard =>
+    set({isCursorStartPositionFromOverCard}),
 
   cursorCoords: null,
-  setCursorCoords: (cursorCoords) => set({ cursorCoords }),
+  setCursorCoords: cursorCoords => set({cursorCoords}),
 
   isInContainer: false,
-  setInContainer: (isInContainer: boolean) => set({ isInContainer }),
+  setInContainer: (isInContainer: boolean) => set({isInContainer}),
 
   sharedContainerId: null,
-  setSharedContainerId: (sharedContainerId) => set({ sharedContainerId }),
+  setSharedContainerId: sharedContainerId => set({sharedContainerId}),
 
   isDragNodeFix: false,
-  setDragNodeFix: (isDragNodeFix) => set({ isDragNodeFix }),
+  setDragNodeFix: isDragNodeFix => set({isDragNodeFix}),
 
   isDragStart: false,
-  setDragStart: (isDragStart) => set({ isDragStart }),
+  setDragStart: isDragStart => set({isDragStart}),
 
   dragNode: null,
-  setDragNode: (dragNode) => set({ dragNode }),
+  setDragNode: dragNode => set({dragNode}),
 
   dragNodeRect: null,
-  setDragNodeRect: (dragNodeRect) => set({ dragNodeRect }),
+  setDragNodeRect: dragNodeRect => set({dragNodeRect}),
 
   diffDragNodeAndCursor: null,
-  setDiffDragNodeAndCursor: (diffDragNodeAndCursor) =>
-    set({ diffDragNodeAndCursor }),
+  setDiffDragNodeAndCursor: diffDragNodeAndCursor =>
+    set({diffDragNodeAndCursor}),
 
   dragCard: null,
-  setDragCard: (dragCard) => set({ dragCard }),
+  setDragCard: dragCard => set({dragCard}),
 
   overCard: null,
-  setOverCard: (overCard) => set({ overCard }),
+  setOverCard: overCard => set({overCard}),
 
   overNode: null,
-  setOverNode: (overNode) => set({ overNode }),
+  setOverNode: overNode => set({overNode}),
 
   overContainerNode: null,
-  setOverContainerNode: (overContainerNode) => set({ overContainerNode }),
+  setOverContainerNode: overContainerNode => set({overContainerNode}),
 
   toContainerNode: null,
-  setToContainerNode: (toContainerNode) => set({ toContainerNode }),
+  setToContainerNode: toContainerNode => set({toContainerNode}),
 
   fromContainerNode: null,
-  setFromContainerNode: (fromContainerNode) => set({ fromContainerNode }),
+  setFromContainerNode: fromContainerNode => set({fromContainerNode}),
 
   dndItemsFrom: null,
-  setDndItemsFrom: (dndItemsFrom) => set({ dndItemsFrom }),
+  setDndItemsFrom: dndItemsFrom => set({dndItemsFrom}),
 
   dndItemsTo: null,
-  setDndItemsTo: (dndItemsTo) => set({ dndItemsTo }),
-}));
+  setDndItemsTo: dndItemsTo => set({dndItemsTo}),
+}))

@@ -84,7 +84,7 @@ const ItemsTest: ItemsTestComponentType = props => {
         <hr style={{margin: '24px 0'}} />
       </div>
 
-      <div>
+      {/* <div>
         <h2>to Container</h2>
         <DndContainer
           setData={(items: any) => {
@@ -102,8 +102,8 @@ const ItemsTest: ItemsTestComponentType = props => {
           ))}
         </DndContainer>
         <hr style={{margin: '24px 0'}} />
-      </div>
-      <div>
+      </div> */}
+      {/* <div>
         <h2>Other Container</h2>
         <DndContainer
           setData={(items: any) => {
@@ -120,7 +120,7 @@ const ItemsTest: ItemsTestComponentType = props => {
             </DndItem>
           ))}
         </DndContainer>
-      </div>
+      </div> */}
     </>
   )
 }

@@ -8,7 +8,7 @@ import {
   inOneContainer,
   removeAllSelectionsFromDocument,
 } from '../utils'
-import {useDndStore} from '@/ItemsTest/State'
+import {CoordsType, useDndStore} from '@/ItemsTest/State'
 import {MouseEvent, useEffect} from 'react'
 
 const setAnimationDragNodeAfterDrop = ({
@@ -190,11 +190,81 @@ const setAnimationDragNodeAfterDrop = ({
   }
 }
 
+const setStartPositionDragCard = ({
+  dragNode,
+  clientX,
+  clientY,
+  dragNodeX,
+  dragNodeY,
+}: {
+  dragNode: HTMLElement
+  dragNodeX: number
+  dragNodeY: number
+  clientX: number
+  clientY: number
+}) => {
+  const diffDragNodeAndCursorX = clientX - dragNodeX
+  const diffDragNodeAndCursorY = clientY - dragNodeY
+  dragNode.style.position = 'fixed'
+  dragNode.style.zIndex = '1000'
+  dragNode.style.left = clientX - diffDragNodeAndCursorX + 'px'
+  dragNode.style.top = clientY - diffDragNodeAndCursorY + 'px'
+  dragNode.style.pointerEvents = 'none'
+}
+
+const setStartPositionAfterDragNodes = ({
+  conatinerNode,
+  dragNode,
+  dragNodeRect,
+}: {
+  conatinerNode: HTMLElement
+  dragNode: HTMLElement
+  dragNodeRect: DOMRect
+}) => {
+  conatinerNode.childNodes.forEach(node => {
+    if (node instanceof HTMLElement) {
+      const tvoIndex = node.dataset.tvoIndex
+      const dragNodeIndex = dragNode.dataset.tvoIndex
+      if (tvoIndex && dragNodeIndex && tvoIndex > dragNodeIndex) {
+        node.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+      }
+    }
+  })
+}
+
+const setPositionDragNodeWhenMoving = ({
+  dragNode,
+  dragNodeRect,
+  diffDragNodeAndCursor,
+  clientX,
+  clientY,
+}: {
+  dragNode: HTMLElement
+  dragNodeRect: DOMRect
+  diffDragNodeAndCursor: CoordsType
+  clientX: number
+  clientY: number
+}) => {
+  dragNode.style.transform = `translate(${
+    clientX - dragNodeRect.x - diffDragNodeAndCursor.x
+  }px, ${clientY - dragNodeRect.y - diffDragNodeAndCursor.y}px)`
+}
+
+const getCursorPositionFromOverCard = ({
+  overNodeRect,
+  clientX,
+}: {
+  overNodeRect: DOMRect
+  clientX: number
+}) => {
+  const {width, x} = overNodeRect
+  const middleOverNodeCoords = width / 2 + x
+  return clientX < middleOverNodeCoords
+}
+
 const DndContainer: DndContainerComponentType = props => {
   const {className = '', children, items, sharedId, setData} = props
   const {
-    overNodeTransformOnFirstTouch,
-    setOverNodeTransformOnFirstTouch,
     currentOverNode,
     setCurrentOverNode,
     overNodeRectOnFirstTouch,
@@ -249,22 +319,19 @@ const DndContainer: DndContainerComponentType = props => {
       if (target.dataset.dndItem) {
         const targetRect = target.getBoundingClientRect()
         const {height, width, x, y} = targetRect
-        const diffDragNodeAndCursorX = e.clientX - x
-        const diffDragNodeAndCursorY = e.clientY - y
-        target.style.position = 'fixed'
-        target.style.zIndex = '1000'
-        target.style.left = e.clientX - diffDragNodeAndCursorX + 'px'
-        target.style.top = e.clientY - diffDragNodeAndCursorY + 'px'
-        target.style.pointerEvents = 'none'
+        const {clientX, clientY} = e
+        setStartPositionDragCard({
+          clientX,
+          clientY,
+          dragNode: target,
+          dragNodeX: x,
+          dragNodeY: y,
+        })
 
-        currentTarget.childNodes.forEach(node => {
-          if (node instanceof HTMLElement) {
-            const tvoIndex = node.dataset.tvoIndex
-            const dragNodeIndex = target.dataset.tvoIndex
-            if (tvoIndex && dragNodeIndex && tvoIndex > dragNodeIndex) {
-              node.style.transform = `translate(${targetRect.width}px, 0px)`
-            }
-          }
+        setStartPositionAfterDragNodes({
+          conatinerNode: currentTarget,
+          dragNode: target,
+          dragNodeRect: targetRect,
         })
 
         currentTarget.style.width = currentTarget.offsetWidth + width + 'px'
@@ -275,8 +342,8 @@ const DndContainer: DndContainerComponentType = props => {
         setDndItemsFrom(items)
         setFromContainerNode(currentTarget)
         setDiffDragNodeAndCursor({
-          x: diffDragNodeAndCursorX,
-          y: diffDragNodeAndCursorY,
+          x: e.clientX - x,
+          y: e.clientY - y,
         })
         setDragNode(target)
         setDragNodeRect(targetRect)
@@ -286,20 +353,22 @@ const DndContainer: DndContainerComponentType = props => {
   }
 
   const onDragMove = (e: globalThis.MouseEvent) => {
+    const {clientX, clientY} = e
+
     // Трансфармируем перетаскиваемый элемент по курсору
     if (dragNode && dragNodeRect && diffDragNodeAndCursor) {
-      dragNode.style.transform = `translate(${
-        e.clientX - dragNodeRect.x - diffDragNodeAndCursor.x
-      }px, ${e.clientY - dragNodeRect.y - diffDragNodeAndCursor.y}px)`
+      setPositionDragNodeWhenMoving({
+        clientX,
+        clientY,
+        diffDragNodeAndCursor,
+        dragNode,
+        dragNodeRect,
+      })
     }
-
-    //\ Трансфармируем перетаскиваемый элемент по курсору
 
     const isTargetInContainer =
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']")
-
-    // Устанавливаем флаг isInContainer
 
     if (isTargetInContainer) {
       setInContainer(true)
@@ -308,33 +377,26 @@ const DndContainer: DndContainerComponentType = props => {
       setInContainer(false)
       setOverContainerNode(null)
       setOverNodeRectOnFirstTouch(null)
-      setOverNodeTransformOnFirstTouch(null)
       setCurrentOverNode(null)
     }
 
-    //\ Устанавливаем isInContainer
+    const isDndItem =
+      e.target instanceof HTMLElement && e.target.dataset.dndItem
 
-    // \Очещяем фирст овер реакт и курент овер ноду при выходе из контейнера
-
-    // очищяем оверкард
-    // const isHtmlElement = e.target instanceof HTMLElement
-    // if (!isHtmlElement || !e.target.dataset.dndItem) {
-    //   setOverCard(null)
-    // }
-
-    // Прочее
-    if (e.target instanceof HTMLElement && e.target.dataset.dndItem) {
+    if (isDndItem) {
+      const overNodeRect = e.target.getBoundingClientRect()
       if (currentOverNode !== e.target) {
-        setOverNodeRectOnFirstTouch(e.target.getBoundingClientRect())
-        setOverNodeTransformOnFirstTouch(e.target.style.transform)
+        setOverNodeRectOnFirstTouch(overNodeRect)
       }
+      const isCursorStartPositionFromOverCard = getCursorPositionFromOverCard({
+        clientX,
+        overNodeRect,
+      })
+      setCursorPositionFromOverCard(isCursorStartPositionFromOverCard)
       setOverNode(e.target)
       setCurrentOverNode(e.target)
-      const {width, x} = e.target.getBoundingClientRect()
-      const middleOverNodeCoords = width / 2 + x
-      setCursorPositionFromOverCard(e.clientX < middleOverNodeCoords)
     }
-    setCursorCoords({x: e.clientX, y: e.clientY})
+    setCursorCoords({x: clientX, y: clientY})
     // IsNextPosition
   }
 
@@ -359,6 +421,7 @@ const DndContainer: DndContainerComponentType = props => {
       duration: dndDuration,
       isTargetInContainer: !!isTargetContainer,
     })
+
     if (dragNode) {
       dragNode.addEventListener('transitionend', function transitionEnd() {
         let newItems
@@ -415,6 +478,7 @@ const DndContainer: DndContainerComponentType = props => {
       })
     }
   }
+
   useEffect(() => {
     if (isDragStart && dragNode) {
       window.addEventListener('mousemove', onDragMove)
@@ -429,8 +493,6 @@ const DndContainer: DndContainerComponentType = props => {
     setData,
     items,
     dndItemsFrom,
-    overNodeTransformOnFirstTouch,
-    setOverNodeTransformOnFirstTouch,
     currentOverNode,
     setCurrentOverNode,
     overNodeRectOnFirstTouch,
