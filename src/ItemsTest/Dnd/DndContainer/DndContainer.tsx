@@ -9,7 +9,14 @@ import {
   removeAllSelectionsFromDocument,
 } from '../utils'
 import {CoordsType, useDndStore} from '@/ItemsTest/State'
-import {Children, cloneElement, MouseEvent, useEffect} from 'react'
+import {
+  Children,
+  cloneElement,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import DndItem from '../DndItems/DndItem'
 
 const setAnimationDragNodeAfterDrop = ({
@@ -191,7 +198,7 @@ const setAnimationDragNodeAfterDrop = ({
   }
 }
 
-const setStartPositionDragCard = ({
+const setStartPositionDragNode = ({
   dragNode,
   clientX,
   clientY,
@@ -213,7 +220,7 @@ const setStartPositionDragCard = ({
   dragNode.style.pointerEvents = 'none'
 }
 
-const setStartPositionAfterDragNodes = ({
+const setStartPositionNodesAfterDragNode = ({
   conatinerNode,
   dragNode,
   dragNodeRect,
@@ -264,8 +271,10 @@ const getCursorPositionFromOverCard = ({
 }
 
 const DndContainer: DndContainerComponentType = props => {
-  const {className = '', children, items, sharedId, setData} = props
+  const {className = '', children, items, sharedId, setData, name} = props
   const {
+    placeholderNode,
+    setPlaceholderNode,
     currentOverNode,
     setCurrentOverNode,
     overNodeRectOnFirstTouch,
@@ -309,6 +318,7 @@ const DndContainer: DndContainerComponentType = props => {
     dndItemsTo,
     setDndItemsTo,
   } = useDndStore()
+  const refPlaceholdarNode = useRef<null | HTMLDivElement>(null)
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
     if (!isStartAfterDropAnimation) {
       const currentTarget = e.currentTarget as HTMLElement
@@ -322,7 +332,7 @@ const DndContainer: DndContainerComponentType = props => {
         const targetRect = target.getBoundingClientRect()
         const {height, width, x, y} = targetRect
         const {clientX, clientY} = e
-        setStartPositionDragCard({
+        setStartPositionDragNode({
           clientX,
           clientY,
           dragNode: target,
@@ -330,15 +340,21 @@ const DndContainer: DndContainerComponentType = props => {
           dragNodeY: y,
         })
 
-        setStartPositionAfterDragNodes({
+        setStartPositionNodesAfterDragNode({
           conatinerNode: currentTarget,
           dragNode: target,
           dragNodeRect: targetRect,
         })
 
-        currentTarget.style.width = currentTarget.offsetWidth + width + 'px'
+        // Добавление плесхолдора
+
+        if (placeholderNode && target) {
+          currentTarget.appendChild(placeholderNode)
+          placeholderNode.style.width = width + 'px'
+        }
 
         setDragStart(true)
+        setOverContainerNode(e.currentTarget)
         setCurrentOverNode(target)
         setSharedContainerId(sharedId)
         setDndItemsFrom(items)
@@ -353,7 +369,6 @@ const DndContainer: DndContainerComponentType = props => {
       }
     }
   }
-
   const onDragMove = (e: globalThis.MouseEvent) => {
     const {clientX, clientY} = e
 
@@ -367,56 +382,57 @@ const DndContainer: DndContainerComponentType = props => {
         dragNodeRect,
       })
     }
-    const currentTargetContainer =
-      e.target instanceof HTMLElement &&
-      e.target.closest("[data-dnd-tvo='true']")
-
-    if (currentTargetContainer && currentTargetContainer === toContainerNode) {
-      console.log(items)
-    }
-
-    if (currentTargetContainer) {
-      setInContainer(true)
-      setOverContainerNode(e.target.closest("[data-dnd-tvo='true']"))
-      if (currentTargetContainer !== fromContainerNode) {
-        setToContainerNode(currentTargetContainer as HTMLElement)
-      }
-      //
-      else if (
-        currentTargetContainer === fromContainerNode &&
-        toContainerNode !== null
-      ) {
-        setToContainerNode(null)
-      }
-    } else {
-      if (toContainerNode !== null) {
-        setToContainerNode(null)
-      }
-      setInContainer(false)
-      setOverContainerNode(null)
-      setOverNodeRectOnFirstTouch(null)
-      setCurrentOverNode(null)
-    }
 
     const isDndItem =
       e.target instanceof HTMLElement && e.target.dataset.dndItem
 
     if (isDndItem) {
       const overNodeRect = e.target.getBoundingClientRect()
-      if (currentOverNode !== e.target) {
-        setOverNodeRectOnFirstTouch(overNodeRect)
-      }
-      const isCursorStartPositionFromOverCard = getCursorPositionFromOverCard({
+      const issCursorStartPosFromOverCard = getCursorPositionFromOverCard({
         clientX,
         overNodeRect,
       })
-      setCursorPositionFromOverCard(isCursorStartPositionFromOverCard)
-      setOverNode(e.target)
-      setCurrentOverNode(e.target)
+      if (isCursorStartPositionFromOverCard !== issCursorStartPosFromOverCard) {
+        setCursorPositionFromOverCard(issCursorStartPosFromOverCard)
+      }
     }
     setCursorCoords({x: clientX, y: clientY})
     // IsNextPosition
   }
+  const onMouseEnter = (e: MouseEvent<HTMLElement>) => {
+    if (isDragStart) {
+      if (placeholderNode && dragNode) {
+        e.currentTarget.appendChild(placeholderNode)
+        placeholderNode.style.transition = '0.3s'
+        placeholderNode.style.width =
+          dragNode.getBoundingClientRect().width + 'px'
+      }
+      if (e.currentTarget !== fromContainerNode) {
+        setToContainerNode(e.currentTarget)
+      }
+      setInContainer(true)
+      setOverContainerNode(e.currentTarget)
+      // console.log('onMouseEnter', name)
+    }
+  }
+
+  const onMouseLeave = (e: MouseEvent<HTMLElement>) => {
+    if (isDragStart) {
+      if (placeholderNode) {
+        placeholderNode.style.transition = '0.3s'
+        if (e.currentTarget.contains(placeholderNode)) {
+          placeholderNode.style.width = '0px'
+        }
+      }
+      setOverNodeRectOnFirstTouch(null)
+      setInContainer(false)
+      setToContainerNode(null)
+      setOverContainerNode(null)
+      setCurrentOverNode(null)
+      // console.log('onMouseLeave', name)
+    }
+  }
+
   const onDragEnd = (e: globalThis.MouseEvent) => {
     // setDragStart(false)
     // setStatusAfterDropAnimation(true)
@@ -491,7 +507,6 @@ const DndContainer: DndContainerComponentType = props => {
     //   })
     // }
   }
-
   useEffect(() => {
     if (isDragStart && dragNode) {
       window.addEventListener('mousemove', onDragMove)
@@ -503,6 +518,8 @@ const DndContainer: DndContainerComponentType = props => {
       window.removeEventListener('mousemove', onDragMove)
     }
   }, [
+    placeholderNode,
+    setPlaceholderNode,
     setData,
     items,
     dndItemsFrom,
@@ -550,11 +567,23 @@ const DndContainer: DndContainerComponentType = props => {
     setDndItemsTo,
   ])
 
+  useEffect(() => {
+    const node = document.createElement('div')
+    node.style.width = 0 + 'px'
+    node.style.height = 0 + 'px'
+    node.style.background = 'none'
+    node.dataset.dndPlaceholder = 'true'
+
+    setPlaceholderNode(node)
+  }, [])
+
   return (
     <div
+      onMouseDown={onDragStart}
+      onMouseLeave={onMouseLeave}
+      onMouseEnter={onMouseEnter}
       data-dnd-tvo={true}
       data-shared-container-id={sharedId}
-      onMouseDown={onDragStart}
       className={clsx(s.dndContainerWrapper, className)}
     >
       {children}
@@ -563,5 +592,3 @@ const DndContainer: DndContainerComponentType = props => {
 }
 
 export default DndContainer
-
-// TODO чистим оверноду что бы в аутсайд после овера по нодам не улитала функция сет дата?

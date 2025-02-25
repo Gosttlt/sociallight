@@ -4,6 +4,9 @@ import {DndItemDataType} from '../Dnd/utils'
 export type CoordsType = {x: number; y: number}
 
 interface DndState {
+  placeholderNode: HTMLElement | null
+  setPlaceholderNode: (placeholderNode: HTMLElement | null) => void
+
   currentOverNode: HTMLElement | null
   setCurrentOverNode: (currentOverNode: HTMLElement | null) => void
 
@@ -75,6 +78,9 @@ interface DndState {
 // Как определить конечную точку драг ноды когда драговер в движении
 
 export const useDndStore = create<DndState>(set => ({
+  placeholderNode: null,
+  setPlaceholderNode: placeholderNode => set({placeholderNode}),
+
   currentOverNode: null,
   setCurrentOverNode: currentOverNode => set({currentOverNode}),
 

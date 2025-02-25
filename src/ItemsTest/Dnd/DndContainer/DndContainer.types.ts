@@ -4,6 +4,7 @@ import {DndItemDataType} from '../utils'
 export type DndContainerComponentType = FC<DndContainerProps>
 
 export type DndContainerProps = {
+  name: string
   children?: ReactNode
   className?: string
   items: DndItemDataType[]

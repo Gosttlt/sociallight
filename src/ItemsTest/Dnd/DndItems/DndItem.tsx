@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import s from './DndItem.module.scss'
 import type {DndItemComponentType} from './DndItem.types'
 import {useDndStore} from '@/ItemsTest/State'
-import {useRef} from 'react'
+import {MouseEvent, useRef} from 'react'
 import {DndItemDataType} from '../utils'
 
 const getStyleFromWrapper = ({
@@ -96,6 +96,8 @@ const DndItem: DndItemComponentType = props => {
   const ref = useRef<null | HTMLDivElement>(null)
 
   const {
+    placeholderNode,
+    setPlaceholderNode,
     currentOverNode,
     setCurrentOverNode,
     overNodeRectOnFirstTouch,
@@ -143,9 +145,12 @@ const DndItem: DndItemComponentType = props => {
   const onDrag = () => {
     setDragCard(card)
   }
-  const onMouseOver = () => {
+  const onMouseEnter = (e: MouseEvent<HTMLElement>) => {
     if (isDragStart) {
       setOverCard(card)
+      setOverNode(e.currentTarget)
+      setOverNodeRectOnFirstTouch(e.currentTarget.getBoundingClientRect())
+      setCurrentOverNode(e.currentTarget)
     }
   }
   const onLeave = () => {
@@ -175,6 +180,7 @@ const DndItem: DndItemComponentType = props => {
     }
     if (!isInContainer && isDragStart) {
       ref.current.style.transform = `translate(${0}px, 0px)`
+      ref.current.style.transition = `${dndDuration / 1000}s`
     }
   }
 
@@ -195,7 +201,7 @@ const DndItem: DndItemComponentType = props => {
     <div
       ref={ref}
       data-tvo-index={index}
-      onMouseOver={onMouseOver}
+      onMouseEnter={onMouseEnter}
       onMouseDown={onDrag}
       data-dnd-item='dndItem'
       className={clsx(s.dndItemWrapper, className)}

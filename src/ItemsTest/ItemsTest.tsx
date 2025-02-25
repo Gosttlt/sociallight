@@ -67,6 +67,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>from Container</h2>
         <DndContainer
+          name='fromich'
           setData={(items: any) => {
             setFromData(items)
           }}
@@ -87,6 +88,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>to Container</h2>
         <DndContainer
+          name='toich'
           setData={(items: any) => {
             setToData(items)
           }}
@@ -106,6 +108,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>Other Container</h2>
         <DndContainer
+          name='otherich'
           setData={(items: any) => {
             setOtherData(items)
           }}
