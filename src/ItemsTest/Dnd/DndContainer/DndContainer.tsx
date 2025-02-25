@@ -356,7 +356,6 @@ const DndContainer: DndContainerComponentType = props => {
 
   const onDragMove = (e: globalThis.MouseEvent) => {
     const {clientX, clientY} = e
-    console.log(123)
 
     // Трансфармируем перетаскиваемый элемент по курсору
     if (dragNode && dragNodeRect && diffDragNodeAndCursor) {
@@ -368,14 +367,31 @@ const DndContainer: DndContainerComponentType = props => {
         dragNodeRect,
       })
     }
-    const isTargetInContainer =
+    const currentTargetContainer =
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']")
 
-    if (isTargetInContainer) {
+    if (currentTargetContainer && currentTargetContainer === toContainerNode) {
+      console.log(items)
+    }
+
+    if (currentTargetContainer) {
       setInContainer(true)
       setOverContainerNode(e.target.closest("[data-dnd-tvo='true']"))
+      if (currentTargetContainer !== fromContainerNode) {
+        setToContainerNode(currentTargetContainer as HTMLElement)
+      }
+      //
+      else if (
+        currentTargetContainer === fromContainerNode &&
+        toContainerNode !== null
+      ) {
+        setToContainerNode(null)
+      }
     } else {
+      if (toContainerNode !== null) {
+        setToContainerNode(null)
+      }
       setInContainer(false)
       setOverContainerNode(null)
       setOverNodeRectOnFirstTouch(null)
@@ -401,7 +417,6 @@ const DndContainer: DndContainerComponentType = props => {
     setCursorCoords({x: clientX, y: clientY})
     // IsNextPosition
   }
-
   const onDragEnd = (e: globalThis.MouseEvent) => {
     // setDragStart(false)
     // setStatusAfterDropAnimation(true)
