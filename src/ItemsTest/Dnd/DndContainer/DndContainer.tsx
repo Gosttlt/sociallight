@@ -315,6 +315,7 @@ const DndContainer: DndContainerComponentType = props => {
 
       setInContainer(true)
       removeAllSelectionsFromDocument()
+      document.querySelector('body')!.style.userSelect = 'none'
 
       if (target.dataset.dndItem) {
         const targetRect = target.getBoundingClientRect()
@@ -424,6 +425,8 @@ const DndContainer: DndContainerComponentType = props => {
 
     if (dragNode) {
       dragNode.addEventListener('transitionend', function transitionEnd() {
+        document.querySelector('body')!.style.userSelect = ''
+
         let newItems
         if (dragCard && dndItemsFrom) {
           if (overCard && isTargetContainer) {
@@ -536,6 +539,8 @@ const DndContainer: DndContainerComponentType = props => {
     dndItemsTo,
     setDndItemsTo,
   ])
+  console.log(overContainerNode, 'overContainerNode')
+  console.log(fromContainerNode, 'fromContainerNode')
   return (
     <div
       data-dnd-tvo={true}

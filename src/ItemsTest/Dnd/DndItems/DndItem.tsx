@@ -78,7 +78,9 @@ const getStyleFromWrapper = ({
           }
         }
       }
-    } else {
+    }
+    //
+    else {
       if (isThisNodeAfterDragCard) {
         // left
         thisNode.style.transform = `translate(${0}px, 0px)`
@@ -153,18 +155,23 @@ const DndItem: DndItemComponentType = props => {
   }
 
   if (ref.current && dragNode && ref.current !== dragNode) {
-    getStyleFromWrapper({
-      overNodeRectOnFirstTouch,
-      card,
-      isDragStart,
-      isCursorStartPositionFromOverCard,
-      thisNode: ref.current,
-      dragCard,
-      overCard,
-      isInContainer,
-      dragNodeRect,
-      dndDuration,
-    })
+    if (overContainerNode === fromContainerNode) {
+      getStyleFromWrapper({
+        overNodeRectOnFirstTouch,
+        card,
+        isDragStart,
+        isCursorStartPositionFromOverCard,
+        thisNode: ref.current,
+        dragCard,
+        overCard,
+        isInContainer,
+        dragNodeRect,
+        dndDuration,
+      })
+    }
+    if (!isInContainer && isDragStart) {
+      ref.current.style.transform = `translate(${0}px, 0px)`
+    }
   }
 
   // После дропа за пределы контейнера возвращяем this ноды и ждем пока позишен станет не фиксед
