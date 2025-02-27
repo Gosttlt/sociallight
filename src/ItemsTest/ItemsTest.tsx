@@ -4,11 +4,14 @@ import React, {useState} from 'react'
 import {
   DndItemDataType,
   getDataCurrentParent,
+  getDataOtherParent,
   inOneContainer,
 } from './Dnd/utils'
 import DndContainer from './Dnd/DndContainer/DndContainer'
 import DndItem from './Dnd/DndItems/DndItem'
 import clsx from 'clsx'
+import {ReturnsortCbItems} from './Dnd/DndContainer/DndContainer.types'
+import {useDndStore} from './State'
 
 const fromItems: DndItemDataType[] = [
   {id: '1', name: '1 from', order: 1},
@@ -44,9 +47,12 @@ const otherItems: DndItemDataType[] = [
 ]
 
 const ItemsTest: ItemsTestComponentType = props => {
-  const [fromData, setFromData] = useState<DndItemDataType[]>(fromItems)
-  const [toData, setToData] = useState<DndItemDataType[]>(toItems)
-  const [otherData, setOtherData] = useState<DndItemDataType[]>(otherItems)
+  const [items, setItems] = useState<Record<string, DndItemDataType[]>>({
+    fromData: fromItems,
+    toData: toItems,
+    otherItems: otherItems,
+  })
+
   const onClick = () => {
     // const newItems = inOneContainer({
     //   cards: data,
@@ -54,27 +60,40 @@ const ItemsTest: ItemsTestComponentType = props => {
     //   isNextPosition: true,
     //   lastOverCard: {id: 6, order: 6},
     // })
-    const newItems = getDataCurrentParent({
-      cards: fromData,
-      dragCard: {id: '2', order: 2, name: '2'},
-    })
-    console.log(newItems)
-    setFromData(newItems)
+    // const newItems = getDataCurrentParent({
+    //   cards: fromData,
+    //   dragCard: {id: '2', order: 2, name: '2'},
+    // })
+    // const {fromCard, toCard} = getDataOtherParent({
+    //   dragCard: {id: '4', name: '4 from', order: 4},
+    //   fromCards: fromData,
+    //   toCards: toData,
+    // })
+    // console.log(fromCard, toCard)
   }
+
+  const setData = (data: ReturnsortCbItems) => {
+    const {fromCard, fromId, toCard, toID} = data
+    const toObj = toID && toCard ? {[toID]: toCard} : {}
+
+    setItems({...items, ...{[fromId]: fromCard, ...toObj}})
+  }
+  // const asd = useDndStore()
+  // console.log(asd)
   return (
     <>
-      <button onClick={onClick}>asddsa</button>
+      {/* <button onClick={() => setData('fromData', items.toData)}>asddsa</button> */}
       <div>
         <h2>from Container</h2>
         <DndContainer
-          name='fromich'
-          setData={(items: any) => {
-            setFromData(items)
+          containerId='fromData'
+          setData={items => {
+            setData(items)
           }}
-          items={fromData}
+          items={items.fromData}
           sharedId='testSharedId'
         >
-          {fromData.map((card, index) => (
+          {items.fromData.map((card, index) => (
             <DndItem index={index} card={card} key={card.id}>
               <div key={card.id} draggable='false' className={s.item}>
                 <div>{card.name}</div>
@@ -88,14 +107,14 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>to Container</h2>
         <DndContainer
-          name='toich'
-          setData={(items: any) => {
-            setToData(items)
+          containerId='toData'
+          setData={items => {
+            setData(items)
           }}
-          items={toData}
+          items={items.toData}
           sharedId='testSharedId'
         >
-          {toData.map((card, index) => (
+          {items.toData.map((card, index) => (
             <DndItem index={index} card={card} key={card.id}>
               <div key={card.id} draggable='false' className={s.item}>
                 <div>{card.name}</div>
@@ -108,14 +127,15 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>Other Container</h2>
         <DndContainer
-          name='otherich'
-          setData={(items: any) => {
-            setOtherData(items)
+          containerId='otherItems'
+          setData={items => {
+            console.log('items from ', items)
+            setData(items)
           }}
-          items={otherData}
+          items={items.otherItems}
           sharedId='testDontSharedId'
         >
-          {otherData.map((card, index) => (
+          {items.otherItems.map((card, index) => (
             <DndItem index={index} card={card} key={card.id}>
               <div key={card.id} draggable='false' className={s.item}>
                 <div>{card.name}</div>

@@ -1,10 +1,15 @@
 import clsx from 'clsx'
 
 import s from './DndContainer.module.scss'
-import type {DndContainerComponentType} from './DndContainer.types'
+import type {
+  DndContainerComponentType,
+  ReturnsortCbItems,
+} from './DndContainer.types'
 import {
   DndItemDataType,
   getDataCurrentParent,
+  getDataOtherCard,
+  getDataOtherParent,
   inOneContainer,
   removeAllSelectionsFromDocument,
 } from '../utils'
@@ -17,7 +22,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import DndItem from '../DndItems/DndItem'
+
+// Алгаритм бага
+// Выкинул
+//  При смене контейнера шареда не снимается транзишн
 
 const setAnimationDragNodeAfterDrop = ({
   currentOverNode,
@@ -99,7 +107,11 @@ const setAnimationDragNodeAfterDrop = ({
           overContainerNode.childNodes.forEach(node => {
             if (node instanceof HTMLElement) {
               const tvoIndex = node.dataset.tvoIndex
-              if (tvoIndex && tvoOverNodeIndex && tvoIndex < tvoOverNodeIndex) {
+              if (
+                tvoIndex &&
+                tvoOverNodeIndex &&
+                Number(tvoIndex) < Number(tvoOverNodeIndex)
+              ) {
                 console.log(node.clientWidth)
                 allLeftWidth += node.getBoundingClientRect().width
               }
@@ -118,21 +130,22 @@ const setAnimationDragNodeAfterDrop = ({
         else if (isEndPositionFromOverCard) {
           let allLeftWidth = 0
           const tvoOverNodeIndex = currentOverNode.dataset.tvoIndex
+
           const overContainerNodeRect =
             overContainerNode.getBoundingClientRect()
+
           overContainerNode.childNodes.forEach(node => {
             if (node instanceof HTMLElement) {
               const tvoIndex = node.dataset.tvoIndex
               if (
                 tvoIndex &&
                 tvoOverNodeIndex &&
-                tvoIndex <= tvoOverNodeIndex
+                Number(tvoIndex) <= Number(tvoOverNodeIndex)
               ) {
                 allLeftWidth += node.getBoundingClientRect().width
               }
             }
           })
-
           const diffDragXAndContainerX =
             dragNodeRect.x - overContainerNodeRect.x
           dragNode.style.transform = `translate(${
@@ -152,7 +165,11 @@ const setAnimationDragNodeAfterDrop = ({
           overContainerNode.childNodes.forEach(node => {
             if (node instanceof HTMLElement) {
               const tvoIndex = node.dataset.tvoIndex
-              if (tvoIndex && tvoOverNodeIndex && tvoIndex < tvoOverNodeIndex) {
+              if (
+                tvoIndex &&
+                tvoOverNodeIndex &&
+                Number(tvoIndex) < Number(tvoOverNodeIndex)
+              ) {
                 allLeftWidth += node.getBoundingClientRect().width
               }
             }
@@ -178,7 +195,7 @@ const setAnimationDragNodeAfterDrop = ({
               if (
                 tvoIndex &&
                 tvoOverNodeIndex &&
-                tvoIndex <= tvoOverNodeIndex
+                Number(tvoIndex) <= Number(tvoOverNodeIndex)
               ) {
                 allLeftWidth += node.getBoundingClientRect().width
               }
@@ -192,6 +209,103 @@ const setAnimationDragNodeAfterDrop = ({
           }px, ${0}px)`
 
           console.log('isEndPositionFromOverCard 44')
+        }
+      }
+    }
+  }
+}
+
+const setAnimationDragNodeAfterDropOnTo = ({
+  currentOverNode,
+  overContainerNode,
+  dragNode,
+  dragNodeRect,
+  duration,
+  isCursorStartPositionFromOverCard,
+  isTargetInContainer,
+}: {
+  currentOverNode: HTMLElement | null
+  overContainerNode: HTMLElement | null
+  duration: number
+  dragNode: HTMLElement | null
+  isTargetInContainer: boolean
+
+  dragNodeRect: DOMRect | null
+  isCursorStartPositionFromOverCard: boolean
+}) => {
+  // Куда мы кладем dragNode ?
+  const isInContainer = isTargetInContainer && overContainerNode
+  const isStartPositionOverCard = isCursorStartPositionFromOverCard
+  const isEndPositionFromOverCard = !isCursorStartPositionFromOverCard
+  // \Куда мы кладем dragNode
+
+  if (dragNode && dragNodeRect) {
+    dragNode.style.transition = ` ${duration / 1000}s`
+
+    if (isInContainer) {
+      console.log('isInContainerTO')
+      //
+
+      //
+      if (currentOverNode instanceof HTMLElement) {
+        console.log('isBeforeDragStartPosTO')
+        if (isStartPositionOverCard) {
+          let allLeftWidth = 0
+          const tvoOverNodeIndex = currentOverNode.dataset.tvoIndex
+          const overContainerNodeRect =
+            overContainerNode.getBoundingClientRect()
+          overContainerNode.childNodes.forEach(node => {
+            if (node instanceof HTMLElement) {
+              const tvoIndex = node.dataset.tvoIndex
+              if (
+                tvoIndex &&
+                tvoOverNodeIndex &&
+                Number(tvoIndex) < Number(tvoOverNodeIndex)
+              ) {
+                allLeftWidth += node.getBoundingClientRect().width
+              }
+            }
+          })
+          const diffDragXAndContainerY =
+            dragNodeRect.y - overContainerNodeRect.y
+
+          const diffDragXAndContainerX =
+            dragNodeRect.x - overContainerNodeRect.x
+          dragNode.style.transform = `translate(${
+            allLeftWidth - diffDragXAndContainerX
+          }px, ${-diffDragXAndContainerY}px)`
+
+          console.log('isStartPositionOverCard333TO')
+        }
+        //
+        else if (isEndPositionFromOverCard) {
+          let allLeftWidth = 0
+          const tvoOverNodeIndex = currentOverNode.dataset.tvoIndex
+          const overContainerNodeRect =
+            overContainerNode.getBoundingClientRect()
+          overContainerNode.childNodes.forEach(node => {
+            if (node instanceof HTMLElement) {
+              const tvoIndex = node.dataset.tvoIndex
+              if (
+                tvoIndex &&
+                tvoOverNodeIndex &&
+                Number(tvoIndex) <= Number(tvoOverNodeIndex)
+              ) {
+                allLeftWidth += node.getBoundingClientRect().width
+              }
+            }
+          })
+
+          const diffDragXAndContainerX =
+            dragNodeRect.x - overContainerNodeRect.x
+          const diffDragXAndContainerY =
+            dragNodeRect.y - overContainerNodeRect.y
+
+          dragNode.style.transform = `translate(${
+            allLeftWidth - diffDragXAndContainerX
+          }px, ${-diffDragXAndContainerY}px)`
+
+          console.log('isEndPositionFromOverCard 44TO')
         }
       }
     }
@@ -218,6 +332,7 @@ const setStartPositionDragNode = ({
   dragNode.style.left = clientX - diffDragNodeAndCursorX + 'px'
   dragNode.style.top = clientY - diffDragNodeAndCursorY + 'px'
   dragNode.style.pointerEvents = 'none'
+  // dragNode.style.transition = '' TODO
 }
 
 const setStartPositionNodesAfterDragNode = ({
@@ -229,11 +344,15 @@ const setStartPositionNodesAfterDragNode = ({
   dragNode: HTMLElement
   dragNodeRect: DOMRect
 }) => {
+  const dragNodeIndex = dragNode.dataset.tvoIndex
   conatinerNode.childNodes.forEach(node => {
     if (node instanceof HTMLElement) {
       const tvoIndex = node.dataset.tvoIndex
-      const dragNodeIndex = dragNode.dataset.tvoIndex
-      if (tvoIndex && dragNodeIndex && tvoIndex > dragNodeIndex) {
+      if (
+        tvoIndex &&
+        dragNodeIndex &&
+        Number(tvoIndex) > Number(dragNodeIndex)
+      ) {
         node.style.transform = `translate(${dragNodeRect.width}px, 0px)`
       }
     }
@@ -271,8 +390,19 @@ const getCursorPositionFromOverCard = ({
 }
 
 const DndContainer: DndContainerComponentType = props => {
-  const {className = '', children, items, sharedId, setData, name} = props
   const {
+    className = '',
+    children,
+    items,
+    sharedId,
+    setData,
+    containerId,
+  } = props
+  const {
+    fromContainerId,
+    setFromContainerId,
+    setToContainerId,
+    toContainerId,
     placeholderNode,
     setPlaceholderNode,
     currentOverNode,
@@ -318,7 +448,6 @@ const DndContainer: DndContainerComponentType = props => {
     dndItemsTo,
     setDndItemsTo,
   } = useDndStore()
-  const refPlaceholdarNode = useRef<null | HTMLDivElement>(null)
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
     if (!isStartAfterDropAnimation) {
       const currentTarget = e.currentTarget as HTMLElement
@@ -332,6 +461,16 @@ const DndContainer: DndContainerComponentType = props => {
         const targetRect = target.getBoundingClientRect()
         const {height, width, x, y} = targetRect
         const {clientX, clientY} = e
+
+        const node = document.createElement('div')
+        node.style.width = width + 'px'
+        node.style.height = height + 'px'
+        node.style.background = 'none'
+        node.dataset.dndPlaceholder = 'true'
+        e.currentTarget.appendChild(node)
+
+        setPlaceholderNode(node)
+
         setStartPositionDragNode({
           clientX,
           clientY,
@@ -352,12 +491,12 @@ const DndContainer: DndContainerComponentType = props => {
           currentTarget.appendChild(placeholderNode)
           placeholderNode.style.width = width + 'px'
         }
-
         setDragStart(true)
         setOverContainerNode(e.currentTarget)
         setCurrentOverNode(target)
         setSharedContainerId(sharedId)
         setDndItemsFrom(items)
+        setFromContainerId(containerId)
         setFromContainerNode(currentTarget)
         setDiffDragNodeAndCursor({
           x: e.clientX - x,
@@ -370,8 +509,7 @@ const DndContainer: DndContainerComponentType = props => {
     }
   }
   const onDragMove = (e: globalThis.MouseEvent) => {
-    const {clientX, clientY} = e
-
+    const {clientX, clientY, target} = e
     // Трансфармируем перетаскиваемый элемент по курсору
     if (dragNode && dragNodeRect && diffDragNodeAndCursor) {
       setPositionDragNodeWhenMoving({
@@ -385,7 +523,6 @@ const DndContainer: DndContainerComponentType = props => {
 
     const isDndItem =
       e.target instanceof HTMLElement && e.target.dataset.dndItem
-
     if (isDndItem) {
       const overNodeRect = e.target.getBoundingClientRect()
       const issCursorStartPosFromOverCard = getCursorPositionFromOverCard({
@@ -397,13 +534,21 @@ const DndContainer: DndContainerComponentType = props => {
       }
     }
     setCursorCoords({x: clientX, y: clientY})
-    // IsNextPosition
   }
   const onMouseEnter = (e: MouseEvent<HTMLElement>) => {
-    if (isDragStart) {
+    if (
+      isDragStart &&
+      e.currentTarget.closest(
+        `[data-shared-container-id='${sharedContainerId}']`,
+      )
+    ) {
+      if (e.currentTarget !== fromContainerNode) {
+        setDndItemsTo(items)
+        setToContainerId(containerId)
+      }
       if (placeholderNode && dragNode) {
         e.currentTarget.appendChild(placeholderNode)
-        placeholderNode.style.transition = '0.3s'
+        placeholderNode.style.transition = `${dndDuration / 1000}s`
         placeholderNode.style.width =
           dragNode.getBoundingClientRect().width + 'px'
       }
@@ -412,14 +557,34 @@ const DndContainer: DndContainerComponentType = props => {
       }
       setInContainer(true)
       setOverContainerNode(e.currentTarget)
-      // console.log('onMouseEnter', name)
     }
   }
 
   const onMouseLeave = (e: MouseEvent<HTMLElement>) => {
-    if (isDragStart) {
+    if (isDragStart && dragNode && overContainerNode) {
+      overContainerNode.childNodes.forEach(node => {
+        if (
+          node instanceof HTMLElement &&
+          node.dataset.tvoIndex &&
+          dragNode !== node
+        ) {
+          node.style.transform = `translate(${0}px, 0px)`
+          node.style.transition = `${dndDuration / 1000}s`
+        }
+      })
+    }
+    if (
+      isDragStart &&
+      e.currentTarget.closest(
+        `[data-shared-container-id='${sharedContainerId}']`,
+      )
+    ) {
+      if (e.currentTarget !== fromContainerNode) {
+        setDndItemsTo(null)
+        setToContainerId(null)
+      }
       if (placeholderNode) {
-        placeholderNode.style.transition = '0.3s'
+        placeholderNode.style.transition = `${dndDuration / 1000}s`
         if (e.currentTarget.contains(placeholderNode)) {
           placeholderNode.style.width = '0px'
         }
@@ -429,86 +594,193 @@ const DndContainer: DndContainerComponentType = props => {
       setToContainerNode(null)
       setOverContainerNode(null)
       setCurrentOverNode(null)
-      // console.log('onMouseLeave', name)
     }
   }
 
   const onDragEnd = (e: globalThis.MouseEvent) => {
-    // setDragStart(false)
-    // setStatusAfterDropAnimation(true)
-    // const isTargetContainer =
-    //   e.target instanceof HTMLElement &&
-    //   e.target.closest("[data-dnd-tvo='true']")
-    // setAnimationDragNodeAfterDrop({
-    //   currentOverNode,
-    //   overContainerNode,
-    //   dragCard,
-    //   dragNode,
-    //   dragNodeRect,
-    //   isCursorStartPositionFromOverCard,
-    //   overCard,
-    //   overNodeRectOnFirstTouch,
-    //   duration: dndDuration,
-    //   isTargetInContainer: !!isTargetContainer,
-    // })
-    // if (dragNode) {
-    //   dragNode.addEventListener('transitionend', function transitionEnd() {
-    //     document.querySelector('body')!.style.userSelect = ''
-    //     let newItems
-    //     if (dragCard && dndItemsFrom) {
-    //       if (overCard && isTargetContainer) {
-    //         newItems = inOneContainer({
-    //           cards: dndItemsFrom,
-    //           dragCard: dragCard,
-    //           isNextPosition: !isCursorStartPositionFromOverCard,
-    //           lastOverCard: overCard,
-    //         })
-    //       } else if (!currentOverNode && isTargetContainer) {
-    //         newItems = getDataCurrentParent({
-    //           cards: dndItemsFrom,
-    //           dragCard: dragCard,
-    //         })
-    //       }
-    //       dragNode.style.transform = ''
-    //       dragNode.style.transition = ''
-    //       dragNode.style.position = ''
-    //       dragNode.style.pointerEvents = ''
-    //       dragNode.style.top = ''
-    //       dragNode.style.left = ''
-    //       dragNode.style.zIndex = ''
-    //       if (fromContainerNode) {
-    //         fromContainerNode.style.width = ''
-    //         fromContainerNode.childNodes.forEach(node => {
-    //           if (node instanceof HTMLElement) {
-    //             node.style.transform = ``
-    //             node.style.transition = ''
-    //           }
-    //         })
-    //       }
-    //       if (newItems) {
-    //         setData(newItems)
-    //       }
-    //     }
-    //     //
-    //     setCurrentOverNode(null)
-    //     setCursorCoords(null)
-    //     setDiffDragNodeAndCursor(null)
-    //     setDragCard(null)
-    //     setDragNode(null)
-    //     setDragNodeRect(null)
-    //     setFromContainerNode(null)
-    //     setStatusAfterDropAnimation(false)
-    //     setOverCard(null)
-    //     setOverContainerNode(null)
-    //     setOverNode(null)
-    //     setOverNodeRectOnFirstTouch(null)
-    //     setToContainerNode(null)
-    //     dragNode.removeEventListener('transitionend', transitionEnd)
-    //   })
-    // }
+    setDragStart(false)
+    setStatusAfterDropAnimation(true)
+    console.log(containerId)
+    console.log(fromContainerNode)
+    debugger
+    const isTargetContainer =
+      e.target instanceof HTMLElement &&
+      e.target.closest("[data-dnd-tvo='true']")
+
+    // AfterDropAnimation
+    if (
+      e.target instanceof HTMLElement &&
+      e.target.closest("[data-dnd-tvo='true']") === fromContainerNode
+    ) {
+      console.log('setAnimationDragNodeAfterDrop')
+      setAnimationDragNodeAfterDrop({
+        currentOverNode,
+        overContainerNode,
+        dragCard,
+        dragNode,
+        dragNodeRect,
+        isCursorStartPositionFromOverCard,
+        overCard,
+        overNodeRectOnFirstTouch,
+        duration: dndDuration,
+        isTargetInContainer: !!isTargetContainer,
+      })
+    }
+
+    if (
+      (dragNode && !isTargetContainer) ||
+      (dragNode &&
+        isTargetContainer &&
+        isTargetContainer instanceof HTMLElement &&
+        isTargetContainer.dataset.sharedContainerId !== sharedContainerId)
+    ) {
+      dragNode.style.transition = ` ${dndDuration / 1000}s`
+      dragNode.style.transform = `translate(0px, 0px)`
+    }
+    //
+    else if (
+      e.target instanceof HTMLElement &&
+      e.target.closest("[data-dnd-tvo='true']") &&
+      e.target.closest("[data-dnd-tvo='true']") === toContainerNode
+    ) {
+      console.log('setAnimationDragNodeAfterDropOnTo')
+      setAnimationDragNodeAfterDropOnTo({
+        currentOverNode,
+        overContainerNode,
+        dragNode,
+        dragNodeRect,
+        isCursorStartPositionFromOverCard,
+        duration: dndDuration,
+        isTargetInContainer: !!isTargetContainer,
+      })
+    }
+
+    // \\AfterDropAnimation
+    // debugger
+    if (placeholderNode && dragNode) {
+      placeholderNode.style.width =
+        dragNode.getBoundingClientRect().width + 'px'
+    }
+    console.log(containerId, 'containerId')
+    if (dragNode) {
+      dragNode.addEventListener('transitionend', function transitionEnd() {
+        console.log(containerId, 'containerId')
+        document.querySelector('body')!.style.userSelect = ''
+        if (placeholderNode) {
+          placeholderNode.remove()
+        }
+        let newItems: Omit<ReturnsortCbItems, 'fromId'> | null = null
+        if (dragCard && dndItemsFrom) {
+          if (
+            overCard &&
+            isTargetContainer &&
+            overContainerNode === fromContainerNode
+          ) {
+            console.log('inOneContainer')
+            newItems = inOneContainer({
+              cards: dndItemsFrom,
+              dragCard: dragCard,
+              isNextPosition: !isCursorStartPositionFromOverCard,
+              lastOverCard: overCard,
+            })
+          }
+          //
+          // else if (
+          //   !currentOverNode &&
+          //   overContainerNode === fromContainerNode
+          // ) {
+          //   console.log('getDataCurrentParentEnd')
+          //   newItems = getDataCurrentParent({
+          //     cards: dndItemsFrom,
+          //     dragCard: dragCard,
+          //   })
+          // }
+          //
+          // else if (
+          //   dndItemsFrom &&
+          //   dndItemsTo &&
+          //   overContainerNode &&
+          //   toContainerNode &&
+          //   overContainerNode === toContainerNode
+          // ) {
+          //   newItems = getDataOtherParent({
+          //     dragCard,
+          //     fromCards: dndItemsFrom,
+          //     toCards: dndItemsTo,
+          //   })
+          // }
+          //
+          else if (
+            dndItemsFrom &&
+            dndItemsTo &&
+            overContainerNode &&
+            toContainerNode &&
+            overCard &&
+            overContainerNode === toContainerNode
+          ) {
+            newItems = getDataOtherCard({
+              isNextPosition: !isCursorStartPositionFromOverCard,
+              lastOverCard: overCard,
+              dragCard,
+              fromCards: dndItemsFrom,
+              toCards: dndItemsTo,
+            })
+          }
+          if (newItems && fromContainerId) {
+            setData({...newItems, fromId: fromContainerId, toID: toContainerId})
+          }
+          dragNode.style.transform = ''
+          dragNode.style.transition = ''
+          dragNode.style.position = ''
+          dragNode.style.pointerEvents = ''
+          dragNode.style.top = ''
+          dragNode.style.left = ''
+          dragNode.style.zIndex = ''
+          if (fromContainerNode) {
+            fromContainerNode.style.width = ''
+            fromContainerNode.childNodes.forEach(node => {
+              if (node instanceof HTMLElement) {
+                node.style.transform = ``
+                node.style.transition = ''
+              }
+            })
+          }
+          if (toContainerNode) {
+            toContainerNode.style.width = ''
+            toContainerNode.childNodes.forEach(node => {
+              if (node instanceof HTMLElement) {
+                node.style.transform = ``
+                node.style.transition = ''
+              }
+            })
+          }
+        }
+        //
+
+        setCurrentOverNode(null)
+        setCursorCoords(null)
+        setDiffDragNodeAndCursor(null)
+        setDragCard(null)
+        setDragNode(null)
+        setDragNodeRect(null)
+        setFromContainerNode(null)
+        setStatusAfterDropAnimation(false)
+        setOverCard(null)
+        setOverContainerNode(null)
+        setOverNode(null)
+        setOverNodeRectOnFirstTouch(null)
+        setToContainerNode(null)
+        setFromContainerId(null)
+        setToContainerId(null)
+        setPlaceholderNode(null)
+        setDndItemsFrom(null)
+        dragNode.removeEventListener('transitionend', transitionEnd)
+      })
+    }
   }
+
   useEffect(() => {
-    if (isDragStart && dragNode) {
+    if (isDragStart && dragNode && sharedContainerId === sharedId) {
       window.addEventListener('mousemove', onDragMove)
       window.addEventListener('mouseup', onDragEnd)
     }
@@ -518,6 +790,11 @@ const DndContainer: DndContainerComponentType = props => {
       window.removeEventListener('mousemove', onDragMove)
     }
   }, [
+    containerId,
+    fromContainerId,
+    setFromContainerId,
+    setToContainerId,
+    toContainerId,
     placeholderNode,
     setPlaceholderNode,
     setData,
@@ -568,23 +845,33 @@ const DndContainer: DndContainerComponentType = props => {
   ])
 
   useEffect(() => {
-    const node = document.createElement('div')
-    node.style.width = 0 + 'px'
-    node.style.height = 0 + 'px'
-    node.style.background = 'none'
-    node.dataset.dndPlaceholder = 'true'
+    const body = document.querySelector('body')
+    if (isDragStart && body) {
+      body.style.cursor = 'grabbing'
+    } else if (!isDragStart && body) {
+      body.style.cursor = ''
+    }
+  }, [isDragStart])
 
-    setPlaceholderNode(node)
-  }, [])
+  const containerRef = useRef<null | HTMLDivElement>(null)
 
+  const isThisSharedContainer =
+    containerRef.current &&
+    containerRef.current.closest(
+      `[data-shared-container-id='${sharedContainerId}']`,
+    )
   return (
     <div
+      ref={containerRef}
       onMouseDown={onDragStart}
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
       data-dnd-tvo={true}
       data-shared-container-id={sharedId}
-      className={clsx(s.dndContainerWrapper, className)}
+      className={clsx(s.dndContainerWrapper, className, {
+        [s.cell]: isDragStart && isThisSharedContainer,
+        [s.noDrop]: isDragStart && !isThisSharedContainer,
+      })}
     >
       {children}
     </div>

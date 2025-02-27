@@ -3,11 +3,18 @@ import {DndItemDataType} from '../utils'
 
 export type DndContainerComponentType = FC<DndContainerProps>
 
+export type ReturnsortCbItems = {
+  fromCard: DndItemDataType[]
+  fromId: string
+  toCard?: DndItemDataType[] | null
+  toID?: string | null
+}
+
 export type DndContainerProps = {
-  name: string
+  containerId: string
   children?: ReactNode
   className?: string
   items: DndItemDataType[]
   sharedId: string
-  setData: any
+  setData: (args: ReturnsortCbItems) => void
 }

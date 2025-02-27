@@ -4,6 +4,12 @@ import {DndItemDataType} from '../Dnd/utils'
 export type CoordsType = {x: number; y: number}
 
 interface DndState {
+  fromContainerId: string | null
+  setFromContainerId: (fromContainerId: string | null) => void
+
+  toContainerId: string | null
+  setToContainerId: (fromContainerId: string | null) => void
+
   placeholderNode: HTMLElement | null
   setPlaceholderNode: (placeholderNode: HTMLElement | null) => void
 
@@ -72,12 +78,19 @@ interface DndState {
   setDndItemsFrom: (items: DndItemDataType[] | null) => void
 
   dndItemsTo: DndItemDataType[] | null
-  setDndItemsTo: (items: DndItemDataType[]) => void
+  setDndItemsTo: (items: DndItemDataType[] | null) => void
 }
 
 // Как определить конечную точку драг ноды когда драговер в движении
 
 export const useDndStore = create<DndState>(set => ({
+  fromContainerId: null,
+  setFromContainerId: (fromContainerId: string | null) =>
+    set({fromContainerId}),
+
+  toContainerId: null,
+  setToContainerId: (toContainerId: string | null) => set({toContainerId}),
+
   placeholderNode: null,
   setPlaceholderNode: placeholderNode => set({placeholderNode}),
 

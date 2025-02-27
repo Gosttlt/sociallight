@@ -34,6 +34,7 @@ const getStyleFromWrapper = ({
     // Элементы относительно перетаскиваемого
     const isThisNodeBeforeDragCard = card.order < dragCard.order
     const isThisNodeAfterDragCard = card.order > dragCard.order
+    const isThisNodeCardEqualDragCard = card.order === dragCard.order
 
     if (isInContainer) {
       if (overCard && overNodeRectOnFirstTouch) {
@@ -62,6 +63,22 @@ const getStyleFromWrapper = ({
           }
         }
         if (isThisNodeAfterDragCard) {
+          if (isCursorBeforeThisNode) {
+            thisNode.style.transform = `translate(${0}px, 0px)`
+          }
+          if (isCursorAfterThisNode) {
+            thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+          }
+          if (isCursorEqualThisNode) {
+            if (isCursorStartPositionFromOverCard) {
+              thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+            }
+            if (!isCursorStartPositionFromOverCard) {
+              thisNode.style.transform = `translate(${0}px, 0px)`
+            }
+          }
+        }
+        if (isThisNodeCardEqualDragCard) {
           if (isCursorBeforeThisNode) {
             thisNode.style.transform = `translate(${0}px, 0px)`
           }
@@ -140,7 +157,17 @@ const DndItem: DndItemComponentType = props => {
     setDndItemsFrom,
     dndItemsTo,
     setDndItemsTo,
+    fromContainerId,
+    setFromContainerId,
+    setToContainerId,
+    toContainerId,
   } = useDndStore()
+  const isThisNodeInSharedContainer =
+    ref.current &&
+    ref.current.closest(`[data-shared-container-id='${sharedContainerId}']`)
+
+  const isThisNodeInFromContainer =
+    ref.current && fromContainerNode && fromContainerNode.contains(ref.current)
 
   const onDrag = () => {
     setDragCard(card)
@@ -158,12 +185,18 @@ const DndItem: DndItemComponentType = props => {
       setOverCard(null)
     }
   }
-
-  if (ref.current && dragNode && ref.current !== dragNode) {
+  // sharedContainerId
+  if (
+    ref.current &&
+    dragNode &&
+    isThisNodeInSharedContainer &&
+    ref.current !== dragNode
+  ) {
     if (
       fromContainerNode &&
       fromContainerNode.contains(ref.current) &&
-      fromContainerNode.contains(overNode)
+      fromContainerNode.contains(overNode) &&
+      isThisNodeInFromContainer
     ) {
       getStyleFromWrapper({
         overNodeRectOnFirstTouch,
@@ -178,9 +211,24 @@ const DndItem: DndItemComponentType = props => {
         dndDuration,
       })
     }
-    if (!isInContainer && isDragStart) {
-      ref.current.style.transform = `translate(${0}px, 0px)`
-      ref.current.style.transition = `${dndDuration / 1000}s`
+    if (
+      ref.current &&
+      toContainerNode &&
+      toContainerNode.contains(ref.current) &&
+      overContainerNode === toContainerNode
+    ) {
+      getStyleFromWrapper({
+        overNodeRectOnFirstTouch,
+        card,
+        isDragStart,
+        isCursorStartPositionFromOverCard,
+        thisNode: ref.current,
+        dragCard,
+        overCard,
+        isInContainer,
+        dragNodeRect,
+        dndDuration,
+      })
     }
   }
 
@@ -190,9 +238,12 @@ const DndItem: DndItemComponentType = props => {
     dragCard &&
     dragNodeRect &&
     isStartAfterDropAnimation &&
+    isThisNodeInSharedContainer &&
     !isDragStart &&
     !isInContainer &&
-    card.order > dragCard.order
+    card.order > dragCard.order &&
+    fromContainerNode &&
+    fromContainerNode.contains(ref.current)
   ) {
     ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
   }
@@ -201,11 +252,11 @@ const DndItem: DndItemComponentType = props => {
     <div
       ref={ref}
       data-tvo-index={index}
-      onMouseEnter={onMouseEnter}
+      onMouseEnter={isThisNodeInSharedContainer ? onMouseEnter : () => {}}
       onMouseDown={onDrag}
       data-dnd-item='dndItem'
       className={clsx(s.dndItemWrapper, className)}
-      onMouseLeave={onLeave}
+      onMouseLeave={isThisNodeInSharedContainer ? onLeave : () => {}}
     >
       <div className={s.noEvent}>{children}</div>
     </div>

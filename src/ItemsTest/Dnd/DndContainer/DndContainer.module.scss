@@ -1,6 +1,17 @@
 .dndContainerWrapper {
   display: flex;
-  background: green;
   width: fit-content;
+  box-shadow: 3px 3px 12px 2px #dadada;
+  border-radius: 8px;
   transition: 1s;
+  cursor: grab;
+}
+.grabbing {
+  cursor: grabbing;
+}
+.noDrop {
+  cursor: no-drop;
+}
+.cell {
+  cursor: cell;
 }
