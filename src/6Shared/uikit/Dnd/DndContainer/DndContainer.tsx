@@ -114,7 +114,6 @@ const setAnimationDragNodeAfterDrop = ({
                 tvoOverNodeIndex &&
                 Number(tvoIndex) < Number(tvoOverNodeIndex)
               ) {
-                console.log(node.clientWidth)
                 allLeftWidth += node.getBoundingClientRect().width
               }
             }
@@ -451,6 +450,8 @@ const DndContainer: DndContainerComponentType = props => {
     setDndItemsTo,
   } = useDndStore()
 
+  const placeholderNodeRef = useRef<HTMLDivElement | null>(null)
+
   // очистка элементов посещенного контейнера
   const isAbortClaerCb = useRef<boolean>(false)
   const transitionEndCb = (overContainerNode: HTMLElement) => {
@@ -484,14 +485,21 @@ const DndContainer: DndContainerComponentType = props => {
         const {height, width, x, y} = targetRect
         const {clientX, clientY} = e
 
-        const node = document.createElement('div')
-        node.style.width = width + 'px'
-        node.style.height = 0 + 'px'
-        node.style.background = 'none'
-        node.dataset.dndPlaceholder = 'true'
-        e.currentTarget.appendChild(node)
+        if (placeholderNodeRef.current) {
+          placeholderNodeRef.current.style.width = width + 'px'
+          placeholderNodeRef.current.style.height = 0 + 'px'
+          placeholderNodeRef.current.style.background = 'none'
+          placeholderNodeRef.current.style.transition = ''
+        }
 
-        setPlaceholderNode(node)
+        // const node = document.createElement('div')
+        // node.style.width = width + 'px'
+        // node.style.height = 0 + 'px'
+        // node.style.background = 'none'
+        // node.dataset.dndPlaceholder = 'true'
+        // e.currentTarget.appendChild(node)
+
+        // setPlaceholderNode(node)
 
         setStartPositionDragNode({
           clientX,
@@ -508,11 +516,6 @@ const DndContainer: DndContainerComponentType = props => {
         })
 
         // Добавление плесхолдора
-
-        if (placeholderNode && target) {
-          currentTarget.appendChild(placeholderNode)
-          placeholderNode.style.width = width + 'px'
-        }
         setDragStart(true)
         setOverContainerNode(e.currentTarget)
         setCurrentOverNode(target)
@@ -566,12 +569,18 @@ const DndContainer: DndContainerComponentType = props => {
     ) {
       isAbortClaerCb.current = true
 
-      if (placeholderNode && dragNode) {
-        e.currentTarget.appendChild(placeholderNode)
-        placeholderNode.style.transition = `${dndDuration / 1000}s`
-        placeholderNode.style.width =
+      // if (placeholderNode && dragNode) {
+      //   e.currentTarget.appendChild(placeholderNode)
+      //   placeholderNode.style.transition = `${dndDuration / 1000}s`
+      //   placeholderNode.style.width =
+      //     dragNode.getBoundingClientRect().width + 'px'
+      // }
+      if (placeholderNodeRef.current && dragNode) {
+        placeholderNodeRef.current.style.transition = `${dndDuration / 1000}s`
+        placeholderNodeRef.current.style.width =
           dragNode.getBoundingClientRect().width + 'px'
       }
+
       if (e.currentTarget !== fromContainerNode) {
         setDndItemsTo(items)
         setToContainerId(containerId)
@@ -624,11 +633,15 @@ const DndContainer: DndContainerComponentType = props => {
         setDndItemsTo(null)
         setToContainerId(null)
       }
-      if (placeholderNode) {
-        placeholderNode.style.transition = `${dndDuration / 1000}s`
-        if (e.currentTarget.contains(placeholderNode)) {
-          placeholderNode.style.width = '0px'
-        }
+      // if (placeholderNode) {
+      //   placeholderNode.style.transition = `${dndDuration / 1000}s`
+      //   if (e.currentTarget.contains(placeholderNode)) {
+      //     placeholderNode.style.width = '0px'
+      //   }
+      // }
+      if (placeholderNodeRef.current) {
+        placeholderNodeRef.current.style.transition = `${dndDuration / 1000}s`
+        placeholderNodeRef.current.style.width = '0px'
       }
       setOverNodeRectOnFirstTouch(null)
       setInContainer(false)
@@ -638,10 +651,31 @@ const DndContainer: DndContainerComponentType = props => {
     }
   }
 
-  const onDragEnd = (e: globalThis.MouseEvent) => {
-    setDragStart(false)
-    setStatusAfterDropAnimation(true)
+  const onMouseUp = (e: globalThis.MouseEvent) => {
+    if (
+      isDragStart &&
+      hasSharedContainer(containerRef.current, sharedContainerId)
+    ) {
+      setDragStart(false)
+      setStatusAfterDropAnimation(true)
+      if (e.currentTarget === fromContainerNode) {
+        setAnimationDragNodeAfterDrop({
+          currentOverNode,
+          overContainerNode,
+          dragCard,
+          dragNode,
+          dragNodeRect,
+          isCursorStartPositionFromOverCard,
+          overCard,
+          overNodeRectOnFirstTouch,
+          duration: dndDuration,
+          isTargetInContainer: !!isTargetContainer,
+        })
+      }
+    }
+  }
 
+  const onDragEnd = (e: globalThis.MouseEvent) => {
     const isTargetContainer =
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']")
@@ -651,7 +685,6 @@ const DndContainer: DndContainerComponentType = props => {
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']") === fromContainerNode
     ) {
-      console.log('setAnimationDragNodeAfterDrop')
       setAnimationDragNodeAfterDrop({
         currentOverNode,
         overContainerNode,
@@ -682,7 +715,6 @@ const DndContainer: DndContainerComponentType = props => {
       e.target.closest("[data-dnd-tvo='true']") &&
       e.target.closest("[data-dnd-tvo='true']") === toContainerNode
     ) {
-      console.log('setAnimationDragNodeAfterDropOnTo')
       setAnimationDragNodeAfterDropOnTo({
         currentOverNode,
         overContainerNode,
@@ -696,18 +728,16 @@ const DndContainer: DndContainerComponentType = props => {
 
     // \\AfterDropAnimation
 
-    if (placeholderNode && dragNode) {
-      placeholderNode.style.width =
-        dragNode.getBoundingClientRect().width + 'px'
-    }
-
     if (dragNode) {
       dragNode.addEventListener('transitionend', function transitionEnd() {
-        console.log(containerId, 'containerId')
-        document.querySelector('body')!.style.userSelect = ''
-        if (placeholderNode) {
-          placeholderNode.remove()
+        console.log(containerId, 'containerId2')
+        if (placeholderNodeRef.current && dragNode) {
+          placeholderNodeRef.current.style.width = '0px'
         }
+        document.querySelector('body')!.style.userSelect = ''
+        // if (placeholderNode) {
+        //   placeholderNode.remove()
+        // }
         let newItems: Omit<ReturnsortCbItems, 'fromId'> | null = null
         if (dragCard && dndItemsFrom) {
           if (
@@ -818,9 +848,16 @@ const DndContainer: DndContainerComponentType = props => {
   }
 
   useEffect(() => {
-    if (isDragStart && dragNode && sharedContainerId === sharedId) {
+    if (
+      containerRef.current &&
+      isDragStart &&
+      dragNode &&
+      sharedContainerId === sharedId
+    ) {
       window.addEventListener('mousemove', onDragMove)
-      window.addEventListener('mouseup', onDragEnd)
+      if (overContainerNode === containerRef.current) {
+        window.addEventListener('mouseup', onDragEnd)
+      }
     }
 
     return () => {
@@ -828,6 +865,7 @@ const DndContainer: DndContainerComponentType = props => {
       window.removeEventListener('mousemove', onDragMove)
     }
   }, [
+    placeholderNodeRef.current,
     containerId,
     fromContainerId,
     setFromContainerId,
@@ -891,10 +929,6 @@ const DndContainer: DndContainerComponentType = props => {
     }
   }, [isDragStart])
 
-  useEffect(() => {
-    console.log(123)
-  }, [])
-
   const containerRef = useRef<null | HTMLDivElement>(null)
 
   const isThisSharedContainer = hasSharedContainer(
@@ -907,6 +941,7 @@ const DndContainer: DndContainerComponentType = props => {
       onMouseDown={onDragStart}
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
+      onMouseUp={onMouseUp}
       data-dnd-tvo={true}
       data-shared-container-id={sharedId}
       className={clsx(s.dndContainerWrapper, className, {
@@ -915,6 +950,11 @@ const DndContainer: DndContainerComponentType = props => {
       })}
     >
       {children}
+      <div
+        ref={placeholderNodeRef}
+        data-dnd-placeholder='true'
+        className={s.placeholder}
+      ></div>
     </div>
   )
 }
