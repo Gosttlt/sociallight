@@ -1,5 +1,5 @@
 import type {FC, ReactNode} from 'react'
-import {DndItemDataType} from '../utils'
+import {DndItemDataType} from '../utils/utils'
 
 export type DndContainerComponentType = FC<DndContainerProps>
 

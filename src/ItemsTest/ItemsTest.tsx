@@ -1,17 +1,13 @@
 import s from './ItemsTest.module.scss'
 import type {ItemsTestComponentType} from './ItemsTest.types'
-import React, {useState} from 'react'
-import {
-  DndItemDataType,
-  getDataCurrentParent,
-  getDataOtherParent,
-  inOneContainer,
-} from './Dnd/utils'
-import DndContainer from './Dnd/DndContainer/DndContainer'
-import DndItem from './Dnd/DndItems/DndItem'
+import React, {ChangeEvent, useState} from 'react'
+
 import clsx from 'clsx'
-import {ReturnsortCbItems} from './Dnd/DndContainer/DndContainer.types'
-import {useDndStore} from './State'
+import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
+import {ReturnsortCbItems} from '@/6Shared/uikit/Dnd/DndContainer/DndContainer.types'
+import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
+import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
+import useDebaunce from '@/6Shared/hooks/uiHooks/useDebaunce'
 
 const fromItems: DndItemDataType[] = [
   {id: '1', name: '1 from', order: 1},
@@ -78,12 +74,21 @@ const ItemsTest: ItemsTestComponentType = props => {
 
     setItems({...items, ...{[fromId]: fromCard, ...toObj}})
   }
-  // const asd = useDndStore()
-  // console.log(asd)
+
+  const [intut, setInput] = useState('')
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.currentTarget.value)
+    debFn('dasda')
+  }
+  const fn = (asd: string) => {
+    console.log(asd)
+  }
+  const debFn = useDebaunce(fn)
   return (
     <>
       {/* <button onClick={() => setData('fromData', items.toData)}>asddsa</button> */}
       <div>
+        <input value={intut} onChange={onChange} />
         <h2>from Container</h2>
         <DndContainer
           containerId='fromData'

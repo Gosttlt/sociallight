@@ -1,22 +1,22 @@
-import { useCallback, useRef } from "react";
+import {useCallback, useRef} from 'react'
 
-const useDebaunce = <K extends Function, R extends K["arguments"]>(
+const useDebaunce = <K extends Function, R extends K['arguments']>(
   cb: K,
-  ms: number = 300
+  ms: number = 300,
 ) => {
-  const timeoutId = useRef<null | ReturnType<typeof setTimeout>>(null);
+  const timeoutId = useRef<null | ReturnType<typeof setTimeout>>(null)
 
   return useCallback(
     (...args: R) => {
       if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
+        clearTimeout(timeoutId.current)
       }
       timeoutId.current = setTimeout(() => {
-        cb(...args);
-      }, ms);
+        cb(...args)
+      }, ms)
     },
-    [cb, ms]
-  );
-};
+    [cb, ms],
+  )
+}
 
-export default useDebaunce;
+export default useDebaunce

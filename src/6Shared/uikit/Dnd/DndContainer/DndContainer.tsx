@@ -10,10 +10,10 @@ import {
   getDataCurrentParent,
   getDataOtherCard,
   getDataOtherParent,
+  hasSharedContainer,
   inOneContainer,
   removeAllSelectionsFromDocument,
-} from '../utils'
-import {CoordsType, useDndStore} from '@/ItemsTest/State'
+} from '../utils/utils'
 import {
   Children,
   cloneElement,
@@ -22,6 +22,8 @@ import {
   useRef,
   useState,
 } from 'react'
+import {CoordsType, useDndStore} from '../State'
+import useDebaunce from '@/6Shared/hooks/uiHooks/useDebaunce'
 
 // Алгаритм бага
 // Выкинул
@@ -448,6 +450,26 @@ const DndContainer: DndContainerComponentType = props => {
     dndItemsTo,
     setDndItemsTo,
   } = useDndStore()
+
+  // очистка элементов посещенного контейнера
+  const isAbortClaerCb = useRef<boolean>(false)
+  const transitionEndCb = (overContainerNode: HTMLElement) => {
+    if (!isAbortClaerCb.current) {
+      overContainerNode.childNodes.forEach(node => {
+        if (
+          node instanceof HTMLElement &&
+          node.dataset.tvoIndex &&
+          dragNode !== node
+        ) {
+          node.style.transform = ``
+          node.style.transition = ``
+        }
+      })
+    }
+  }
+  const transitionEndCbDeb = useDebaunce(transitionEndCb, dndDuration / 1000)
+  //\ очистка элементов посещенного контейнера
+
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
     if (!isStartAfterDropAnimation) {
       const currentTarget = e.currentTarget as HTMLElement
@@ -464,7 +486,7 @@ const DndContainer: DndContainerComponentType = props => {
 
         const node = document.createElement('div')
         node.style.width = width + 'px'
-        node.style.height = height + 'px'
+        node.style.height = 0 + 'px'
         node.style.background = 'none'
         node.dataset.dndPlaceholder = 'true'
         e.currentTarget.appendChild(node)
@@ -504,10 +526,10 @@ const DndContainer: DndContainerComponentType = props => {
         })
         setDragNode(target)
         setDragNodeRect(targetRect)
-        setCursorCoords({x: e.clientX, y: e.clientY})
       }
     }
   }
+
   const onDragMove = (e: globalThis.MouseEvent) => {
     const {clientX, clientY, target} = e
     // Трансфармируем перетаскиваемый элемент по курсору
@@ -533,8 +555,8 @@ const DndContainer: DndContainerComponentType = props => {
         setCursorPositionFromOverCard(issCursorStartPosFromOverCard)
       }
     }
-    setCursorCoords({x: clientX, y: clientY})
   }
+
   const onMouseEnter = (e: MouseEvent<HTMLElement>) => {
     if (
       isDragStart &&
@@ -542,10 +564,8 @@ const DndContainer: DndContainerComponentType = props => {
         `[data-shared-container-id='${sharedContainerId}']`,
       )
     ) {
-      if (e.currentTarget !== fromContainerNode) {
-        setDndItemsTo(items)
-        setToContainerId(containerId)
-      }
+      isAbortClaerCb.current = true
+
       if (placeholderNode && dragNode) {
         e.currentTarget.appendChild(placeholderNode)
         placeholderNode.style.transition = `${dndDuration / 1000}s`
@@ -553,6 +573,8 @@ const DndContainer: DndContainerComponentType = props => {
           dragNode.getBoundingClientRect().width + 'px'
       }
       if (e.currentTarget !== fromContainerNode) {
+        setDndItemsTo(items)
+        setToContainerId(containerId)
         setToContainerNode(e.currentTarget)
       }
       setInContainer(true)
@@ -562,16 +584,35 @@ const DndContainer: DndContainerComponentType = props => {
 
   const onMouseLeave = (e: MouseEvent<HTMLElement>) => {
     if (isDragStart && dragNode && overContainerNode) {
+      isAbortClaerCb.current = false
+
+      let lastId: null | HTMLElement = null
+
       overContainerNode.childNodes.forEach(node => {
         if (
           node instanceof HTMLElement &&
           node.dataset.tvoIndex &&
           dragNode !== node
         ) {
+          lastId = node
           node.style.transform = `translate(${0}px, 0px)`
           node.style.transition = `${dndDuration / 1000}s`
         }
       })
+      // очистка элементов посещенного контейнера
+      if (lastId !== null && e.currentTarget === toContainerNode) {
+        ;(lastId as HTMLElement).addEventListener(
+          'transitionend',
+          function transitionEnd() {
+            transitionEndCbDeb(overContainerNode)
+            ;(lastId as HTMLElement).removeEventListener(
+              'transitionend',
+              transitionEnd,
+            )
+          },
+        )
+      }
+      //\ очистка элементов посещенного контейнера
     }
     if (
       isDragStart &&
@@ -600,9 +641,7 @@ const DndContainer: DndContainerComponentType = props => {
   const onDragEnd = (e: globalThis.MouseEvent) => {
     setDragStart(false)
     setStatusAfterDropAnimation(true)
-    console.log(containerId)
-    console.log(fromContainerNode)
-    debugger
+
     const isTargetContainer =
       e.target instanceof HTMLElement &&
       e.target.closest("[data-dnd-tvo='true']")
@@ -656,12 +695,12 @@ const DndContainer: DndContainerComponentType = props => {
     }
 
     // \\AfterDropAnimation
-    // debugger
+
     if (placeholderNode && dragNode) {
       placeholderNode.style.width =
         dragNode.getBoundingClientRect().width + 'px'
     }
-    console.log(containerId, 'containerId')
+
     if (dragNode) {
       dragNode.addEventListener('transitionend', function transitionEnd() {
         console.log(containerId, 'containerId')
@@ -758,7 +797,6 @@ const DndContainer: DndContainerComponentType = props => {
         //
 
         setCurrentOverNode(null)
-        setCursorCoords(null)
         setDiffDragNodeAndCursor(null)
         setDragCard(null)
         setDragNode(null)
@@ -853,13 +891,16 @@ const DndContainer: DndContainerComponentType = props => {
     }
   }, [isDragStart])
 
+  useEffect(() => {
+    console.log(123)
+  }, [])
+
   const containerRef = useRef<null | HTMLDivElement>(null)
 
-  const isThisSharedContainer =
-    containerRef.current &&
-    containerRef.current.closest(
-      `[data-shared-container-id='${sharedContainerId}']`,
-    )
+  const isThisSharedContainer = hasSharedContainer(
+    containerRef.current,
+    sharedContainerId,
+  )
   return (
     <div
       ref={containerRef}

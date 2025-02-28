@@ -1,4 +1,4 @@
-import {ReturnsortCbItems} from './DndContainer/DndContainer.types'
+import {ReturnsortCbItems} from '../DndContainer/DndContainer.types'
 
 export const getTransformValue = (node: HTMLDivElement) => {
   const transform = node.style.transform
@@ -23,12 +23,6 @@ export const removeAllSelectionsFromDocument = () => {
 export type DndItemDataType = {id: string | number; order: number} & {
   [key: string]: any
 }
-
-// Styled
-
-// \Styled
-
-// Sorted
 
 export const sortDndFn = (a: DndItemDataType, b: DndItemDataType) =>
   a.order - b.order
@@ -139,3 +133,16 @@ export const getDataOtherCard = ({
 }
 
 // /Sorted
+
+// Other
+
+export const hasSharedContainer = (
+  node: HTMLElement | null,
+  sharedContainerId: string | null,
+) => {
+  return !!(
+    node && node.closest(`[data-shared-container-id='${sharedContainerId}']`)
+  )
+}
+
+// \ Other

@@ -1,5 +1,5 @@
 import {create} from 'zustand'
-import {DndItemDataType} from '../Dnd/utils'
+import {DndItemDataType} from '../utils/utils'
 
 export type CoordsType = {x: number; y: number}
 

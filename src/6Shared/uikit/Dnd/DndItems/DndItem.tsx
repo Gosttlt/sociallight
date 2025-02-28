@@ -2,9 +2,9 @@ import clsx from 'clsx'
 
 import s from './DndItem.module.scss'
 import type {DndItemComponentType} from './DndItem.types'
-import {useDndStore} from '@/ItemsTest/State'
 import {MouseEvent, useRef} from 'react'
-import {DndItemDataType} from '../utils'
+import {DndItemDataType, hasSharedContainer} from '../utils/utils'
+import {useDndStore} from '../State'
 
 const getStyleFromWrapper = ({
   card,
@@ -162,9 +162,11 @@ const DndItem: DndItemComponentType = props => {
     setToContainerId,
     toContainerId,
   } = useDndStore()
-  const isThisNodeInSharedContainer =
-    ref.current &&
-    ref.current.closest(`[data-shared-container-id='${sharedContainerId}']`)
+
+  const isThisNodeInSharedContainer = hasSharedContainer(
+    ref.current,
+    sharedContainerId,
+  )
 
   const isThisNodeInFromContainer =
     ref.current && fromContainerNode && fromContainerNode.contains(ref.current)
@@ -186,50 +188,26 @@ const DndItem: DndItemComponentType = props => {
     }
   }
   // sharedContainerId
+
   if (
     ref.current &&
-    dragNode &&
-    isThisNodeInSharedContainer &&
-    ref.current !== dragNode
+    ref.current !== dragNode &&
+    overContainerNode &&
+    overContainerNode.contains(ref.current) &&
+    overNode
   ) {
-    if (
-      fromContainerNode &&
-      fromContainerNode.contains(ref.current) &&
-      fromContainerNode.contains(overNode) &&
-      isThisNodeInFromContainer
-    ) {
-      getStyleFromWrapper({
-        overNodeRectOnFirstTouch,
-        card,
-        isDragStart,
-        isCursorStartPositionFromOverCard,
-        thisNode: ref.current,
-        dragCard,
-        overCard,
-        isInContainer,
-        dragNodeRect,
-        dndDuration,
-      })
-    }
-    if (
-      ref.current &&
-      toContainerNode &&
-      toContainerNode.contains(ref.current) &&
-      overContainerNode === toContainerNode
-    ) {
-      getStyleFromWrapper({
-        overNodeRectOnFirstTouch,
-        card,
-        isDragStart,
-        isCursorStartPositionFromOverCard,
-        thisNode: ref.current,
-        dragCard,
-        overCard,
-        isInContainer,
-        dragNodeRect,
-        dndDuration,
-      })
-    }
+    getStyleFromWrapper({
+      overNodeRectOnFirstTouch,
+      card,
+      isDragStart,
+      isCursorStartPositionFromOverCard,
+      thisNode: ref.current,
+      dragCard,
+      overCard,
+      isInContainer,
+      dragNodeRect,
+      dndDuration,
+    })
   }
 
   // После дропа за пределы контейнера возвращяем this ноды и ждем пока позишен станет не фиксед
