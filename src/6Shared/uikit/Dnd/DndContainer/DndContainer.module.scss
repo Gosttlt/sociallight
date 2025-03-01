@@ -6,6 +6,9 @@
   transition: 1s;
   cursor: grab;
 }
+.vertiacalDirection {
+  flex-direction: column;
+}
 .grabbing {
   cursor: grabbing;
 }

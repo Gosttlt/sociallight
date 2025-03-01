@@ -10,11 +10,14 @@ export type ReturnsortCbItems = {
   toID?: string | null
 }
 
+export type DirectionType = 'horizontal' | 'vertical'
+
 export type DndContainerProps = {
   containerId: string
   children?: ReactNode
   className?: string
   items: DndItemDataType[]
+  direction?: DirectionType
   sharedId: string
   setData: (args: ReturnsortCbItems) => void
 }

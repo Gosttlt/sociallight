@@ -5,6 +5,7 @@ import type {DndItemComponentType} from './DndItem.types'
 import {MouseEvent, useRef} from 'react'
 import {DndItemDataType, hasSharedContainer} from '../utils/utils'
 import {useDndStore} from '../State'
+import {DirectionType} from '../DndContainer/DndContainer.types'
 
 const getStyleFromWrapper = ({
   card,
@@ -17,6 +18,7 @@ const getStyleFromWrapper = ({
   dragNodeRect,
   dndDuration,
   overNodeRectOnFirstTouch,
+  dndDirection,
 }: {
   thisNode: HTMLElement | null
   overCard?: DndItemDataType | null
@@ -28,6 +30,7 @@ const getStyleFromWrapper = ({
   dragNodeRect: DOMRect | null
   overNodeRectOnFirstTouch: DOMRect | null
   dndDuration: number
+  dndDirection: DirectionType
 }) => {
   if (dragCard && isDragStart && thisNode && dragNodeRect) {
     thisNode.style.transition = `${dndDuration / 1000}s`
@@ -35,6 +38,18 @@ const getStyleFromWrapper = ({
     const isThisNodeBeforeDragCard = card.order < dragCard.order
     const isThisNodeAfterDragCard = card.order > dragCard.order
     const isThisNodeCardEqualDragCard = card.order === dragCard.order
+
+    const setTransform = (dndDirection: DirectionType | 'clear') => {
+      if (dndDirection === 'clear') {
+        thisNode.style.transform = `translate(0px, 0px)`
+      }
+      //
+      else if (dndDirection === 'horizontal') {
+        thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+      } else if (dndDirection === 'vertical') {
+        thisNode.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+      }
+    }
 
     if (isInContainer) {
       if (overCard && overNodeRectOnFirstTouch) {
@@ -48,49 +63,49 @@ const getStyleFromWrapper = ({
 
         if (isThisNodeBeforeDragCard) {
           if (isCursorBeforeThisNode) {
-            thisNode.style.transform = `translate(${0}px, 0px)`
+            setTransform('clear')
           }
           if (isCursorAfterThisNode) {
-            thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+            setTransform(dndDirection)
           }
           if (isCursorEqualThisNode) {
             if (isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+              setTransform(dndDirection)
             }
             if (!isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${0}px, 0px)`
+              setTransform('clear')
             }
           }
         }
         if (isThisNodeAfterDragCard) {
           if (isCursorBeforeThisNode) {
-            thisNode.style.transform = `translate(${0}px, 0px)`
+            setTransform('clear')
           }
           if (isCursorAfterThisNode) {
-            thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+            setTransform(dndDirection)
           }
           if (isCursorEqualThisNode) {
             if (isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+              setTransform(dndDirection)
             }
             if (!isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${0}px, 0px)`
+              setTransform('clear')
             }
           }
         }
         if (isThisNodeCardEqualDragCard) {
           if (isCursorBeforeThisNode) {
-            thisNode.style.transform = `translate(${0}px, 0px)`
+            setTransform('clear')
           }
           if (isCursorAfterThisNode) {
-            thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+            setTransform(dndDirection)
           }
           if (isCursorEqualThisNode) {
             if (isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+              setTransform(dndDirection)
             }
             if (!isCursorStartPositionFromOverCard) {
-              thisNode.style.transform = `translate(${0}px, 0px)`
+              setTransform('clear')
             }
           }
         }
@@ -100,9 +115,9 @@ const getStyleFromWrapper = ({
     else {
       if (isThisNodeAfterDragCard) {
         // left
-        thisNode.style.transform = `translate(${0}px, 0px)`
+        setTransform('clear')
       } else if (isThisNodeBeforeDragCard) {
-        thisNode.style.transform = `translate(${0}px, 0px)`
+        setTransform('clear')
       }
     }
   }
@@ -113,6 +128,8 @@ const DndItem: DndItemComponentType = props => {
   const ref = useRef<null | HTMLDivElement>(null)
 
   const {
+    dndDirection,
+    setDirection,
     placeholderNode,
     setPlaceholderNode,
     currentOverNode,
@@ -207,6 +224,7 @@ const DndItem: DndItemComponentType = props => {
       isInContainer,
       dragNodeRect,
       dndDuration,
+      dndDirection,
     })
   }
 
@@ -223,7 +241,11 @@ const DndItem: DndItemComponentType = props => {
     fromContainerNode &&
     fromContainerNode.contains(ref.current)
   ) {
-    ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+    if (dndDirection === 'horizontal') {
+      ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+    } else {
+      ref.current.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+    }
   }
 
   return (

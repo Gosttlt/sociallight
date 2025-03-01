@@ -91,6 +91,7 @@ const ItemsTest: ItemsTestComponentType = props => {
         <input value={intut} onChange={onChange} />
         <h2>from Container</h2>
         <DndContainer
+          direction='vertical'
           containerId='fromData'
           setData={items => {
             setData(items)
@@ -112,6 +113,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>to Container</h2>
         <DndContainer
+          direction='vertical'
           containerId='toData'
           setData={items => {
             setData(items)
@@ -132,6 +134,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>Other Container</h2>
         <DndContainer
+          direction='vertical'
           containerId='otherItems'
           setData={items => {
             console.log('items from ', items)
