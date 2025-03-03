@@ -2,7 +2,6 @@ import s from './ItemsTest.module.scss'
 import type {ItemsTestComponentType} from './ItemsTest.types'
 import React, {ChangeEvent, useState} from 'react'
 
-import clsx from 'clsx'
 import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
 import {ReturnsortCbItems} from '@/6Shared/uikit/Dnd/DndContainer/DndContainer.types'
 import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
@@ -91,7 +90,7 @@ const ItemsTest: ItemsTestComponentType = props => {
         <input value={intut} onChange={onChange} />
         <h2>from Container</h2>
         <DndContainer
-          direction='vertical'
+          // direction='vertical'
           containerId='fromData'
           setData={items => {
             setData(items)
@@ -113,7 +112,7 @@ const ItemsTest: ItemsTestComponentType = props => {
       <div>
         <h2>to Container</h2>
         <DndContainer
-          direction='vertical'
+          // direction='vertical'
           containerId='toData'
           setData={items => {
             setData(items)

@@ -185,8 +185,10 @@ const DndItem: DndItemComponentType = props => {
     sharedContainerId,
   )
 
-  const isThisNodeInFromContainer =
-    ref.current && fromContainerNode && fromContainerNode.contains(ref.current)
+  const isThisNodeFromSharedContainer =
+    ref.current &&
+    (ref.current.closest(`[ data-dnd-tvo="true"]`) as HTMLElement).dataset
+      .sharedContainerId === sharedContainerId
 
   const onDrag = () => {
     setDragCard(card)
@@ -209,6 +211,7 @@ const DndItem: DndItemComponentType = props => {
   if (
     ref.current &&
     ref.current !== dragNode &&
+    isThisNodeFromSharedContainer &&
     overContainerNode &&
     overContainerNode.contains(ref.current) &&
     overNode
@@ -247,6 +250,8 @@ const DndItem: DndItemComponentType = props => {
       ref.current.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
     }
   }
+  const isNoEventItem =
+    isDragStart && hasSharedContainer(ref.current, sharedContainerId)
 
   return (
     <div
@@ -258,7 +263,7 @@ const DndItem: DndItemComponentType = props => {
       className={clsx(s.dndItemWrapper, className)}
       onMouseLeave={isThisNodeInSharedContainer ? onLeave : () => {}}
     >
-      <div className={s.noEvent}>{children}</div>
+      <div className={clsx({[s.noEvent]: isNoEventItem})}>{children}</div>
     </div>
   )
 }

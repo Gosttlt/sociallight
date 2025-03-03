@@ -15,82 +15,79 @@ import CreateTaskInput from '@/4Features/Tasks/Сolumn/CreateTaskInput'
 import LevelSelector from '@/4Features/Tasks/Card/LevelSelector'
 import EditTaskBtn from '@/4Features/Tasks/Card/EditTaskBtn'
 import InputTask from '@/4Features/Tasks/Card/InputTask'
-import {TaskContext} from '@/1Config/Providers/Task'
-import Dnd from '@/6Shared/uikit/Dnd/ui/Dnd'
-import DndItem from '@/6Shared/uikit/Dnd/ui/DndItem/DndItem'
 import useApi from '@/4Features/Tasks/UpdateOrder/api/mutation'
 import {TasksCulumnType} from '@/6Shared/api/types/TaskColumn'
-import {DndContext} from '@/1Config/Providers/Dnd'
 import {UPDATE_TASK_ORDERS} from '@/4Features/Tasks/UpdateOrder/api/gql'
 import {TaskType} from '@/6Shared/api/types/Task'
 import {GET_TASK_CATEGORY} from '@/6Shared/api/gql/requests/Task'
 import {useMutation} from '@apollo/client'
 import {sortDndFn} from '@/6Shared/uikit/Dnd/utils/utils'
 import {TasksCategoryResponseType} from '@/6Shared/api/types/TaskCategory'
+import {useHomePageStore} from '@/app/home/model'
+import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
+import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
 
 const TaskColumn: TaskColumnComponentType = props => {
-  const {fromItems, dragCard, dropCard, isNextPosition} = useContext(DndContext)
-
   const {data} = props
 
-  const [updateTask] = useMutation<{
-    updateTaskOrders: TaskType[]
-  }>(UPDATE_TASK_ORDERS, {
-    update(cache) {
-      const curCategory = cache.readQuery<TasksCategoryResponseType>({
-        query: GET_TASK_CATEGORY,
-        variables: {id: data.categoryId},
-      })?.taskCategory
+  // const [updateTask] = useMutation<{
+  //   updateTaskOrders: TaskType[]
+  // }>(UPDATE_TASK_ORDERS, {
+  //   update(cache) {
+  //     const curCategory = cache.readQuery<TasksCategoryResponseType>({
+  //       query: GET_TASK_CATEGORY,
+  //       variables: {id: data.categoryId},
+  //     })?.taskCategory
 
-      const dragColumn = curCategory?.columns.find(
-        column => column.id === (dragCard as TaskType).columnId,
-      )
-      const dropColumn = curCategory?.columns.find(
-        column => column.id === (dropCard.current as TaskType).columnId,
-      )
+  //     const dragColumn = curCategory?.columns.find(
+  //       column => column.id === (dragCard as TaskType).columnId,
+  //     )
+  //     const dropColumn = curCategory?.columns.find(
+  //       column => column.id === (dropCard.current as TaskType).columnId,
+  //     )
 
-      cache.modify({
-        id: cache.identify(dragColumn!),
-        fields: {
-          tasks(tasks) {
-            return tasks.filter((task: {__ref: string}) => {
-              return task.__ref !== `Task:${dragCard!.id}`
-            })
-          },
-        },
-      })
-      cache.modify({
-        id: cache.identify(dropColumn!),
-        fields: {
-          tasks(tasks) {
-            return [...tasks, {__ref: `Task:${dragCard?.id}`}]
-          },
-        },
-      })
+  //     cache.modify({
+  //       id: cache.identify(dragColumn!),
+  //       fields: {
+  //         tasks(tasks) {
+  //           return tasks.filter((task: {__ref: string}) => {
+  //             return task.__ref !== `Task:${dragCard!.id}`
+  //           })
+  //         },
+  //       },
+  //     })
+  //     cache.modify({
+  //       id: cache.identify(dropColumn!),
+  //       fields: {
+  //         tasks(tasks) {
+  //           return [...tasks, {__ref: `Task:${dragCard?.id}`}]
+  //         },
+  //       },
+  //     })
 
-      cache.updateQuery(
-        {query: GET_TASK_CATEGORY, variables: {id: data.categoryId}},
-        cacheData => {
-          return {
-            taskCategory: {
-              ...cacheData.taskCategory,
-              columns: cacheData.taskCategory.columns.map(
-                (column: TasksCulumnType) => {
-                  if (column.id === (dropCard.current as TaskType).columnId) {
-                    return {
-                      ...column,
-                      tasks: column.tasks.toSorted(sortDndFn),
-                    }
-                  }
-                  return column
-                },
-              ),
-            },
-          }
-        },
-      )
-    },
-  })
+  //     cache.updateQuery(
+  //       {query: GET_TASK_CATEGORY, variables: {id: data.categoryId}},
+  //       cacheData => {
+  //         return {
+  //           taskCategory: {
+  //             ...cacheData.taskCategory,
+  //             columns: cacheData.taskCategory.columns.map(
+  //               (column: TasksCulumnType) => {
+  //                 if (column.id === (dropCard.current as TaskType).columnId) {
+  //                   return {
+  //                     ...column,
+  //                     tasks: column.tasks.toSorted(sortDndFn),
+  //                   }
+  //                 }
+  //                 return column
+  //               },
+  //             ),
+  //           },
+  //         }
+  //       },
+  //     )
+  //   },
+  // })
   // console.log(data.tasks);
 
   // const setDataFn = (newData: Array<TaskType>) => {
@@ -135,7 +132,7 @@ const TaskColumn: TaskColumnComponentType = props => {
   const setDataFn = () => {
     console.log(312)
   }
-  const {focusId} = useContext(TaskContext)
+  const {focusId} = useHomePageStore()
 
   return (
     <div className={clsx(s.tasksWrapper)}>
@@ -153,22 +150,16 @@ const TaskColumn: TaskColumnComponentType = props => {
         />
       </div>
       <CreateTaskInput variant='task' parentId={data.id} />
-      <Dnd
-        direction={{
-          name: 'height',
-          value: 34,
-          paddingDefolt: 4,
-          paddingStreach: 20,
-        }}
+      <DndContainer
+        direction='vertical'
+        sharedId='taskDnd'
         items={data?.tasks}
-        setData={setDataFn}
-        sharedClass='taskDnd'
-        wrapperId={data.id}
-        reverse
+        setData={() => {}}
+        containerId={data.id}
       >
         {data?.tasks &&
-          data?.tasks.map(task => (
-            <DndItem key={task.id} data={task}>
+          data?.tasks.map((task, index) => (
+            <DndItem index={index} key={task.id} card={task}>
               <TaskCard
                 isCreate={task.id === focusId}
                 key={task.id}
@@ -185,7 +176,7 @@ const TaskColumn: TaskColumnComponentType = props => {
               </TaskCard>
             </DndItem>
           ))}
-      </Dnd>
+      </DndContainer>
     </div>
   )
 }

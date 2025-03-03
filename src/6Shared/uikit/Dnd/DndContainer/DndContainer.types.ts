@@ -16,7 +16,7 @@ export type DndContainerProps = {
   containerId: string
   children?: ReactNode
   className?: string
-  items: DndItemDataType[]
+  items?: DndItemDataType[]
   direction?: DirectionType
   sharedId: string
   setData: (args: ReturnsortCbItems) => void

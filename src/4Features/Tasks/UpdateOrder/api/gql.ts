@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from '@apollo/client'
 
 export const UPDATE_TASK_CATEGORY_ORDERS = gql`
   mutation UpdateTaskCategoryOrders(
@@ -10,7 +10,7 @@ export const UPDATE_TASK_CATEGORY_ORDERS = gql`
       order
     }
   }
-`;
+`
 
 export const UPDATE_TASK_COLUMN_ORDERS = gql`
   mutation UpdateTaskColumnOrders($columns: [UpdateTaskColumnOrderInput!]!) {
@@ -20,7 +20,7 @@ export const UPDATE_TASK_COLUMN_ORDERS = gql`
       order
     }
   }
-`;
+`
 
 export const UPDATE_TASK_ORDERS = gql`
   mutation UpdateTaskOrders($tasks: [UpdateTaskOrderInput!]!) {
@@ -31,4 +31,4 @@ export const UPDATE_TASK_ORDERS = gql`
       columnId
     }
   }
-`;
+`

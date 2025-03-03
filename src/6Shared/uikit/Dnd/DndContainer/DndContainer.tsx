@@ -12,14 +12,7 @@ import {
   inOneContainer,
   removeAllSelectionsFromDocument,
 } from '../utils/utils'
-import {
-  Children,
-  cloneElement,
-  MouseEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import {MouseEvent, useEffect, useRef} from 'react'
 import {useDndStore} from '../State'
 import useDebaunce from '@/6Shared/hooks/uiHooks/useDebaunce'
 import {
@@ -120,18 +113,28 @@ const DndContainer: DndContainerComponentType = props => {
   //\ очистка элементов посещенного контейнера
 
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
-    if (!isStartAfterDropAnimation) {
+    if (!isStartAfterDropAnimation && e.altKey) {
       const currentTarget = e.currentTarget as HTMLElement
       const target = e.target as HTMLElement
 
       setInContainer(true)
       removeAllSelectionsFromDocument()
 
-      if (target.dataset.dndItem) {
+      const dndItem = target.closest(`[data-dnd-item="dndItem"]`)
+
+      if (dndItem && dndItem instanceof HTMLElement) {
+        e.stopPropagation()
+        console.log(
+          containerId,
+          sharedId,
+          currentTarget,
+          'containerId',
+          'sharedId',
+        )
         setDirection(direction)
         document.querySelector('body')!.style.userSelect = 'none'
         document.querySelector('body')!.style.cursor = 'grabbing'
-        const targetRect = target.getBoundingClientRect()
+        const targetRect = dndItem.getBoundingClientRect()
         const {x, y} = targetRect
         const {clientX, clientY} = e
 
@@ -144,32 +147,33 @@ const DndContainer: DndContainerComponentType = props => {
         setStartPositionDragNode({
           clientX,
           clientY,
-          dragNode: target,
+          dragNode: dndItem,
           dragNodeX: x,
           dragNodeY: y,
         })
 
         setStartPositionNodesAfterDragNode({
           conatinerNode: currentTarget,
-          dragNode: target,
+          dragNode: dndItem,
           dragNodeRect: targetRect,
           direction,
         })
 
         // Добавление плесхолдора
-
+        if (items) {
+          setDndItemsFrom(items)
+        }
         setDragStart(true)
         setOverContainerNode(e.currentTarget)
-        setCurrentOverNode(target)
+        setCurrentOverNode(dndItem)
         setSharedContainerId(sharedId)
-        setDndItemsFrom(items)
         setFromContainerId(containerId)
         setFromContainerNode(currentTarget)
         setDiffDragNodeAndCursor({
           x: e.clientX - x,
           y: e.clientY - y,
         })
-        setDragNode(target)
+        setDragNode(dndItem)
         setDragNodeRect(targetRect)
       }
     }
@@ -220,7 +224,9 @@ const DndContainer: DndContainerComponentType = props => {
       })
 
       if (e.currentTarget !== fromContainerNode) {
-        setDndItemsTo(items)
+        if (items) {
+          setDndItemsTo(items)
+        }
         setToContainerId(containerId)
         setToContainerNode(e.currentTarget)
       }
@@ -280,6 +286,10 @@ const DndContainer: DndContainerComponentType = props => {
   }
 
   const onMouseUp = (e: MouseEvent<HTMLElement>) => {
+    console.log(
+      containerRef.current,
+      hasSharedContainer(containerRef.current, sharedContainerId),
+    )
     if (
       isDragStart &&
       hasSharedContainer(containerRef.current, sharedContainerId)
@@ -308,7 +318,6 @@ const DndContainer: DndContainerComponentType = props => {
           let newItems: Omit<ReturnsortCbItems, 'fromId'> | null = null
           if (dragCard && dndItemsFrom) {
             if (overCard && overContainerNode === fromContainerNode) {
-              console.log('inOneContainer')
               newItems = inOneContainer({
                 cards: dndItemsFrom,
                 dragCard: dragCard,
@@ -520,6 +529,7 @@ const DndContainer: DndContainerComponentType = props => {
       data-dnd-tvo={true}
       data-shared-container-id={sharedId}
       className={clsx(s.dndContainerWrapper, className, {
+        [s.activeDragContainer]: isDragStart && isThisSharedContainer,
         [s.vertiacalDirection]: direction === 'vertical',
         [s.cell]: isDragStart && isThisSharedContainer,
         [s.noDrop]: isDragStart && !isThisSharedContainer,

@@ -1,34 +1,35 @@
-import clsx from "clsx";
+import clsx from 'clsx'
 
-import s from "./CreateTaskInput.module.scss";
-import { CreateTaskInputComponentType } from "./CreateTaskInput.types";
-import Input from "@/6Shared/uikit/Input";
-import { ChangeEvent, useContext, useState } from "react";
-import createInputConfig from "../config";
-import useApi from "../api/mutation";
-import { TaskContext } from "@/1Config/Providers/Task";
+import s from './CreateTaskInput.module.scss'
+import {CreateTaskInputComponentType} from './CreateTaskInput.types'
+import Input from '@/6Shared/uikit/Input'
+import {ChangeEvent, useState} from 'react'
+import createInputConfig from '../config'
+import useApi from '../api/mutation'
+import {useHomePageStore} from '@/app/home/model'
 
-const CreateTaskInput: CreateTaskInputComponentType = (props) => {
-  const { className = "", parentId, variant } = props;
-  const { parentName, placeholder } = createInputConfig[variant];
+const CreateTaskInput: CreateTaskInputComponentType = props => {
+  const {className = '', variant, parentId} = props
+  const {parentName, placeholder} = createInputConfig[variant]
 
-  const { activeId, setFocusId } = useContext(TaskContext);
+  const activeId = useHomePageStore(state => state.activeId)
+  const setActiveId = useHomePageStore(state => state.setActiveId)
 
-  const [value, setValue] = useState("");
-  const [isFocus, setFocus] = useState(false);
+  const [value, setValue] = useState('')
+  const [isFocus, setFocus] = useState(false)
 
   const create = useApi({
-    cb: setFocusId,
+    cb: setActiveId,
     setValue,
     variant,
-    parentId,
     activeId,
-  });
+    parentId,
+  })
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    create({ variables: { name: e.target.value, [parentName]: parentId } });
-  };
+    setValue(e.target.value)
+    create({variables: {name: e.target.value, [parentName]: parentId}})
+  }
 
   return (
     <Input
@@ -37,9 +38,9 @@ const CreateTaskInput: CreateTaskInputComponentType = (props) => {
       value={value}
       onChange={onChange}
       className={clsx(s.createTaskInputWrapper, s[variant], className)}
-      placeholder={isFocus ? "" : placeholder}
+      placeholder={isFocus ? '' : placeholder}
     />
-  );
-};
+  )
+}
 
-export default CreateTaskInput;
+export default CreateTaskInput

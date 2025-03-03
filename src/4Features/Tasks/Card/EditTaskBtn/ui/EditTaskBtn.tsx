@@ -1,9 +1,9 @@
-import s from "./EditTaskBtn.module.scss";
-import type { EditTaskBtnComponentType } from "./EditTaskBtn.types";
-import EditSvg from "@/6Shared/assets/svg/Edit.svg";
+import s from './EditTaskBtn.module.scss'
+import type {EditTaskBtnComponentType} from './EditTaskBtn.types'
+import EditSvg from '@public/assets/svg/Edit.svg'
 
 const EditTaskBtn: EditTaskBtnComponentType = () => {
-  return <EditSvg />;
-};
+  return <EditSvg />
+}
 
-export default EditTaskBtn;
+export default EditTaskBtn

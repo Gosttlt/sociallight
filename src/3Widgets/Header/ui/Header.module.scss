@@ -1,11 +1,11 @@
 .headerWrapper {
   box-shadow: var(--box-shadow-layout);
   height: 56px;
-  padding: 8px;
+  padding: 8px 72px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 28px;
+  padding: 0 72px;
 }
 .userInfoWrapper {
   display: flex;
@@ -13,5 +13,24 @@
   gap: 8px;
 }
 .logo {
-  margin-left: 72px;
+  display: flex;
+  position: relative;
 }
+// .logo::before {
+//   content: '';
+//   position: absolute;
+//   display: block;
+//   height: 100%;
+//   left: 0;
+//   opacity: 0.7;
+//   box-shadow: 5px 0px 20px 20px #fff;
+// }
+// .logo::after {
+//   content: '';
+//   position: absolute;
+//   display: block;
+//   height: 100%;
+//   right: 0;
+//   opacity: 0.5;
+//   box-shadow: -5px 0px 20px 20px #fff;
+// }

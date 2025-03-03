@@ -1,113 +1,112 @@
-import { useMutation } from "@apollo/client";
-import { DELETE_TASK, REMOVE_TASK_CATEGORY, REMOVE_TASK_COLUMN } from "./gql";
-import { TaskType, TaskVariantType } from "@/6Shared/api/types/Task";
+import {useMutation} from '@apollo/client'
+import {DELETE_TASK, REMOVE_TASK_CATEGORY, REMOVE_TASK_COLUMN} from './gql'
+import {TaskType, TaskVariantType} from '@/6Shared/api/types/Task'
 import {
   GET_TASKS_CATEGORIES,
   GET_TASK_CATEGORY,
-} from "@/6Shared/api/gql/requests/Task";
-import { TasksCulumnType } from "@/6Shared/api/types/TaskColumn";
+} from '@/6Shared/api/gql/requests/Task'
+import {TasksCulumnType} from '@/6Shared/api/types/TaskColumn'
 import {
   TasksCategoriesResponseType,
   TasksCategoryResponseType,
   TasksCategoryType,
-} from "@/6Shared/api/types/TaskCategory";
-import { Dispatch, SetStateAction } from "react";
+} from '@/6Shared/api/types/TaskCategory'
 
 const useApi = (
   variant: TaskVariantType,
   categoryId: string | null,
-  cb: Dispatch<SetStateAction<string | null>>
+  cb: (activeId: string | null) => void,
 ) => {
-  if (variant === "category") {
+  if (variant === 'category') {
     const [remove] = useMutation(REMOVE_TASK_CATEGORY, {
-      update(cache, { data }) {
-        const id = data.removeTaskCategory?.id;
+      update(cache, {data}) {
+        const id = data.removeTaskCategory?.id
 
         cache.modify({
           fields: {
             taskCategories(categories) {
-              return categories.filter((category: { __ref: string }) => {
-                return category.__ref !== `TaskCategory:${id}`;
-              });
+              return categories.filter((category: {__ref: string}) => {
+                return category.__ref !== `TaskCategory:${id}`
+              })
             },
           },
-        });
+        })
 
         if (id === categoryId) {
           const catigories = cache.readQuery<TasksCategoriesResponseType>({
             query: GET_TASKS_CATEGORIES,
-          });
-          cb(catigories?.taskCategories[0]?.id || null);
+          })
+          cb(catigories?.taskCategories[0]?.id || null)
         }
 
-        cache.updateQuery({ query: GET_TASKS_CATEGORIES }, (cacheData) => {
+        cache.updateQuery({query: GET_TASKS_CATEGORIES}, cacheData => {
           return {
             taskCategories: cacheData?.taskCategories.map(
               (category: TasksCategoryType, index: number) => ({
                 ...category,
                 order: index,
-              })
+              }),
             ),
-          };
-        });
+          }
+        })
       },
-    });
-    return remove;
+    })
+    return remove
   }
-  if (variant === "column") {
+  if (variant === 'column') {
     const [remove] = useMutation<{
-      removeTaskColumn: TasksCulumnType;
+      removeTaskColumn: TasksCulumnType
     }>(REMOVE_TASK_COLUMN, {
       update(cache, data) {
-        const columnId = data.data?.removeTaskColumn.id;
+        const columnId = data.data?.removeTaskColumn.id
 
         const curCategory = cache.readQuery<TasksCategoryResponseType>({
           query: GET_TASK_CATEGORY,
-          variables: { id: categoryId },
-        })?.taskCategory;
+          variables: {id: categoryId},
+        })?.taskCategory
 
         cache.modify({
           id: cache.identify(curCategory!),
           fields: {
             columns(prevColumns) {
               return prevColumns.filter(
-                (column: { __ref: string }) =>
-                  column.__ref !== `TaskColumn:${columnId}`
-              );
+                (column: {__ref: string}) =>
+                  column.__ref !== `TaskColumn:${columnId}`,
+              )
             },
           },
-        });
+        })
       },
-    });
-    return remove;
+    })
+    return remove
   }
 
-  const [remove] = useMutation<{ deleteTask: TaskType }>(DELETE_TASK, {
+  const [remove] = useMutation<{deleteTask: TaskType}>(DELETE_TASK, {
     update(cache, data) {
-      const taskId = data.data?.deleteTask.id;
-      const columnId = data.data?.deleteTask.columnId;
+      const taskId = data.data?.deleteTask.id
+      const columnId = data.data?.deleteTask.columnId
       const curCategory = cache.readQuery<TasksCategoryResponseType>({
         query: GET_TASK_CATEGORY,
-        variables: { id: categoryId },
-      });
+        variables: {id: categoryId},
+      })
 
       const curColumn = curCategory?.taskCategory.columns.find(
-        (column) => column.id === columnId
-      );
+        column => column.id === columnId,
+      )
 
       cache.modify({
         id: cache.identify(curColumn!),
         fields: {
           tasks(tasks) {
             return tasks.filter(
-              (task: { __ref: string }) => task.__ref !== `Task:${taskId}`
-            );
+              (task: {__ref: string}) => task.__ref !== `Task:${taskId}`,
+            )
           },
         },
-      });
+      })
     },
-  });
-  return remove;
-};
+  })
+  return remove
+}
 
-export default useApi;
+export default useApi

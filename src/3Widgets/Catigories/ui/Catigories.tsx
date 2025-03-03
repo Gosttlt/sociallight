@@ -1,61 +1,66 @@
-"use client";
-import clsx from "clsx";
+'use client'
+import clsx from 'clsx'
 
-import s from "./Catigories.module.scss";
-import type { CatigoriesComponentType } from "./Catigories.types";
-import Category from "@/4Features/Tasks/Category";
-import CreateTaskInput from "@/4Features/Tasks/Сolumn/CreateTaskInput";
-import { useContext, useEffect, useState } from "react";
-import { useQuery } from "@apollo/client";
-import {
-  TasksCategoriesResponseType,
-  TasksCategoryType,
-} from "@/6Shared/api/types/TaskCategory";
-import { GET_TASKS_CATEGORIES } from "@/6Shared/api/gql/requests/Task";
-import { TaskContext } from "@/1Config/Providers/Task";
-import Dnd from "@/6Shared/uikit/Dnd/ui/Dnd";
-import DndItem from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem";
-import useApi from "@/4Features/Tasks/UpdateOrder/api/mutation";
-import { DndItemDataType } from "@/6Shared/uikit/Dnd/ui/DndItem/DndItem.types";
+import s from './Catigories.module.scss'
+import type {CatigoriesComponentType} from './Catigories.types'
+import Category from '@/4Features/Tasks/Category'
+import CreateTaskInput from '@/4Features/Tasks/Сolumn/CreateTaskInput'
+import {useEffect} from 'react'
+import {useQuery} from '@apollo/client'
+import {TasksCategoriesResponseType} from '@/6Shared/api/types/TaskCategory'
+import {GET_TASKS_CATEGORIES} from '@/6Shared/api/gql/requests/Task'
+import useApi from '@/4Features/Tasks/UpdateOrder/api/mutation'
+import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
+import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
+import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
+import {useHomePageStore} from '@/app/home/model'
 
-const Catigories: CatigoriesComponentType = (props) => {
-  const { activeId, setActiveId } = useContext(TaskContext);
-  const { data } = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES);
-
-  const setData = useApi("category");
-  const setDataFn = (fromData: Array<DndItemDataType>) => {
+const Catigories: CatigoriesComponentType = props => {
+  const activeId = useHomePageStore(state => state.activeId)
+  const setActiveId = useHomePageStore(state => state.setActiveId)
+  const {data} = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES, {
+    fetchPolicy: 'cache-and-network',
+  })
+  const setData = useApi('category')
+  const setDataFn = (fromData: DndItemDataType[]) => {
     setData({
       variables: {
-        categories: fromData.map(({ id, order }) => {
-          return { id, order };
+        categories: fromData.map(({id, order}) => {
+          return {id, order}
         }),
       },
-    });
-  };
+      optimisticResponse: {
+        // @ts-ignore
+        updateTaskCategoryOrders: fromData
+          .map(({id, order, name}) => {
+            return {id, order, name, __typename: 'TaskCategory'}
+          })
+          .toSorted((a: any, b: any) => a.order - b.order),
+      },
+    })
+  }
   useEffect(() => {
-    let curId = data?.taskCategories ? data.taskCategories[0]?.id : null;
+    let curId = data?.taskCategories ? data.taskCategories[0]?.id : null
+
     if (activeId === null && curId) {
-      setActiveId(curId);
+      setActiveId(curId)
     }
-  }, [data]);
+  }, [data])
 
   return (
     <div className={clsx(s.catigoriesWrapper)}>
-      <Dnd
-        direction={{
-          name: "width",
-          value: 192,
-          paddingDefolt: 10,
-          paddingStreach: 60,
+      <DndContainer
+        direction='horizontal'
+        setData={asd => {
+          setDataFn(asd.fromCard)
         }}
         items={data?.taskCategories}
-        setData={setDataFn}
-        sharedClass="taskCategoryDnd"
-        wrapperId="taskCategoryDnd"
+        containerId='taskCategoryDnd'
+        sharedId='taskCategoryDnd'
       >
         {data &&
-          data.taskCategories.map((category) => (
-            <DndItem data={category} key={category.id}>
+          data.taskCategories.map((category, index) => (
+            <DndItem index={index} card={category} key={category.id}>
               <Category
                 onClick={() => setActiveId(category.id)}
                 name={category.name}
@@ -64,14 +69,14 @@ const Catigories: CatigoriesComponentType = (props) => {
               />
             </DndItem>
           ))}
-      </Dnd>
+      </DndContainer>
       <CreateTaskInput
         className={s.creatTaskInput}
         parentId={activeId}
-        variant="category"
+        variant='category'
       />
     </div>
-  );
-};
+  )
+}
 
-export default Catigories;
+export default Catigories
