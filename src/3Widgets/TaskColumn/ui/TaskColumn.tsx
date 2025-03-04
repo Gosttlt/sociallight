@@ -25,6 +25,10 @@ import {
   UPDATE_TASK_ORDERS,
 } from '@/4Features/Tasks/UpdateOrder/api/gql'
 import {useMutation} from '@apollo/client'
+import {GET_TASK_CATEGORY} from '@/6Shared/api/gql/requests/Task'
+import {TasksCategoryType} from '@/6Shared/api/types/TaskCategory'
+import {TasksCulumnType} from '@/6Shared/api/types/TaskColumn'
+import {TaskType} from '@/6Shared/api/types/Task'
 
 const TaskColumn: TaskColumnComponentType = props => {
   const {data} = props
@@ -144,7 +148,6 @@ const TaskColumn: TaskColumnComponentType = props => {
   const [updateTask] = useMutation<{
     updateTaskOrders: DndItemDataType[]
   }>(UPDATE_TASK_ORDERS)
-  // console.log(data)
   return (
     <div className={clsx(s.tasksWrapper)}>
       <div className={s.headWrapper}>
@@ -178,10 +181,67 @@ const TaskColumn: TaskColumnComponentType = props => {
               order,
               columnId: resp.toID,
             }))
-            console.log('dsaasd123321', resp)
-            updateTask({variables: {tasks: [...reqFromData, ...reqToData]}})
+            updateTask({
+              variables: {tasks: [...reqFromData, ...reqToData]},
+              update(cache) {
+                cache.updateQuery(
+                  {query: GET_TASK_CATEGORY, variables: {id: activeId}},
+                  cacheData => {
+                    console.log(cacheData)
+                    return {
+                      taskCategory: {
+                        ...cacheData.taskCategory,
+                        columns: cacheData.taskCategory.columns.map(
+                          (column: TasksCulumnType) => {
+                            if (column.id === resp.fromId) {
+                              return {
+                                ...column,
+                                tasks: column.tasks.toSorted(
+                                  (a: TaskType, b: TaskType) =>
+                                    b.order - a.order,
+                                ),
+                              }
+                            }
+                            return column
+                          },
+                        ),
+                      },
+                    }
+                  },
+                )
+              },
+            })
           } else {
-            updateTask({variables: {tasks: reqFromData}})
+            updateTask({
+              variables: {tasks: reqFromData},
+              update(cache) {
+                cache.updateQuery(
+                  {query: GET_TASK_CATEGORY, variables: {id: activeId}},
+                  cacheData => {
+                    console.log(cacheData)
+                    return {
+                      taskCategory: {
+                        ...cacheData.taskCategory,
+                        columns: cacheData.taskCategory.columns.map(
+                          (column: TasksCulumnType) => {
+                            if (column.id === resp.fromId) {
+                              return {
+                                ...column,
+                                tasks: column.tasks.toSorted(
+                                  (a: TaskType, b: TaskType) =>
+                                    b.order - a.order,
+                                ),
+                              }
+                            }
+                            return column
+                          },
+                        ),
+                      },
+                    }
+                  },
+                )
+              },
+            })
           }
         }}
         containerId={data.id}
