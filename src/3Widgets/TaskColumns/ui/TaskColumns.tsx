@@ -15,7 +15,106 @@ import {UPDATE_TASK_ORDERS} from '@/4Features/Tasks/UpdateOrder/api/gql'
 import {useHomePageStore} from '@/app/home/model'
 import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
 import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
-// import { data } from "./data";
+import {
+  DndItemDataType,
+  getDataOtherCard,
+} from '@/6Shared/uikit/Dnd/utils/utils'
+
+const obj = [
+  {
+    id: 'cm7sg0406000rf46i0ciq789m',
+    name: 'Сделать',
+    order: 0,
+    tasks: [
+      {
+        id: 'cm7u0ru8t00091nisysju1lw3',
+        name: 'task5',
+        order: 5,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzyso600011nis8gcbaaag',
+        name: 'task4',
+        order: 4,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tze1840009ons1tqtp13wl',
+        name: 'task3',
+        order: 3,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdz0s0007ons1qefgrjgg',
+        name: 'task2',
+        order: 2,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdwf30005ons13n45m2hy',
+        name: 'task1',
+        order: 1,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdsk60003ons1777zg8ig',
+        name: 'Сделать ордеры тасок',
+        order: 0,
+        description: null,
+        __typename: 'Task',
+      },
+    ],
+    __typename: 'TaskColumn',
+  },
+  {
+    id: 'cm7ssxlkc001yf46io6idtvvu',
+    name: 'asd1',
+    order: 1,
+    tasks: [
+      {
+        id: 'cm7u4vz4i0005ckidsxh326q2',
+        name: '1tasksasd5',
+        order: 4,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u4vnxz0003ckidf9aysrna',
+        name: '1tasksasd4',
+        order: 3,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0oh0200071niss4yizazd',
+        name: '1taskasd3',
+        order: 2,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0oe5000051nisv5uryj6e',
+        name: '1taskasd2',
+        order: 1,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0o7yd00031nis3fdg7zph',
+        name: '1taskasd1',
+        order: 0,
+        description: null,
+        __typename: 'Task',
+      },
+    ],
+    __typename: 'TaskColumn',
+  },
+]
 
 const TaskColumns: TaskColumnsComponentType = props => {
   const {className = '', children} = props
@@ -27,14 +126,24 @@ const TaskColumns: TaskColumnsComponentType = props => {
 
   const setData = useApi('column', activeId)
 
-  const setDataFn = (newData: Array<Partial<TasksCulumnType>>) => {
-    // setData({
-    //   variables: {
-    //     columns: newData.map(({ id, order }) => {
-    //       return { id, order };
-    //     }),
-    //   },
-    // });
+  const setDataFn = (fromData: DndItemDataType[]) => {
+    setData({
+      variables: {
+        columns: fromData.map(({id, order}) => {
+          return {id, order}
+        }),
+      },
+      optimisticResponse: {
+        // @ts-ignore
+        updateTaskColumnOrders: fromData
+          .map(({id, order, name}) => {
+            return {id, order, name, __typename: 'TaskColumn'}
+          })
+          .toSorted(
+            (a: DndItemDataType, b: DndItemDataType) => a.order - b.order,
+          ),
+      },
+    })
   }
 
   // const [updateTask] = useMutation<{
@@ -65,37 +174,145 @@ const TaskColumns: TaskColumnsComponentType = props => {
   //   },
   // })
 
-  const setDataTaskOrders = (id: string) => {
-    // let curCard = dragCard as TaskType;
-    // if (curCard.columnId === id && fromItems) {
-    //   const filterItems = fromItems.filter((item) => item.id !== curCard.id);
-    //   const newItems = filterItems?.reduce((acc, prev, i) => {
-    //     acc.push({ id: prev.id, order: i + 1 });
-    //     return acc;
-    //   }, [] as DndItemDataType[]);
-    //   if (newItems) {
-    //     const newCurCard = { id: curCard.id, order: 0 };
-    //     newItems.push(newCurCard);
-    //     updateTask({
-    //       variables: {
-    //         tasks: newItems,
-    //       },
-    //     });
-    //   }
-    // } else if (id !== curCard.columnId) {
-    // }
+  // const setDataTaskOrders = (id: string) => {
+  // let curCard = dragCard as TaskType;
+  // if (curCard.columnId === id && fromItems) {
+  //   const filterItems = fromItems.filter((item) => item.id !== curCard.id);
+  //   const newItems = filterItems?.reduce((acc, prev, i) => {
+  //     acc.push({ id: prev.id, order: i + 1 });
+  //     return acc;
+  //   }, [] as DndItemDataType[]);
+  //   if (newItems) {
+  //     const newCurCard = { id: curCard.id, order: 0 };
+  //     newItems.push(newCurCard);
+  //     updateTask({
+  //       variables: {
+  //         tasks: newItems,
+  //       },
+  //     });
+  //   }
+  // } else if (id !== curCard.columnId) {
+  // }
+  // }
+  const asdFn = () => {
+    const dragCard = {
+      id: 'cm7tzyso600011nis8gcbaaag',
+      name: 'task4',
+      order: 4,
+      description: null,
+      __typename: 'Task',
+    }
+    const lastOverCard = {
+      id: 'cm7u0oh0200071niss4yizazd',
+      name: '1taskasd2',
+      order: 2,
+      description: null,
+      __typename: 'Task',
+    }
+    const fromCards = [
+      {
+        id: 'cm7u0ru8t00091nisysju1lw3',
+        name: 'task5',
+        order: 5,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzyso600011nis8gcbaaag',
+        name: 'task4',
+        order: 4,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tze1840009ons1tqtp13wl',
+        name: 'task3',
+        order: 3,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdz0s0007ons1qefgrjgg',
+        name: 'task2',
+        order: 2,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdwf30005ons13n45m2hy',
+        name: 'task1',
+        order: 1,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7tzdsk60003ons1777zg8ig',
+        name: 'task0',
+        order: 0,
+        description: null,
+        __typename: 'Task',
+      },
+    ]
+    const toCards = [
+      {
+        id: 'cm7u4vz4i0005ckidsxh326q2',
+        name: '1tasksasd4',
+        order: 4,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u4vnxz0003ckidf9aysrna',
+        name: '1tasksasd3',
+        order: 3,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0oh0200071niss4yizazd',
+        name: '1taskasd2',
+        order: 2,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0oe5000051nisv5uryj6e',
+        name: '1taskasd1',
+        order: 1,
+        description: null,
+        __typename: 'Task',
+      },
+      {
+        id: 'cm7u0o7yd00031nis3fdg7zph',
+        name: '1taskasd0',
+        order: 0,
+        description: null,
+        __typename: 'Task',
+      },
+    ]
+    const isNextPosition = false
+    const asd = getDataOtherCard({
+      dragCard,
+      lastOverCard,
+      fromCards,
+      toCards,
+      isNextPosition,
+      reverse: true,
+    })
+    console.log('prev From', fromCards)
+    console.log('prev to', toCards)
+    console.log(asd)
   }
-
   return (
     <>
+      <button onClick={asdFn}>asdflakf;as</button>
       <div className={clsx(s.taskColumnsWrapper, className)}>
         {data?.taskCategory && (
           <DndContainer
             direction='horizontal'
-            setData={
-              () => {}
-              // asd => setDataFn(asd.fromCard)
-            }
+            setData={cards => {
+              setDataFn(cards.fromCard)
+            }}
             items={data.taskCategory.columns}
             containerId='taskCategoryDnd'
             sharedId='taskColumnsDnd'

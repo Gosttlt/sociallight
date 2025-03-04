@@ -1,5 +1,6 @@
 import {DirectionType} from '../DndContainer/DndContainer.types'
 import {CoordsType} from '../State'
+import {DndItemDataType} from './utils'
 
 // dragStart
 
@@ -112,6 +113,7 @@ export const getCursorPositionFromOverCard = ({
   direction: DirectionType
 }) => {
   const {width, x, height, y} = overNodeRect
+
   if (direction === 'horizontal') {
     const middleOverNodeCoords = width / 2 + x
     return clientX < middleOverNodeCoords
@@ -240,3 +242,130 @@ export const setAnimationDragNodeAfterDrop = ({
   }
 }
 // \ onMouseUp
+
+// DndItems
+export const getStyleFromWrapper = ({
+  card,
+  dragCard,
+  isCursorStartPositionFromOverCard,
+  overCard,
+  isInContainer,
+  isDragStart,
+  thisNode,
+  dragNodeRect,
+  dndDuration,
+  overNodeRectOnFirstTouch,
+  dndDirection,
+  reverse,
+}: {
+  thisNode: HTMLElement | null
+  overCard?: DndItemDataType | null
+  card: DndItemDataType
+  dragCard?: DndItemDataType | null
+  isCursorStartPositionFromOverCard: boolean | null
+  isInContainer?: boolean | null
+  isDragStart: boolean
+  dragNodeRect: DOMRect | null
+  overNodeRectOnFirstTouch: DOMRect | null
+  dndDuration: number
+  dndDirection: DirectionType
+  reverse?: boolean
+}) => {
+  if (dragCard && isDragStart && thisNode && dragNodeRect) {
+    thisNode.style.transition = `${dndDuration / 1000}s`
+    // Элементы относительно перетаскиваемого
+    const isThisNodeBeforeDragCard = card.order < dragCard.order
+    const isThisNodeAfterDragCard = card.order > dragCard.order
+    const isThisNodeCardEqualDragCard = card.order === dragCard.order
+
+    const setTransform = (dndDirection: DirectionType | 'clear') => {
+      if (dndDirection === 'clear') {
+        thisNode.style.transform = `translate(0px, 0px)`
+      }
+
+      if (dndDirection === 'horizontal') {
+        thisNode.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+      }
+      //
+      else if (dndDirection === 'vertical') {
+        thisNode.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+      }
+    }
+
+    if (isInContainer) {
+      if (overCard && overNodeRectOnFirstTouch) {
+        // Курсор относительно элемента
+        let isCursorBeforeThisNode = card.order < overCard.order
+        let isCursorAfterThisNode = card.order > overCard.order
+        const isCursorEqualThisNode = card.order === overCard.order
+        if (reverse) {
+          isCursorBeforeThisNode = card.order > overCard.order
+          isCursorAfterThisNode = card.order < overCard.order
+        }
+
+        // Елемент отнасительно курсора
+        // isNextPosition
+
+        if (isThisNodeBeforeDragCard) {
+          if (isCursorBeforeThisNode) {
+            setTransform('clear')
+          }
+          if (isCursorAfterThisNode) {
+            setTransform(dndDirection)
+          }
+          if (isCursorEqualThisNode) {
+            if (isCursorStartPositionFromOverCard) {
+              setTransform(dndDirection)
+            }
+            if (!isCursorStartPositionFromOverCard) {
+              setTransform('clear')
+            }
+          }
+        }
+        if (isThisNodeAfterDragCard) {
+          if (isCursorBeforeThisNode) {
+            setTransform('clear')
+          }
+          if (isCursorAfterThisNode) {
+            setTransform(dndDirection)
+          }
+          if (isCursorEqualThisNode) {
+            if (isCursorStartPositionFromOverCard) {
+              setTransform(dndDirection)
+            }
+            if (!isCursorStartPositionFromOverCard) {
+              setTransform('clear')
+            }
+          }
+        }
+        if (isThisNodeCardEqualDragCard) {
+          if (isCursorBeforeThisNode) {
+            setTransform('clear')
+          }
+          if (isCursorAfterThisNode) {
+            setTransform(dndDirection)
+          }
+          if (isCursorEqualThisNode) {
+            if (isCursorStartPositionFromOverCard) {
+              setTransform(dndDirection)
+            }
+            if (!isCursorStartPositionFromOverCard) {
+              setTransform('clear')
+            }
+          }
+        }
+      }
+    }
+    //
+    else {
+      if (isThisNodeAfterDragCard) {
+        // left
+        setTransform('clear')
+      } else if (isThisNodeBeforeDragCard) {
+        setTransform('clear')
+      }
+    }
+  }
+}
+
+// \

@@ -58,6 +58,7 @@ const useApi = ({cb, setValue, variant, activeId, parentId}: OptionsType) => {
                   ...cacheData.taskCategory,
                   columns: cacheData.taskCategory.columns.map((column: any) => {
                     if (column.id === data.createTask.columnId) {
+                      console.log(data.createTask, 'data.createTask')
                       return {
                         ...column,
                         tasks: [data.createTask, ...column.tasks],

@@ -20,4 +20,5 @@ export type DndContainerProps = {
   direction?: DirectionType
   sharedId: string
   setData: (args: ReturnsortCbItems) => void
+  reverse?: boolean
 }

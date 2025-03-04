@@ -26,13 +26,17 @@ export type DndItemDataType = {id: string | number; order: number} & {
 
 export const sortDndFn = (a: DndItemDataType, b: DndItemDataType) =>
   a.order - b.order
+export const sortDndFnReverse = (a: DndItemDataType, b: DndItemDataType) =>
+  b.order - a.order
 
 export const inOneContainer = ({
   dragCard,
   cards,
   isNextPosition,
   lastOverCard,
+  reverse,
 }: {
+  reverse?: boolean
   cards: DndItemDataType[]
   dragCard: DndItemDataType
   lastOverCard: DndItemDataType
@@ -44,14 +48,18 @@ export const inOneContainer = ({
   const newCards: DndItemDataType[] = cards
     .map((curCard: DndItemDataType) => {
       if (curCard.id === dragCard.id) {
-        return {...curCard, order: lastOverCard.order + cardOrder}
+        if (reverse) {
+          return {...curCard, order: lastOverCard.order - cardOrder}
+        } else {
+          return {...curCard, order: lastOverCard.order + cardOrder}
+        }
       }
       return curCard
     })
-    .sort(sortDndFn)
+    .sort(reverse ? sortDndFnReverse : sortDndFn)
     .map((curCard: {id: string | number; order: number}, i: number) => ({
       ...curCard,
-      order: i + firstOrder,
+      order: reverse ? firstOrder - i : i + firstOrder,
     }))
 
   return {
@@ -101,30 +109,69 @@ export const getDataOtherParent = ({
   }
 }
 
+// export const getDataOtherCard = ({
+//   dragCard,
+//   fromCards,
+//   toCards,
+//   isNextPosition,
+//   lastOverCard,
+// }: {
+//   fromCards: DndItemDataType[]
+//   toCards: DndItemDataType[]
+//   dragCard: DndItemDataType
+//   lastOverCard: DndItemDataType
+//   isNextPosition: boolean
+// }): Omit<ReturnsortCbItems, 'fromId'> => {
+//   const filterFromCards = fromCards
+//     .filter(curCard => curCard.id !== dragCard.id)
+//     .map((curCard, index) => ({...curCard, order: index}))
+
+//   const cardOrder = isNextPosition ? 0.1 : -0.1
+
+//   const newDragCard = {...dragCard, order: lastOverCard.order + cardOrder}
+
+//   const newToCards = [...toCards, newDragCard]
+//     .sort(sortDndFn)
+//     .map((curCard, index) => ({...curCard, order: index}))
+
+//   return {
+//     fromCard: filterFromCards,
+//     toCard: newToCards,
+//   }
+// }
 export const getDataOtherCard = ({
   dragCard,
   fromCards,
   toCards,
   isNextPosition,
   lastOverCard,
+  reverse,
 }: {
   fromCards: DndItemDataType[]
   toCards: DndItemDataType[]
   dragCard: DndItemDataType
   lastOverCard: DndItemDataType
   isNextPosition: boolean
+  reverse?: boolean
 }): Omit<ReturnsortCbItems, 'fromId'> => {
+  console.log(123, 'fromId')
+  const firstFromOrder = fromCards[0].order
+  const firstToOrder = toCards[0].order
+
   const filterFromCards = fromCards
     .filter(curCard => curCard.id !== dragCard.id)
-    .map((curCard, index) => ({...curCard, order: index}))
+    .map((curCard, index) => ({
+      ...curCard,
+      order: firstFromOrder - (1 + index),
+    }))
 
   const cardOrder = isNextPosition ? 0.1 : -0.1
 
-  const newDragCard = {...dragCard, order: lastOverCard.order + cardOrder}
+  const newDragCard = {...dragCard, order: lastOverCard.order - cardOrder}
 
   const newToCards = [...toCards, newDragCard]
-    .sort(sortDndFn)
-    .map((curCard, index) => ({...curCard, order: index}))
+    .sort(reverse ? sortDndFnReverse : sortDndFn)
+    .map((curCard, index) => ({...curCard, order: 1 + firstToOrder - index}))
 
   return {
     fromCard: filterFromCards,

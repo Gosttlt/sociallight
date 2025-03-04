@@ -8,4 +8,5 @@ export type DndItemProps = {
   className?: string
   index: number
   card: DndItemDataType
+  reverse?: boolean
 }

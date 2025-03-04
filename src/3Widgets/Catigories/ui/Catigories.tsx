@@ -18,9 +18,7 @@ import {useHomePageStore} from '@/app/home/model'
 const Catigories: CatigoriesComponentType = props => {
   const activeId = useHomePageStore(state => state.activeId)
   const setActiveId = useHomePageStore(state => state.setActiveId)
-  const {data} = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES, {
-    fetchPolicy: 'cache-and-network',
-  })
+  const {data} = useQuery<TasksCategoriesResponseType>(GET_TASKS_CATEGORIES)
   const setData = useApi('category')
   const setDataFn = (fromData: DndItemDataType[]) => {
     setData({
@@ -29,13 +27,15 @@ const Catigories: CatigoriesComponentType = props => {
           return {id, order}
         }),
       },
+      // @ts-ignore
       optimisticResponse: {
-        // @ts-ignore
         updateTaskCategoryOrders: fromData
           .map(({id, order, name}) => {
             return {id, order, name, __typename: 'TaskCategory'}
           })
-          .toSorted((a: any, b: any) => a.order - b.order),
+          .toSorted(
+            (a: DndItemDataType, b: DndItemDataType) => a.order - b.order,
+          ),
       },
     })
   }
@@ -51,8 +51,8 @@ const Catigories: CatigoriesComponentType = props => {
     <div className={clsx(s.catigoriesWrapper)}>
       <DndContainer
         direction='horizontal'
-        setData={asd => {
-          setDataFn(asd.fromCard)
+        setData={cards => {
+          setDataFn(cards.fromCard)
         }}
         items={data?.taskCategories}
         containerId='taskCategoryDnd'

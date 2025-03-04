@@ -3,11 +3,10 @@
 import clsx from 'clsx'
 
 import s from './TaskColumn.module.scss'
-import type {TaskColumnComponentType, TaskColumnType} from './TaskColumn.types'
+import type {TaskColumnComponentType} from './TaskColumn.types'
 
 import TaskCard from '@/5Entities/Task/ui/TaskCard'
 
-import {useContext} from 'react'
 import Sort from '@/4Features/Tasks/Сolumn/Sort'
 import Filter from '@/4Features/Tasks/Сolumn/Filter'
 import RemoveCard from '@/4Features/Tasks/Card/RemoveCard'
@@ -15,17 +14,17 @@ import CreateTaskInput from '@/4Features/Tasks/Сolumn/CreateTaskInput'
 import LevelSelector from '@/4Features/Tasks/Card/LevelSelector'
 import EditTaskBtn from '@/4Features/Tasks/Card/EditTaskBtn'
 import InputTask from '@/4Features/Tasks/Card/InputTask'
-import useApi from '@/4Features/Tasks/UpdateOrder/api/mutation'
-import {TasksCulumnType} from '@/6Shared/api/types/TaskColumn'
-import {UPDATE_TASK_ORDERS} from '@/4Features/Tasks/UpdateOrder/api/gql'
-import {TaskType} from '@/6Shared/api/types/Task'
-import {GET_TASK_CATEGORY} from '@/6Shared/api/gql/requests/Task'
-import {useMutation} from '@apollo/client'
-import {sortDndFn} from '@/6Shared/uikit/Dnd/utils/utils'
-import {TasksCategoryResponseType} from '@/6Shared/api/types/TaskCategory'
+
 import {useHomePageStore} from '@/app/home/model'
 import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
 import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
+import useApi from '@/4Features/Tasks/UpdateOrder/api/mutation'
+import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
+import {
+  UPDATE_TASK_COLUMN_ORDERS,
+  UPDATE_TASK_ORDERS,
+} from '@/4Features/Tasks/UpdateOrder/api/gql'
+import {useMutation} from '@apollo/client'
 
 const TaskColumn: TaskColumnComponentType = props => {
   const {data} = props
@@ -129,11 +128,23 @@ const TaskColumn: TaskColumnComponentType = props => {
   //   }
   // };
 
-  const setDataFn = () => {
-    console.log(312)
-  }
-  const {focusId} = useHomePageStore()
+  const {focusId, activeId} = useHomePageStore()
+  const setData = useApi('task', activeId, data.id)
 
+  const setDataFn = (data: DndItemDataType[]) => {
+    setData({
+      variables: {
+        tasks: data.map(({id, order}) => {
+          return {id, order}
+        }),
+      },
+    })
+  }
+
+  const [updateTask] = useMutation<{
+    updateTaskOrders: DndItemDataType[]
+  }>(UPDATE_TASK_ORDERS)
+  // console.log(data)
   return (
     <div className={clsx(s.tasksWrapper)}>
       <div className={s.headWrapper}>
@@ -151,15 +162,33 @@ const TaskColumn: TaskColumnComponentType = props => {
       </div>
       <CreateTaskInput variant='task' parentId={data.id} />
       <DndContainer
+        reverse
         direction='vertical'
         sharedId='taskDnd'
         items={data?.tasks}
-        setData={() => {}}
+        setData={resp => {
+          const reqFromData = resp.fromCard.map(({id, order}) => ({
+            id,
+            order,
+            columnId: resp.fromId,
+          }))
+          if (resp.toCard && resp.toID) {
+            const reqToData = resp.toCard.map(({id, order}) => ({
+              id,
+              order,
+              columnId: resp.toID,
+            }))
+            console.log('dsaasd123321', resp)
+            updateTask({variables: {tasks: [...reqFromData, ...reqToData]}})
+          } else {
+            updateTask({variables: {tasks: reqFromData}})
+          }
+        }}
         containerId={data.id}
       >
         {data?.tasks &&
           data?.tasks.map((task, index) => (
-            <DndItem index={index} key={task.id} card={task}>
+            <DndItem reverse index={index} key={task.id} card={task}>
               <TaskCard
                 isCreate={task.id === focusId}
                 key={task.id}

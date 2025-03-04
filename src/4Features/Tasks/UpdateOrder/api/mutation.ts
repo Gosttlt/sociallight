@@ -14,6 +14,7 @@ import {
 } from '@/6Shared/api/gql/requests/Task'
 import {TaskType, TaskVariantType} from '@/6Shared/api/types/Task'
 import {TasksCulumnType} from '@/6Shared/api/types/TaskColumn'
+import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
 
 const useApi = (
   variant: TaskVariantType,
@@ -22,7 +23,7 @@ const useApi = (
 ) => {
   if (variant === 'column') {
     const [updateTask] = useMutation<{
-      updateTaskColumnOrders: TasksCulumnType[]
+      updateTaskCategoryOrders: DndItemDataType[]
     }>(UPDATE_TASK_COLUMN_ORDERS, {
       update(cache) {
         cache.updateQuery(
@@ -59,7 +60,7 @@ const useApi = (
                       return {
                         ...column,
                         tasks: column.tasks.toSorted(
-                          (a: TaskType, b: TaskType) => a.order - b.order,
+                          (a: TaskType, b: TaskType) => b.order - a.order,
                         ),
                       }
                     }
@@ -73,11 +74,13 @@ const useApi = (
       },
     })
     return updateTask
-  } else {
+  }
+  //
+  else {
     const [updateTask] = useMutation<TasksCategoriesResponseType>(
       UPDATE_TASK_CATEGORY_ORDERS,
       {
-        update(cache, {data}) {
+        update(cache) {
           cache.updateQuery({query: GET_TASKS_CATEGORIES}, cacheData => {
             return {
               taskCategories: cacheData?.taskCategories.toSorted(

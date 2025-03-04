@@ -36,6 +36,7 @@ const DndContainer: DndContainerComponentType = props => {
     setData,
     containerId,
     direction = 'horizontal',
+    reverse,
   } = props
   const {
     dndDirection,
@@ -124,13 +125,6 @@ const DndContainer: DndContainerComponentType = props => {
 
       if (dndItem && dndItem instanceof HTMLElement) {
         e.stopPropagation()
-        console.log(
-          containerId,
-          sharedId,
-          currentTarget,
-          'containerId',
-          'sharedId',
-        )
         setDirection(direction)
         document.querySelector('body')!.style.userSelect = 'none'
         document.querySelector('body')!.style.cursor = 'grabbing'
@@ -181,6 +175,7 @@ const DndContainer: DndContainerComponentType = props => {
 
   const onDragMove = (e: globalThis.MouseEvent) => {
     const {clientX, clientY, target} = e
+
     // Трансфармируем перетаскиваемый элемент по курсору
     setPositionDragNodeWhenMoving({
       clientX,
@@ -195,14 +190,14 @@ const DndContainer: DndContainerComponentType = props => {
     if (isDndItem && overContainerNode && overContainerNode.contains(target)) {
       const overNodeRect = target.getBoundingClientRect()
 
-      const issCursorStartPosFromOverCard = getCursorPositionFromOverCard({
+      const isCursorStartPosFromOverCard = getCursorPositionFromOverCard({
         clientX,
         clientY,
         overNodeRect,
         direction,
       })
-      if (isCursorStartPositionFromOverCard !== issCursorStartPosFromOverCard) {
-        setCursorPositionFromOverCard(issCursorStartPosFromOverCard)
+      if (isCursorStartPositionFromOverCard !== isCursorStartPosFromOverCard) {
+        setCursorPositionFromOverCard(isCursorStartPosFromOverCard)
       }
     }
   }
@@ -286,10 +281,6 @@ const DndContainer: DndContainerComponentType = props => {
   }
 
   const onMouseUp = (e: MouseEvent<HTMLElement>) => {
-    console.log(
-      containerRef.current,
-      hasSharedContainer(containerRef.current, sharedContainerId),
-    )
     if (
       isDragStart &&
       hasSharedContainer(containerRef.current, sharedContainerId)
@@ -319,12 +310,15 @@ const DndContainer: DndContainerComponentType = props => {
           if (dragCard && dndItemsFrom) {
             if (overCard && overContainerNode === fromContainerNode) {
               newItems = inOneContainer({
+                reverse,
                 cards: dndItemsFrom,
                 dragCard: dragCard,
                 isNextPosition: !isCursorStartPositionFromOverCard,
                 lastOverCard: overCard,
               })
-            } else if (
+            }
+            //
+            else if (
               dndItemsFrom &&
               dndItemsTo &&
               overContainerNode &&
@@ -332,7 +326,10 @@ const DndContainer: DndContainerComponentType = props => {
               overCard &&
               overContainerNode === toContainerNode
             ) {
+              console.log('dasdad', dndItemsFrom)
+              console.log('dasdad', dndItemsTo)
               newItems = getDataOtherCard({
+                reverse,
                 isNextPosition: !isCursorStartPositionFromOverCard,
                 lastOverCard: overCard,
                 dragCard,
@@ -352,7 +349,6 @@ const DndContainer: DndContainerComponentType = props => {
             clearContainerStyles(overContainerNode)
             clearContainerStyles(fromContainerNode)
           }
-          //
 
           setCurrentOverNode(null)
           setDiffDragNodeAndCursor(null)
