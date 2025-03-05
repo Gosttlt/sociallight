@@ -9,7 +9,8 @@ import {useHomePageStore} from '@/app/home/model'
 
 const RemoveCard: RemoveCardComponentType = props => {
   const {id, variant, className} = props
-  const {activeId, setActiveId} = useHomePageStore()
+  const activeId = useHomePageStore(state => state.activeId)
+  const setActiveId = useHomePageStore(state => state.setActiveId)
   const deleteTask = useApi(variant, activeId, setActiveId)
 
   const onClick = (e: MouseEvent) => {

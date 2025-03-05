@@ -7,6 +7,9 @@
   border-radius: 4px;
   overflow: hidden;
   position: relative;
+  background: #fff;
+  margin: 2px 0;
+  width: 400px;
 }
 .shortTaskWrapper {
   display: flex;
@@ -44,4 +47,8 @@
   to {
     background: white;
   }
+}
+
+.noEvent {
+  pointer-events: none;
 }

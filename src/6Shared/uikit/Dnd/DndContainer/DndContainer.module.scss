@@ -2,13 +2,16 @@
   display: flex;
   border-radius: 8px;
   transition: 1s;
-  cursor: grab;
 }
 .activeDragContainer {
   box-shadow: 3px 3px 12px 2px #dadada;
 }
 .vertiacalDirection {
   flex-direction: column;
+}
+
+.grab {
+  cursor: grab;
 }
 .grabbing {
   cursor: grabbing;

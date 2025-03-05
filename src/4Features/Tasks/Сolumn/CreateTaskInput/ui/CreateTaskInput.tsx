@@ -3,14 +3,18 @@ import clsx from 'clsx'
 import s from './CreateTaskInput.module.scss'
 import {CreateTaskInputComponentType} from './CreateTaskInput.types'
 import Input from '@/6Shared/uikit/Input'
-import {ChangeEvent, useState} from 'react'
+import {ChangeEvent, useRef, useState} from 'react'
 import createInputConfig from '../config'
 import useApi from '../api/mutation'
 import {useHomePageStore} from '@/app/home/model'
+import {useDndCursor} from '@/6Shared/uikit/Dnd/utils/useDndCursor'
 
 const CreateTaskInput: CreateTaskInputComponentType = props => {
   const {className = '', variant, parentId} = props
   const {parentName, placeholder} = createInputConfig[variant]
+
+  const node = useRef<null | HTMLInputElement>(null)
+  const cursor = useDndCursor(node.current)
 
   const activeId = useHomePageStore(state => state.activeId)
   const setActiveId = useHomePageStore(state => state.setActiveId)
@@ -33,6 +37,8 @@ const CreateTaskInput: CreateTaskInputComponentType = props => {
 
   return (
     <Input
+      ref={node}
+      style={{cursor}}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}
       value={value}

@@ -39,6 +39,7 @@ const DndContainer: DndContainerComponentType = props => {
     reverse,
   } = props
   const {
+    isDragReady,
     dndDirection,
     setDirection,
     fromContainerId,
@@ -114,6 +115,7 @@ const DndContainer: DndContainerComponentType = props => {
   //\ очистка элементов посещенного контейнера
 
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
+    console.log(isStartAfterDropAnimation)
     if (!isStartAfterDropAnimation && e.altKey) {
       const currentTarget = e.currentTarget as HTMLElement
       const target = e.target as HTMLElement
@@ -529,6 +531,7 @@ const DndContainer: DndContainerComponentType = props => {
         [s.vertiacalDirection]: direction === 'vertical',
         [s.cell]: isDragStart && isThisSharedContainer,
         [s.noDrop]: isDragStart && !isThisSharedContainer,
+        [s.grab]: isDragReady,
       })}
     >
       {children}

@@ -5,7 +5,7 @@ interface initialState {
   setFocusId: (focusId: string) => void
 
   activeId: string | null
-  setActiveId: (activeId: string) => void
+  setActiveId: (activeId: string | null) => void
 }
 
 // Как определить конечную точку драг ноды когда драговер в движении

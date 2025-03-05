@@ -13,6 +13,7 @@ const DndItem: DndItemComponentType = props => {
   const ref = useRef<null | HTMLDivElement>(null)
 
   const {
+    isDragReady,
     dndDirection,
     setDirection,
     placeholderNode,
@@ -125,15 +126,23 @@ const DndItem: DndItemComponentType = props => {
     isStartAfterDropAnimation &&
     isThisNodeInSharedContainer &&
     !isDragStart &&
+    isThisNodeFromSharedContainer &&
     !isInContainer &&
-    card.order > dragCard.order &&
     fromContainerNode &&
     fromContainerNode.contains(ref.current)
   ) {
-    if (dndDirection === 'horizontal') {
-      ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
-    } else {
-      ref.current.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+    if (reverse && card.order < dragCard.order) {
+      if (dndDirection === 'horizontal') {
+        ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+      } else {
+        ref.current.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+      }
+    } else if (!reverse && card.order > dragCard.order) {
+      if (dndDirection === 'horizontal') {
+        ref.current.style.transform = `translate(${dragNodeRect.width}px, 0px)`
+      } else {
+        ref.current.style.transform = `translate( 0px, ${dragNodeRect.height}px)`
+      }
     }
   }
   const isNoEventItem =

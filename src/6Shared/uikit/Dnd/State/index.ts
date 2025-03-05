@@ -5,6 +5,9 @@ import {DirectionType} from '../DndContainer/DndContainer.types'
 export type CoordsType = {x: number; y: number}
 
 interface DndState {
+  isDragReady: boolean
+  setDragReady: (isDragReady: boolean) => void
+
   dndDirection: DirectionType
   setDirection: (dndDirection: DirectionType) => void
 
@@ -88,6 +91,9 @@ interface DndState {
 // Как определить конечную точку драг ноды когда драговер в движении
 
 export const useDndStore = create<DndState>(set => ({
+  isDragReady: false,
+  setDragReady: (isDragReady: boolean) => set({isDragReady}),
+
   dndDirection: 'horizontal',
   setDirection: (dndDirection: DirectionType) => set({dndDirection}),
 
