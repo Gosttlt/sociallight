@@ -11,41 +11,64 @@ import {selectUser} from '@/5Entities/Auth/model/userSelectors'
 import Button from '@/6Shared/uikit/Button'
 import Logout from '@/4Features/Auth/Logout'
 import {useRouter} from 'next/navigation'
+import Switcher from '@/6Shared/uikit/Switcher'
+import {useDndStore} from '@/6Shared/uikit/Dnd/State'
+import Tooltip from '@/6Shared/uikit/Tooltip'
+import {ChangeEvent, useState} from 'react'
 
 const Header: HeaderComponentType = props => {
   const {email} = useAppSelector(selectUser)
+  const isDragReady = useDndStore(state => state.isDragReady)
+  const setDragReady = useDndStore(state => state.setDragReady)
+  const [isShowHint, setShowHint] = useState<boolean>(true)
+  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    if (isShowHint) {
+      setShowHint(false)
+    }
+    setDragReady(e.target.checked)
+  }
   const {className = ''} = props
   const navigate = useRouter()
+
   return (
     <header className={clsx(s.headerWrapper, className)}>
       <Link className={s.logo} href='/'>
         <h2 className={s.logo} style={{color: '#4d5156'}}>
           Social Light
         </h2>
+
         {/* <Logo /> */}
       </Link>
-
-      {email ? (
-        <div className={s.userInfoWrapper}>
-          <div>{email}</div>
-          <Logout />
-        </div>
-      ) : (
-        <div style={{display: 'flex', gap: '12px'}}>
-          <div
-            style={{marginRight: '12px', cursor: 'pointer'}}
-            onClick={() => navigate.push('/login')}
-          >
-            Зарегистрироваться
+      <div className={s.rightBlock}>
+        <Tooltip
+          text='Для претаскивания элементов, зажмите ALT или включитье режим переноса'
+          direction='bottom'
+          isShow={isShowHint}
+        >
+          <Switcher checked={isDragReady} onChange={onChangeHandler} />
+        </Tooltip>
+        {email ? (
+          <div className={s.userInfoWrapper}>
+            <div>{email}</div>
+            <Logout />
           </div>
-          <div
-            style={{cursor: 'pointer'}}
-            onClick={() => navigate.push('/login')}
-          >
-            Войти
+        ) : (
+          <div style={{display: 'flex', gap: '12px'}}>
+            <div
+              style={{marginRight: '12px', cursor: 'pointer'}}
+              onClick={() => navigate.push('/login')}
+            >
+              Зарегистрироваться
+            </div>
+            <div
+              style={{cursor: 'pointer'}}
+              onClick={() => navigate.push('/login')}
+            >
+              Войти
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   )
 }

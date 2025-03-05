@@ -16,6 +16,11 @@
   display: flex;
   position: relative;
 }
+.rightBlock {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
 // .logo::before {
 //   content: '';
 //   position: absolute;

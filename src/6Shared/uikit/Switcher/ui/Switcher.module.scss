@@ -1,0 +1,35 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.switcherWrapper {
+  display: block;
+  width: 64px;
+  border-radius: 24px;
+  cursor: pointer;
+  background: var(--color-white-gray);
+  box-shadow: 1px 1px 3px 1px #787878;
+  padding: 4px;
+  transition: 0.3s;
+  &.active {
+    background: #49d660;
+  }
+}
+.input {
+  display: none;
+}
+.circle {
+  transition: 0.3s;
+  display: block;
+  background: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: 1px 1px 3px 1px #787878;
+  &.active {
+    transform: translateX(32px);
+  }
+}

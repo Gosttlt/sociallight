@@ -1,32 +1,32 @@
-"use client";
+'use client'
 
-import clsx from "clsx";
-import s from "./Sidebar.module.scss";
-import type { SidebarComponentType } from "./Sidebar.types";
-import Collapse from "@/6Shared/uikit/Collapse/Collapse";
-import { useState } from "react";
+import clsx from 'clsx'
+import s from './Sidebar.module.scss'
+import type {SidebarComponentType} from './Sidebar.types'
+import Collapse from '@/6Shared/uikit/Collapse/Collapse'
+import {useState} from 'react'
 
-import MainMenuItem from "./MainMenuItem/MainMenuItem";
-const Sidebar: SidebarComponentType = ({ menuItems }) => {
-  const [menuItemsState, setMenuItemsState] = useState(menuItems);
+import MainMenuItem from './MainMenuItem/MainMenuItem'
+const Sidebar: SidebarComponentType = ({menuItems}) => {
+  const [menuItemsState, setMenuItemsState] = useState(menuItems)
   const [activeMenu, setActiveMenu] = useState({
     mainMenuItemId: 1,
     subMenuItemId: 1,
-  });
+  })
 
   const onActiveCallaps = (id: number) => {
     setMenuItemsState(
-      menuItemsState.map((menuItem) => {
+      menuItemsState.map(menuItem => {
         if (menuItem.id === id) {
-          return { ...menuItem, isActive: !menuItem.isActive };
+          return {...menuItem, isActive: !menuItem.isActive}
         }
-        return menuItem;
-      })
-    );
-  };
+        return menuItem
+      }),
+    )
+  }
   return (
     <nav className={s.nav}>
-      {menuItemsState.map(({ id, name, subMenu, isActive }, index) => {
+      {menuItemsState.map(({id, name, subMenu, isActive}, index) => {
         return (
           <div key={id}>
             <ul>
@@ -34,15 +34,15 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
                 isOpenCollapse={isActive}
                 text={name}
                 onClick={() => {
-                  onActiveCallaps(id);
+                  onActiveCallaps(id)
                 }}
               />
               <Collapse isOpen={isActive} isBlock>
                 <ul className={clsx(s.sidebarWrapper)}>
-                  {subMenu.map(({ Svg, id: subMenuItemId, name }) => (
+                  {subMenu.map(({Svg, id: subMenuItemId, name}) => (
                     <li
                       onClick={() => {
-                        setActiveMenu({ mainMenuItemId: id, subMenuItemId });
+                        setActiveMenu({mainMenuItemId: id, subMenuItemId})
                       }}
                       key={subMenuItemId}
                       className={clsx(s.sideBarItem, {
@@ -60,10 +60,10 @@ const Sidebar: SidebarComponentType = ({ menuItems }) => {
             </ul>
             {index !== menuItems.length - 1 && <hr className={s.hr} />}
           </div>
-        );
+        )
       })}
     </nav>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

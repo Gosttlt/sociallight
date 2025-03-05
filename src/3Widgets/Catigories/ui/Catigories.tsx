@@ -10,10 +10,7 @@ import {useQuery} from '@apollo/client'
 import {TasksCategoriesResponseType} from '@/6Shared/api/types/TaskCategory'
 import {GET_TASKS_CATEGORIES} from '@/6Shared/api/gql/requests/Task'
 import useApi from '@/4Features/Tasks/UpdateOrder/api/mutation'
-import {
-  DndItemDataType,
-  getDataOtherCard,
-} from '@/6Shared/uikit/Dnd/utils/utils'
+import {DndItemDataType} from '@/6Shared/uikit/Dnd/utils/utils'
 import DndContainer from '@/6Shared/uikit/Dnd/DndContainer/DndContainer'
 import DndItem from '@/6Shared/uikit/Dnd/DndItems/DndItem'
 import {useHomePageStore} from '@/app/home/model'

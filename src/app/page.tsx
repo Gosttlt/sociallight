@@ -9,6 +9,8 @@ import {sidebarMenuItems} from '@/3Widgets/Sidebar/assets'
 import ItemsTest from '@/ItemsTest/ItemsTest'
 import {useEffect} from 'react'
 import {useDndStore} from '@/6Shared/uikit/Dnd/State'
+import Switcher from '@/6Shared/uikit/Switcher'
+import Tooltip from '@/6Shared/uikit/Tooltip'
 
 export default function Home() {
   const setDragReady = useDndStore(state => state.setDragReady)

@@ -116,7 +116,7 @@ const DndContainer: DndContainerComponentType = props => {
 
   const onDragStart = (e: MouseEvent<HTMLElement>) => {
     console.log(isStartAfterDropAnimation)
-    if (!isStartAfterDropAnimation && e.altKey) {
+    if (!isStartAfterDropAnimation && isDragReady) {
       const currentTarget = e.currentTarget as HTMLElement
       const target = e.target as HTMLElement
 
