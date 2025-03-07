@@ -55,14 +55,9 @@ const ItemsTest: ItemsTestComponentType = props => {
     //   isNextPosition: true,
     //   lastOverCard: {id: 6, order: 6},
     // })
-    // const newItems = getDataCurrentParent({
+    // const newItems = toEndinOneCurrent({
     //   cards: fromData,
     //   dragCard: {id: '2', order: 2, name: '2'},
-    // })
-    // const {fromCard, toCard} = getDataOtherParent({
-    //   dragCard: {id: '4', name: '4 from', order: 4},
-    //   fromCards: fromData,
-    //   toCards: toData,
     // })
     // console.log(fromCard, toCard)
   }

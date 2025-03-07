@@ -11,6 +11,7 @@ import {useEffect} from 'react'
 import {useDndStore} from '@/6Shared/uikit/Dnd/State'
 import Switcher from '@/6Shared/uikit/Switcher'
 import Tooltip from '@/6Shared/uikit/Tooltip'
+import {DndItemDataType, inOneContainer} from '@/6Shared/uikit/Dnd/utils/utils'
 
 export default function Home() {
   const setDragReady = useDndStore(state => state.setDragReady)

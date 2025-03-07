@@ -1,18 +1,5 @@
 import {ReturnsortCbItems} from '../DndContainer/DndContainer.types'
 
-export const getTransformValue = (node: HTMLDivElement) => {
-  const transform = node.style.transform
-  let re = /translate\(([^()]+)\)/
-  if (transform) {
-    const valuesTransformAfterRe = transform.match(re)
-    if (valuesTransformAfterRe) {
-      const transformValuesArr = valuesTransformAfterRe[1].split('px,')
-      return Number(transformValuesArr[0])
-    }
-  }
-  return 0
-}
-
 export const removeAllSelectionsFromDocument = () => {
   const sel = document.getSelection()
   if (sel) {
@@ -47,10 +34,11 @@ export const inOneContainer = ({
   const newCards: DndItemDataType[] = cards
     .map((curCard: DndItemDataType) => {
       if (curCard.id === dragCard.id) {
-        if (reverse) {
-          return {...curCard, order: lastOverCard.order - cardOrder}
-        } else {
-          return {...curCard, order: lastOverCard.order + cardOrder}
+        return {
+          ...curCard,
+          order: reverse
+            ? lastOverCard.order - cardOrder
+            : lastOverCard.order + cardOrder,
         }
       }
       return curCard
@@ -67,40 +55,52 @@ export const inOneContainer = ({
   }
 }
 
-export const getDataCurrentParent = ({
+export const toEndinOneCurrent = ({
   cards,
   dragCard,
+  reverse,
 }: {
   cards: DndItemDataType[]
   dragCard: DndItemDataType
+  reverse?: boolean
 }): Omit<ReturnsortCbItems, 'fromId'> => {
-  const firstOrder = cards[0].order
   let filterCards = cards.filter(curCard => dragCard.id !== curCard.id)
   filterCards.push(dragCard)
   const sortCards = filterCards.map((curCard, index) => ({
     ...curCard,
-    order: index + firstOrder,
+    order: reverse ? cards.length - 1 - index : index,
   }))
 
   return {
     fromCard: sortCards,
+    toCard: null,
   }
 }
 
-export const getDataOtherParent = ({
+export const toEndAnotherContainer = ({
   fromCards,
   toCards,
   dragCard,
+  reverse,
 }: {
   fromCards: DndItemDataType[]
   toCards: DndItemDataType[]
   dragCard: DndItemDataType
+  reverse?: boolean
 }): Omit<ReturnsortCbItems, 'fromId'> => {
   const filterFromCards = fromCards
     .filter(curCard => curCard.id !== dragCard.id)
-    .map((curCard, index) => ({...curCard, order: index}))
+    .map((curCard, index) => ({
+      ...curCard,
+      order: reverse ? fromCards.length - 2 - index : index,
+    }))
 
-  const sortCards = [...toCards, {...dragCard, order: toCards.length}]
+  toCards.push(dragCard)
+
+  const sortCards = toCards.map((card, index) => ({
+    ...card,
+    order: reverse ? toCards.length - 1 - index : index,
+  }))
 
   return {
     fromCard: filterFromCards,
@@ -108,36 +108,6 @@ export const getDataOtherParent = ({
   }
 }
 
-// export const getDataOtherCard = ({
-//   dragCard,
-//   fromCards,
-//   toCards,
-//   isNextPosition,
-//   lastOverCard,
-// }: {
-//   fromCards: DndItemDataType[]
-//   toCards: DndItemDataType[]
-//   dragCard: DndItemDataType
-//   lastOverCard: DndItemDataType
-//   isNextPosition: boolean
-// }): Omit<ReturnsortCbItems, 'fromId'> => {
-//   const filterFromCards = fromCards
-//     .filter(curCard => curCard.id !== dragCard.id)
-//     .map((curCard, index) => ({...curCard, order: index}))
-
-//   const cardOrder = isNextPosition ? 0.1 : -0.1
-
-//   const newDragCard = {...dragCard, order: lastOverCard.order + cardOrder}
-
-//   const newToCards = [...toCards, newDragCard]
-//     .sort(sortDndFn)
-//     .map((curCard, index) => ({...curCard, order: index}))
-
-//   return {
-//     fromCard: filterFromCards,
-//     toCard: newToCards,
-//   }
-// }
 export const getDataOtherCard = ({
   dragCard,
   fromCards,
@@ -157,27 +127,30 @@ export const getDataOtherCard = ({
     .filter(curCard => curCard.id !== dragCard.id)
     .map((curCard, index) => ({
       ...curCard,
-      order: fromCards.length - 2 - index,
+      order: reverse ? fromCards.length - 2 - index : index,
     }))
 
   const cardOrder = isNextPosition ? 0.1 : -0.1
 
-  const newDragCard = {...dragCard, order: lastOverCard.order - cardOrder}
+  const newDragCard = {
+    ...dragCard,
+    order: reverse
+      ? lastOverCard.order - cardOrder
+      : lastOverCard.order + cardOrder,
+  }
 
   const newToCards = [...toCards, newDragCard]
     .sort(reverse ? sortDndFnReverse : sortDndFn)
-    .map((curCard, index) => ({...curCard, order: toCards.length - index}))
+    .map((curCard, index) => ({
+      ...curCard,
+      order: reverse ? toCards.length - index : index,
+    }))
 
   return {
     fromCard: filterFromCards,
     toCard: newToCards,
   }
 }
-
-// /Sorted
-
-// Other
-
 export const hasSharedContainer = (
   node: HTMLElement | null,
   sharedContainerId: string | null,
