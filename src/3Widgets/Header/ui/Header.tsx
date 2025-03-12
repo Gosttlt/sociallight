@@ -4,12 +4,8 @@ import clsx from 'clsx'
 import s from './Header.module.scss'
 import type {HeaderComponentType} from './Header.types'
 
-import Logo from '@public/assets/svg/Logo.svg'
 import Link from 'next/link'
-import {useAppSelector} from '@/6Shared/hooks/reduxHooks'
-import {selectUser} from '@/5Entities/Auth/model/userSelectors'
-import Button from '@/6Shared/uikit/Button'
-import Logout from '@/4Features/Auth/Logout'
+
 import {useRouter} from 'next/navigation'
 import Switcher from '@/6Shared/uikit/Switcher'
 import {useDndStore} from '@/6Shared/uikit/Dnd/State'
@@ -17,7 +13,7 @@ import Tooltip from '@/6Shared/uikit/Tooltip'
 import {ChangeEvent, useState} from 'react'
 
 const Header: HeaderComponentType = props => {
-  const {email} = useAppSelector(selectUser)
+  const email = null
   const isDragReady = useDndStore(state => state.isDragReady)
   const setDragReady = useDndStore(state => state.setDragReady)
   const [isShowHint, setShowHint] = useState<boolean>(true)
@@ -50,7 +46,6 @@ const Header: HeaderComponentType = props => {
         {email ? (
           <div className={s.userInfoWrapper}>
             <div>{email}</div>
-            <Logout />
           </div>
         ) : (
           <div style={{display: 'flex', gap: '12px'}}>

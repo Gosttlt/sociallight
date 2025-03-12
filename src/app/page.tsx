@@ -43,7 +43,7 @@ export default function Home() {
     >
       <Catigories />
       <TaskColumns />
-      {/* <ItemsTest /> */}
+      <ItemsTest />
       {/* <Test /> */}
     </Layout>
   )
