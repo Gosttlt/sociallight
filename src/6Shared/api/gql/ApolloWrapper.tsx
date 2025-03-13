@@ -1,36 +1,108 @@
 'use client'
 
-import {HttpLink} from '@apollo/client'
+import {ApolloLink, HttpLink, Operation, QueryOptions} from '@apollo/client'
 import {
   ApolloNextAppProvider,
   ApolloClient,
   InMemoryCache,
 } from '@apollo/experimental-nextjs-app-support'
-import {BASE_URL} from '../const'
+import {ACCOUNT_ID, BASE_URL, JWT_ACCESS} from '../const'
 
-// have a function to create a client for you
-function makeClient() {
-  const httpLink = new HttpLink({
-    // this needs to be an absolute url, as relative urls cannot be used in SSR
-    uri: `${BASE_URL}/graphql`,
-    // you can disable result caching here if you want to
-    // (this does not work if you are rendering your page with `export const dynamic = "force-static"`)
-    fetchOptions: {cache: 'no-store'},
-    // you can override the default `fetchOptions` on a per query basis
-    // via the `context` property on the options passed as a second argument
-    // to an Apollo Client data fetching hook, e.g.:
-    // const { data } = useSuspenseQuery(MY_QUERY, { context: { fetchOptions: { cache: "force-cache" }}});
-  })
+import {setContext} from '@apollo/client/link/context'
+import {onError} from '@apollo/client/link/error'
 
-  // use the `ApolloClient` from "@apollo/experimental-nextjs-app-support"
-  return new ApolloClient({
-    // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
-    cache: new InMemoryCache(),
-    link: httpLink,
-  })
+const onRefresh = async (
+  operations: Operation[],
+  client: any,
+  setting: {isCollRefresh: boolean},
+) => {
+  try {
+    let refreshResp
+    const accId = localStorage.getItem(ACCOUNT_ID)
+    const refreshRespJson = await fetch(BASE_URL + 'auth/refresh', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      method: 'POST',
+      body: JSON.stringify({accId}),
+    })
+
+    if (refreshRespJson) {
+      refreshResp = await refreshRespJson.json()
+    }
+
+    if (refreshResp.accessToken) {
+      localStorage.setItem(JWT_ACCESS, refreshResp.accessToken)
+    }
+    if (refreshRespJson.status === 401) {
+      setting.isCollRefresh = true
+      return
+    }
+    if (refreshRespJson.status === 201) {
+      setting.isCollRefresh = false
+    }
+    operations.forEach(operation => {
+      client.query(operation)
+    })
+    operations = []
+  } catch (error) {
+    setting.isCollRefresh = true
+  }
 }
 
-// you need to create a component to wrap your app in
+function makeClient() {
+  let setting = {isCollRefresh: false}
+  const opena: Operation[] = []
+  const formatDateLink = new ApolloLink((operation, forward) => {
+    return forward(operation).map(response => {
+      if (
+        response.errors &&
+        response.errors[0].message === 'Unauthorized' &&
+        !setting.isCollRefresh
+      ) {
+        opena.push(operation)
+      }
+      return response
+    })
+  })
+
+  const authLink = setContext((_, {headers}) => {
+    const token = localStorage.getItem('TVOACT')
+
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : '',
+      },
+    }
+  })
+  console.log(setting)
+
+  const errorLink = onError(({graphQLErrors}) => {
+    if (graphQLErrors) {
+      graphQLErrors.forEach(({message}) => {
+        if (message === 'Unauthorized' && !setting.isCollRefresh) {
+          onRefresh(opena, client, setting)
+        }
+      })
+    }
+  })
+
+  const httpLink = new HttpLink({
+    uri: `${BASE_URL}graphql`,
+    fetchOptions: {cache: 'no-store'},
+    credentials: 'include',
+  })
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    link: formatDateLink.concat(errorLink.concat(authLink.concat(httpLink))),
+  })
+
+  return client
+}
+
 export function ApolloWrapper({children}: React.PropsWithChildren) {
   return (
     <ApolloNextAppProvider makeClient={makeClient}>
