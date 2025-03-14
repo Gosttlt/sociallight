@@ -77,7 +77,6 @@ function makeClient() {
       },
     }
   })
-  console.log(setting)
 
   const errorLink = onError(({graphQLErrors}) => {
     if (graphQLErrors) {

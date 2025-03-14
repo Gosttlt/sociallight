@@ -4,12 +4,12 @@ import s from './LoginForm.module.scss'
 
 import type {LoginFormComponentType} from './LoginForm.types'
 import Input from '@/6Shared/uikit/Input'
-import {useState} from 'react'
+import {cache, useState} from 'react'
 import Button from '@/6Shared/uikit/Button'
 import {appFetch} from '@/6Shared/api/fetch'
 import {ACCOUNT_ID, BASE_URL, JWT_ACCESS} from '@/6Shared/api/const'
-import {GET_USERS} from '@/5Entities/User/api'
-import {useQuery} from '@apollo/client'
+import {GET_USER, REGISTRATION, LOGIN} from '@/5Entities/User/api'
+import {useApolloClient, useMutation, useQuery} from '@apollo/client'
 
 const LoginForm: LoginFormComponentType = props => {
   const {className = ''} = props
@@ -17,29 +17,44 @@ const LoginForm: LoginFormComponentType = props => {
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setСonfirmPassword] = useState<string>('')
 
+  const client = useApolloClient()
+
+  const [fetchRegistration, {data}] = useMutation<{
+    registration: {accessToken: string; accId: string}
+  }>(REGISTRATION, {
+    onCompleted(data) {
+      if (data && data.registration.accessToken && data.registration.accId) {
+        localStorage.setItem(JWT_ACCESS, data.registration.accessToken)
+        localStorage.setItem(ACCOUNT_ID, data.registration.accId)
+      }
+    },
+  })
+
   const onRegistretion = async () => {
     const accId = localStorage.getItem(ACCOUNT_ID)
-    const res = await appFetch('auth/registration', {
-      method: 'POST',
-
-      body: {email, password, confirmPassword, accId},
+    await fetchRegistration({
+      variables: {
+        registrationAuthGqlDto: {accId, email, password, confirmPassword},
+      },
     })
-    if (res.accessToken && res.accId) {
-      localStorage.setItem(JWT_ACCESS, res.accessToken)
-      localStorage.setItem(ACCOUNT_ID, res.accId)
-    }
+    await client.query({query: GET_USER, fetchPolicy: 'network-only'})
   }
+
+  const [fetchLogin] = useMutation<{
+    login: {accessToken: string; accId: string}
+  }>(LOGIN, {
+    onCompleted(data) {
+      if (data && data.login.accessToken && data.login.accId) {
+        localStorage.setItem(JWT_ACCESS, data.login.accessToken)
+        localStorage.setItem(ACCOUNT_ID, data.login.accId)
+      }
+    },
+  })
 
   const onLogin = async () => {
     const accId = localStorage.getItem(ACCOUNT_ID)
-    const res = await appFetch('auth/login', {
-      method: 'POST',
-      body: {email, password, accId},
-    })
-    if (res.accessToken && res.accId) {
-      localStorage.setItem(JWT_ACCESS, res.accessToken)
-      localStorage.setItem(ACCOUNT_ID, res.accId)
-    }
+    await fetchLogin({variables: {loginAuthGqlDto: {accId, email, password}}})
+    await client.query({query: GET_USER, fetchPolicy: 'network-only'})
   }
 
   const getUser = async () => {
@@ -51,7 +66,13 @@ const LoginForm: LoginFormComponentType = props => {
     }
   }
 
-  const onExit = () => {
+  const onExit = async () => {
+    try {
+      const res = await appFetch('auth/logout')
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
     localStorage.removeItem(JWT_ACCESS)
   }
 
@@ -76,24 +97,8 @@ const LoginForm: LoginFormComponentType = props => {
     }
   }
 
-  const {data} = useQuery<{
-    users: Array<{id: string; email: string; name: string | null}>
-  }>(GET_USERS)
-  console.log(data)
-
   return (
     <>
-      <div>
-        {data &&
-          data.users.map(el => {
-            return (
-              <div key={el.id}>
-                <div>id:{el.id}</div>
-                <div>email:{el.email}</div>
-              </div>
-            )
-          })}
-      </div>
       <div className={clsx(s.loginFormWrapper, className)}>
         <Input
           value={email}
